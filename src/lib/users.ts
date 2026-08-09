@@ -1,6 +1,7 @@
 import { doc, getDoc, collection, query, where, getDocs, onSnapshot, deleteDoc } from "firebase/firestore";
 import { db } from "./firebase";
 import { syncProfileFromFirestore, syncLocalProfilesToFirestore } from "./profile-store";
+import { resolveProfileImage } from "./profile-images";
 
 export const ROLES = {
   CLIENT: { level: 0, name: 'Client' },
@@ -164,12 +165,12 @@ export interface FirestoreMember {
 }
 
 export const DEFAULT_ATTORNEY_LIST: FirestoreMember[] = [
-  { uid: "n6NKoyAIuVSXYEaIbRVN9drINNy1", name: "Prince Micah", title: "Founding Partner & Co-Owner", practice: "Corporate & Tech Law, Mergers & Acquisitions", email: "prince@lexvanguard.xyz" },
-  { uid: "SSbNEJrVyhM6b8LbWYsyunPGk6l2", name: "Kelvin Musya", title: "Founding Partner & Co-Owner", practice: "Appellate Advocacy, Supreme Court Litigation", email: "kelvin@lexvanguard.xyz" },
-  { uid: "donel_aganyo_uid", name: "Donel Aganyo", title: "Founding Partner & Co-Owner", practice: "Intellectual Property, Patent Litigation", email: "donel@lexvanguard.xyz" },
-  { uid: "linet_njeri_uid", name: "Linet Njeri", title: "Finance Manager", practice: "Commercial Litigation, Dispute Resolution", email: "linet@lexvanguard.xyz" },
-  { uid: "sharon_mwariri_uid", name: "Sharon Mwariri", title: "Lead Legal Researcher", practice: "Policy Analysis, Legislative Drafting", email: "sharon@lexvanguard.xyz" },
-  { uid: "kimathi_winner_uid", name: "Kimathi Winner", title: "Associate", practice: "Pro Bono Initiative, Civil Rights", email: "kimathi@lexvanguard.xyz" }
+  { uid: "n6NKoyAIuVSXYEaIbRVN9drINNy1", name: "Prince Micah", title: "Founding Partner & Co-Owner", practice: "Corporate & Tech Law, Mergers & Acquisitions", email: "prince@lexvanguard.xyz", image: resolveProfileImage("Prince Micah"), profilePhoto: resolveProfileImage("Prince Micah") },
+  { uid: "SSbNEJrVyhM6b8LbWYsyunPGk6l2", name: "Kelvin Musya", title: "Founding Partner & Co-Owner", practice: "Appellate Advocacy, Supreme Court Litigation", email: "kelvin@lexvanguard.xyz", image: resolveProfileImage("Kelvin Musya"), profilePhoto: resolveProfileImage("Kelvin Musya") },
+  { uid: "donel_aganyo_uid", name: "Donel Aganyo", title: "Founding Partner & Co-Owner", practice: "Intellectual Property, Patent Litigation", email: "donel@lexvanguard.xyz", image: resolveProfileImage("Donel Aganyo"), profilePhoto: resolveProfileImage("Donel Aganyo") },
+  { uid: "linet_njeri_uid", name: "Linet Njeri", title: "Finance Manager", practice: "Commercial Litigation, Dispute Resolution", email: "linet@lexvanguard.xyz", image: resolveProfileImage("Linet Njeri"), profilePhoto: resolveProfileImage("Linet Njeri") },
+  { uid: "sharon_mwariri_uid", name: "Sharon Mwariri", title: "Lead Legal Researcher", practice: "Policy Analysis, Legislative Drafting", email: "sharon@lexvanguard.xyz", image: resolveProfileImage("Sharon Mwariri"), profilePhoto: resolveProfileImage("Sharon Mwariri") },
+  { uid: "kimathi_winner_uid", name: "Kimathi Winner", title: "Associate", practice: "Pro Bono Initiative, Civil Rights", email: "kimathi@lexvanguard.xyz", image: resolveProfileImage("Kimathi Winner"), profilePhoto: resolveProfileImage("Kimathi Winner") }
 ];
 
 export function getMemberRank(m: FirestoreMember): number {

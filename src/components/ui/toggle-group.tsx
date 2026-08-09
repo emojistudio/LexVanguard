@@ -19,9 +19,8 @@ const ToggleGroupPrimitiveItem = ToggleGroupPrimitive.Item as any
 
 const ToggleGroup = React.forwardRef<
   HTMLDivElement,
-  React.ComponentPropsWithoutRef<typeof ToggleGroupPrimitive.Root> &
-    VariantProps<typeof toggleVariants>
->(({ className, variant, size, children, ...props }, ref) => (
+  any
+>(({ className, variant, size, children, ...props }: any, ref) => (
   <ToggleGroupPrimitiveRoot
     ref={ref}
     className={cn("flex items-center justify-center gap-1", className)}
@@ -37,9 +36,8 @@ ToggleGroup.displayName = ToggleGroupPrimitive.Root.displayName
 
 const ToggleGroupItem = React.forwardRef<
   HTMLButtonElement,
-  React.ComponentPropsWithoutRef<typeof ToggleGroupPrimitive.Item> &
-    VariantProps<typeof toggleVariants>
->(({ className, children, variant, size, ...props }, ref) => {
+  any
+>(({ className, children, variant, size, ...props }: any, ref) => {
   const context = React.useContext(ToggleGroupContext)
 
   return (

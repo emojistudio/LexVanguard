@@ -8,26 +8,31 @@ import {
   ToastViewport,
 } from "@/components/ui/toast"
 
+const ToastComp = Toast as any
+const ToastProviderComp = ToastProvider as any
+const ToastTitleComp = ToastTitle as any
+const ToastDescriptionComp = ToastDescription as any
+
 export function Toaster() {
   const { toasts } = useToast()
 
   return (
-    <ToastProvider>
+    <ToastProviderComp>
       {toasts.map(function ({ id, title, description, action, ...props }) {
         return (
-          <Toast key={id} {...props}>
+          <ToastComp key={id} {...props}>
             <div className="grid gap-1">
-              {title && <ToastTitle>{title}</ToastTitle>}
+              {title && <ToastTitleComp>{title}</ToastTitleComp>}
               {description && (
-                <ToastDescription>{description}</ToastDescription>
+                <ToastDescriptionComp>{description}</ToastDescriptionComp>
               )}
             </div>
             {action}
             <ToastClose />
-          </Toast>
+          </ToastComp>
         )
       })}
       <ToastViewport />
-    </ToastProvider>
+    </ToastProviderComp>
   )
 }

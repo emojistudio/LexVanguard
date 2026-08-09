@@ -1,4 +1,5 @@
 import { makeAvatarSvg } from "./avatar";
+import { resolveProfileImage, DEFAULT_FALLBACK_AVATAR } from "./profile-images";
 import { doc, setDoc } from "firebase/firestore";
 import { db, auth } from "./firebase";
 import { getCanonicalKey } from "./users";
@@ -27,7 +28,7 @@ const DEFAULT_PROFILES: Record<string, AttorneyProfile> = {
     email: "prince@lexvanguard.xyz",
     education: "LLB, Mount Kenya University",
     achievements: "Founding Partner & Co-Owner, Head of Firm",
-    image: "https://images.unsplash.com/photo-1556157382-97eda2d62296?auto=format&fit=crop&w=800&q=80"
+    image: resolveProfileImage("Prince Micah")
   },
   "Kelvin Musya": {
     name: "Kelvin Musya",
@@ -38,7 +39,7 @@ const DEFAULT_PROFILES: Record<string, AttorneyProfile> = {
     email: "kelvin@lexvanguard.xyz",
     education: "LLB, Mount Kenya University",
     achievements: "Founding Partner & Co-Owner, Head of Firm",
-    image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=800&q=80"
+    image: resolveProfileImage("Kelvin Musya")
   },
   "Donel Aganyo": {
     name: "Donel Aganyo",
@@ -49,7 +50,7 @@ const DEFAULT_PROFILES: Record<string, AttorneyProfile> = {
     email: "donel@lexvanguard.xyz",
     education: "LLB, Mount Kenya University",
     achievements: "Founding Partner & Co-Owner, Head of Firm",
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80"
+    image: resolveProfileImage("Donel Aganyo")
   },
   "Linet Njeri": {
     name: "Linet Njeri",
@@ -60,7 +61,7 @@ const DEFAULT_PROFILES: Record<string, AttorneyProfile> = {
     email: "linet@lexvanguard.xyz",
     education: "LLB, Mount Kenya University",
     achievements: "Finance & Commercial Strategy Lead",
-    image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=800&q=80"
+    image: resolveProfileImage("Linet Njeri")
   },
   "Sharon Mwariri": {
     name: "Sharon Mwariri",
@@ -71,7 +72,7 @@ const DEFAULT_PROFILES: Record<string, AttorneyProfile> = {
     email: "sharon@lexvanguard.xyz",
     education: "LLB, Mount Kenya University",
     achievements: "Published Legal Scholar",
-    image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=800&q=80"
+    image: resolveProfileImage("Sharon Mwariri")
   },
   "Kimathi Winner": {
     name: "Kimathi Winner",
@@ -82,7 +83,7 @@ const DEFAULT_PROFILES: Record<string, AttorneyProfile> = {
     email: "kimathi@lexvanguard.xyz",
     education: "LLB, Mount Kenya University",
     achievements: "Pro Bono Advocate of the Year",
-    image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=800&q=80"
+    image: resolveProfileImage("Kimathi Winner")
   }
 };
 
@@ -100,14 +101,8 @@ export function loadProfile(name: string, fallbackData?: Partial<AttorneyProfile
     }
   } catch {}
 
-  // Determine best image URL:
-  // 1. If fallbackData (e.g. live Firestore update) has a valid image/profilePhoto, prioritize live cloud data
-  // 2. Otherwise if stored profile in localStorage has a custom image, use it
-  // 3. Otherwise use default profile image or avatar SVG
-  let finalImage = fallbackData?.profilePhoto || fallbackData?.image || (fallbackData as any)?.photoURL || storedObj.image || base.image;
-  if (!finalImage) {
-    finalImage = makeAvatarSvg(name);
-  }
+  const candidate = fallbackData?.profilePhoto || fallbackData?.image || (fallbackData as any)?.photoURL || storedObj.image || base.image;
+  const finalImage = resolveProfileImage(name, candidate);
 
   return {
     name,
@@ -126,11 +121,12 @@ export function loadProfile(name: string, fallbackData?: Partial<AttorneyProfile
 export function syncProfileFromFirestore(data: Partial<AttorneyProfile> & { name: string, profilePhoto?: string }): AttorneyProfile {
   const existing = loadProfile(data.name, data);
   const cloudImage = data.profilePhoto || data.image || (data as any)?.photoURL;
+  const resolved = resolveProfileImage(data.name, cloudImage);
   const updated: AttorneyProfile = {
     ...existing,
     ...data,
-    image: cloudImage || existing.image || makeAvatarSvg(data.name),
-    profilePhoto: cloudImage || existing.image || makeAvatarSvg(data.name)
+    image: resolved,
+    profilePhoto: resolved
   };
 
   DEFAULT_PROFILES[data.name] = updated;
@@ -323,7 +319,7 @@ export function handleProfileImageError(e: React.SyntheticEvent<HTMLImageElement
     }
   }
 
-  const fallback = "https://37assets.37signals.com/svn/765-default-avatar.png";
+  const fallback = resolveProfileImage(name);
   
   if (imgEl.src !== fallback) {
     imgEl.src = fallback;

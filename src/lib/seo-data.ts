@@ -58,7 +58,7 @@ export const FOUNDING_MEMBERS: MemberSEO[] = [
       "Developer of LexAI Legal Research Engine for Kenyan jurisprudence"
     ],
     skills: ["Corporate Law", "Mooting Strategy", "Tech Law", "Mergers & Acquisitions", "Firm Governance"],
-    image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=800",
+    image: "/images/profiles/prince.jpeg",
     email: "prince@lexvanguard.xyz"
   },
   {
@@ -79,7 +79,7 @@ export const FOUNDING_MEMBERS: MemberSEO[] = [
       "Senior Mentor for Youth in Law & Law Student Organizations"
     ],
     skills: ["Appellate Advocacy", "Constitutional Law", "Supreme Court Briefs", "Mooting Coaching", "Litigation"],
-    image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=800",
+    image: "/images/profiles/kelvin.jpeg",
     email: "kelvin@lexvanguard.xyz"
   },
   {
@@ -100,7 +100,7 @@ export const FOUNDING_MEMBERS: MemberSEO[] = [
       "MKU Parklands Law Campus Student Organization Strategist"
     ],
     skills: ["Intellectual Property", "Patent Litigation", "Cyber Law", "Student Law Firm Management"],
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=800",
+    image: "/images/profiles/don.jpeg",
     email: "donel@lexvanguard.xyz"
   },
   {
@@ -120,7 +120,7 @@ export const FOUNDING_MEMBERS: MemberSEO[] = [
       "Financial Auditor for MKUPLC Student Organization Symposia"
     ],
     skills: ["Financial Strategy", "Escrow Accounting", "Legal Billing", "Compliance Auditing"],
-    image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=800",
+    image: "/images/profiles/linet.jpeg",
     email: "linet@lexvanguard.xyz"
   }
 ];
@@ -228,7 +228,7 @@ export const SITEMAP_PAGES = [
     category: "Team Directory",
     changefreq: "weekly",
     priority: "0.9",
-    thumbnail: "https://images.unsplash.com/photo-1556157382-97eda2d62296?auto=format&fit=crop&q=80&w=600"
+    thumbnail: "/images/profiles/prince.jpeg"
   },
   {
     path: "/attorneys/prince-micah",
@@ -237,7 +237,7 @@ export const SITEMAP_PAGES = [
     category: "Founding Member Profile",
     changefreq: "weekly",
     priority: "0.95",
-    thumbnail: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=600"
+    thumbnail: "/images/profiles/prince.jpeg"
   },
   {
     path: "/attorneys/kelvin-musya",
@@ -246,7 +246,7 @@ export const SITEMAP_PAGES = [
     category: "Founding Member Profile",
     changefreq: "weekly",
     priority: "0.95",
-    thumbnail: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=600"
+    thumbnail: "/images/profiles/kelvin.jpeg"
   },
   {
     path: "/attorneys/donel-aganyo",
@@ -255,7 +255,7 @@ export const SITEMAP_PAGES = [
     category: "Founding Member Profile",
     changefreq: "weekly",
     priority: "0.95",
-    thumbnail: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=600"
+    thumbnail: "/images/profiles/don.jpeg"
   },
   {
     path: "/events",
@@ -301,6 +301,51 @@ export const SITEMAP_PAGES = [
     changefreq: "daily",
     priority: "0.7",
     thumbnail: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&q=80&w=600"
+  },
+  {
+    path: "/research/ai-assistant",
+    title: "LexAI Legal Research Assistant - Search Grounded AI Engine",
+    description: "AI-powered legal research assistant search-grounded for Kenyan statutes, East African precedents, and constitutional jurisprudence.",
+    category: "AI Legal Tools",
+    changefreq: "daily",
+    priority: "0.99",
+    thumbnail: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=600"
+  },
+  {
+    path: "/research/ai-case-analyzer",
+    title: "AI Case Law Analyzer & Judicial Holding Summarizer",
+    description: "Automated AI digest tool extracting Ratio Decidendi and Obiter Dicta from High Court and Supreme Court of Kenya rulings.",
+    category: "AI Legal Tools",
+    changefreq: "daily",
+    priority: "0.95",
+    thumbnail: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&q=80&w=600"
+  },
+  {
+    path: "/research/ai-contract-reviewer",
+    title: "AI Contract & Agreement Reviewer - Legal Risk Auditor",
+    description: "AI clause analyzer evaluating legal liability, indemnity risks, and regulatory compliance for commercial contracts.",
+    category: "AI Legal Tools",
+    changefreq: "daily",
+    priority: "0.95",
+    thumbnail: "https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&q=80&w=600"
+  },
+  {
+    path: "/research/ai-brief-generator",
+    title: "AI Legal Brief & Pleadings Generator - Draft Suite",
+    description: "Instant AI drafting engine for court pleadings, appellate briefs, and formal legal memoranda.",
+    category: "AI Legal Tools",
+    changefreq: "daily",
+    priority: "0.96",
+    thumbnail: "https://images.unsplash.com/photo-1505664194779-8beaceb93744?auto=format&fit=crop&q=80&w=600"
+  },
+  {
+    path: "/research/ai-statute-search",
+    title: "AI Kenya Statutes & Constitution Search Engine",
+    description: "Search and cross-reference Acts of Parliament, Laws of Kenya, and statutory amendments.",
+    category: "AI Legal Tools",
+    changefreq: "daily",
+    priority: "0.94",
+    thumbnail: "https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&q=80&w=600"
   },
   {
     path: "/login",

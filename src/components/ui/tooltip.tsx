@@ -16,8 +16,8 @@ const TooltipPrimitiveContent = TooltipPrimitive.Content as any
 
 const TooltipContent = React.forwardRef<
   HTMLDivElement,
-  React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>
->(({ className, sideOffset = 4, ...props }, ref) => (
+  any
+>(({ className, sideOffset = 4, ...props }: any, ref) => (
   <TooltipPortal>
     <TooltipPrimitiveContent
       ref={ref}
