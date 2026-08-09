@@ -13,7 +13,6 @@ export default function Header() {
   const navLinks = [
     { label: "Our Firm", href: "/" },
     { label: "Attorneys", href: "/attorneys" },
-    { label: "Legal Research", href: "/research" },
     { label: "Events & Symposia", href: "/events" },
     { label: "Practice Areas", href: "/services" },
     { label: "History", href: "/history" },
@@ -28,21 +27,21 @@ export default function Header() {
 
   return (
     <header className="absolute top-0 left-0 w-full z-50 bg-gradient-to-b from-black/80 to-transparent">
-      <div className="w-full px-4 sm:px-6 lg:px-8 py-4 md:py-6 flex justify-between items-start gap-2">
-        <Link href="/" className="flex items-center gap-2.5 sm:gap-3.5 cursor-pointer group shrink-0">
+      <div className="w-full max-w-full px-3 sm:px-6 lg:px-8 py-3 md:py-6 flex justify-between items-center sm:items-start gap-2 overflow-x-hidden">
+        <Link href="/" className="flex items-center gap-2 sm:gap-3.5 cursor-pointer group shrink-0 max-w-[65%] sm:max-w-none">
           {/* Official Brand Logo SVG */}
-          <div className="w-28 h-28 sm:w-36 sm:h-36 md:w-44 md:h-44 shrink-0 transition-transform group-hover:scale-105">
+          <div className="w-12 h-12 sm:w-24 sm:h-24 md:w-36 md:h-36 shrink-0 transition-transform group-hover:scale-105">
             <img 
               src="/brand-logo.svg" 
               alt="LexVanguard Logo" 
               className="w-full h-full object-contain brightness-0 invert"
             />
           </div>
-          <div className="flex flex-col">
-            <span className="text-lg sm:text-xl md:text-2xl font-serif font-extrabold text-white leading-none tracking-[0.16em] uppercase">
+          <div className="flex flex-col min-w-0">
+            <span className="text-sm sm:text-xl md:text-2xl font-serif font-extrabold text-white leading-none tracking-[0.12em] sm:tracking-[0.16em] uppercase truncate">
               LEXVANGUARD
             </span>
-            <span className="text-[9px] sm:text-[10px] md:text-[11px] font-semibold tracking-[0.25em] text-[#C9A55C] uppercase mt-1">
+            <span className="text-[8px] sm:text-[10px] md:text-[11px] font-semibold tracking-[0.18em] sm:tracking-[0.25em] text-[#C9A55C] uppercase mt-0.5 sm:mt-1 truncate">
               ADVOCATES LLP
             </span>
           </div>

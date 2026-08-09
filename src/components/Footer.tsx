@@ -3,8 +3,8 @@ import RotatingPhoneDisplay from "@/components/RotatingPhoneDisplay";
 
 export default function Footer() {
   return (
-    <footer className="bg-[#111111] text-gray-400 py-16 px-6">
-      <div className="w-full px-2 sm:px-6 lg:px-10 grid grid-cols-1 md:grid-cols-4 gap-12">
+    <footer className="bg-[#111111] text-gray-400 py-12 sm:py-16 px-4 sm:px-6 w-full max-w-full overflow-x-hidden">
+      <div className="w-full max-w-7xl mx-auto px-2 sm:px-6 lg:px-10 grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12">
         <div className="col-span-1 text-left">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-8 h-10 shrink-0">

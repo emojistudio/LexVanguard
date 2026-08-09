@@ -414,7 +414,7 @@ export default function AttorneysPage() {
   const visibleMembers = showAll ? members : members.slice(0, 6);
 
   return (
-    <div className="w-full bg-white">
+    <div className="w-full max-w-full overflow-x-hidden bg-white">
       {showInviteModal && <InviteModal onClose={() => setShowInviteModal(false)} />}
       {activeProfile && (
         <ProfileModal
@@ -429,41 +429,41 @@ export default function AttorneysPage() {
 
       <Header />
 
-      <div className="bg-black pt-40 pb-20 px-6 text-center border-b-4 border-yellow-500">
-        <h1 className="text-4xl md:text-5xl font-extrabold text-white uppercase tracking-wider">Our Attorneys</h1>
-        <div className="h-1 w-16 bg-yellow-500 mx-auto mt-6" />
-        <p className="text-gray-400 max-w-xl mx-auto mt-6 text-sm leading-relaxed">
+      <div className="bg-black pt-28 sm:pt-40 pb-12 sm:pb-20 px-4 sm:px-6 text-center border-b-4 border-yellow-500 w-full max-w-full overflow-x-hidden">
+        <h1 className="text-2xl sm:text-4xl md:text-5xl font-extrabold text-white uppercase tracking-wider">Our Attorneys & Members</h1>
+        <div className="h-1 w-12 sm:w-16 bg-yellow-500 mx-auto mt-4 sm:mt-6" />
+        <p className="text-gray-400 max-w-xl mx-auto mt-4 sm:mt-6 text-xs sm:text-sm leading-relaxed">
           A community of equals united by a common goal — every member is acknowledged and respected as intrinsically valuable to the whole.
         </p>
 
         {isFounder && (
-          <div className="mt-8">
+          <div className="mt-6 sm:mt-8">
             <button
               onClick={() => setShowInviteModal(true)}
-              className="inline-flex items-center space-x-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs uppercase tracking-widest px-6 py-3 rounded-xl transition-all shadow-lg cursor-pointer"
+              className="inline-flex items-center space-x-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-[10px] sm:text-xs uppercase tracking-widest px-4 py-2.5 sm:px-6 sm:py-3 rounded-xl transition-all shadow-lg cursor-pointer"
             >
-              <Users className="w-4 h-4" />
-              <span>Invite New Team Member (Founders Only)</span>
+              <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <span>Invite New Member (Founders)</span>
             </button>
           </div>
         )}
       </div>
 
       {firmUser && (
-        <div className="bg-yellow-500 text-black px-6 py-3 text-center text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2">
-          <Pencil className="w-3 h-3" />
-          Logged in as {firmUser.name} — click your profile card to edit your public information
+        <div className="bg-yellow-500 text-black px-4 sm:px-6 py-2 sm:py-3 text-center text-[10px] sm:text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2">
+          <Pencil className="w-3 h-3 shrink-0" />
+          <span>Logged in as {firmUser.name} — click your profile card to edit info</span>
         </div>
       )}
 
-      <div className="w-full px-6 py-14 text-center text-black">
-        <p className="text-gray-600 leading-loose text-lg max-w-5xl mx-auto">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-14 text-center text-black">
+        <p className="text-gray-600 leading-relaxed sm:leading-loose text-xs sm:text-base md:text-lg max-w-5xl mx-auto">
           At LexVanguard, our greatest asset is our exceptional team of legal minds. From seasoned litigators who have shaped landmark appellate decisions to innovative strategists guiding the next generation of tech enterprises, our attorneys merge a modern mindset with the traditional practices we value.
         </p>
       </div>
 
-      <div className="w-full px-6 sm:px-10 lg:px-16 pb-20">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-10 lg:px-16 pb-12 sm:pb-20">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-8">
           {visibleMembers.map((m, idx) => (
             <AttorneyCard
               key={`${m.uid || 'member'}-${m.name}-${idx}`}
@@ -477,12 +477,12 @@ export default function AttorneysPage() {
           ))}
         </div>
         {members.length > 6 && (
-          <div className="text-center mt-12">
+          <div className="text-center mt-8 sm:mt-12">
             <button
               onClick={() => setShowAll(!showAll)}
-              className="border-2 border-black text-black hover:bg-black hover:text-white transition-colors px-8 py-3 font-bold uppercase tracking-widest text-sm flex items-center gap-2 mx-auto">
+              className="border-2 border-black text-black hover:bg-black hover:text-white transition-colors px-6 py-2.5 sm:px-8 sm:py-3 font-bold uppercase tracking-widest text-xs sm:text-sm flex items-center gap-2 mx-auto cursor-pointer">
               {showAll ? 'Show Less' : `Show All ${members.length} Members`}
-              <ChevronDown className={`w-4 h-4 transition-transform ${showAll ? 'rotate-180' : ''}`} />
+              <ChevronDown className={`w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform ${showAll ? 'rotate-180' : ''}`} />
             </button>
           </div>
         )}

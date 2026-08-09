@@ -1,4 +1,4 @@
-import { doc, getDoc, collection, query, where, getDocs, onSnapshot } from "firebase/firestore";
+import { doc, getDoc, collection, query, where, getDocs, onSnapshot, deleteDoc } from "firebase/firestore";
 import { db } from "./firebase";
 import { syncProfileFromFirestore, syncLocalProfilesToFirestore } from "./profile-store";
 
@@ -32,7 +32,7 @@ export const AUTHORIZED_USERS: Record<string, FirmUser> = {
     name: 'Prince Micah',
     email: 'prince@lexvanguard.edu',
     role: ROLES.MANAGING_PARTNER,
-    officeId: 'prince',
+    officeId: 'admin',
     title: 'Founding Partner & Co-Owner (Managing Partner)',
     practice: 'Corporate & Tech Law, Mergers & Acquisitions'
   },
@@ -41,7 +41,7 @@ export const AUTHORIZED_USERS: Record<string, FirmUser> = {
     name: 'Kelvin Musya',
     email: 'kelvin@lexvanguard.edu',
     role: ROLES.MANAGING_PARTNER,
-    officeId: 'kelvin',
+    officeId: 'admin',
     title: 'Founding Partner & Co-Owner (Senior Partner)',
     practice: 'Appellate Advocacy, Supreme Court Litigation'
   },
@@ -50,71 +50,54 @@ export const AUTHORIZED_USERS: Record<string, FirmUser> = {
     name: 'Donel Aganyo',
     email: 'donel@lexvanguard.edu',
     role: ROLES.MANAGING_PARTNER,
-    officeId: 'donel',
+    officeId: 'admin',
     title: 'Founding Partner & Co-Owner (Head of IP)',
     practice: 'Intellectual Property, Patent Litigation'
   }
 };
 
 export async function fetchFirmUser(uid: string, email?: string): Promise<FirmUser | null> {
-  // 1. Check hardcoded dictionary
-  if (AUTHORIZED_USERS[uid]) {
-    return AUTHORIZED_USERS[uid];
-  }
+  if (!uid) return null;
 
   try {
-    // 2. Try fetching document by UID as doc ID
+    // Strictly fetch document by Auth UID from /users/{uid}
     const userDocRef = doc(db, "users", uid);
     const userSnap = await getDoc(userDocRef);
 
-    let data: any = null;
     if (userSnap.exists()) {
-      data = userSnap.data();
-    } else {
-      // 3. Try querying collection where "uid" == uid
-      const q = query(collection(db, "users"), where("uid", "==", uid));
-      const querySnap = await getDocs(q);
-      if (!querySnap.empty) {
-        data = querySnap.docs[0].data();
-      } else if (email) {
-        // 4. Try querying collection where "email" == email
-        const qEmail = query(collection(db, "users"), where("email", "==", email));
-        const emailSnap = await getDocs(qEmail);
-        if (!emailSnap.empty) {
-          data = emailSnap.docs[0].data();
-        }
-      }
-    }
-
-    if (data) {
+      const data = userSnap.data();
       const name = data.name || data.displayName || "Firm Member";
-      const officeId = (data.officeId || data.roleName || "counsel").toString().toLowerCase().trim();
+      
+      // Read officeId directly from the Firestore document users/{uid}
+      const rawOffice = data.officeId ?? data.office ?? data.office_id ?? data.officeID ?? "counsel";
+      const officeId = rawOffice.toString().toLowerCase().trim() || "counsel";
+      
       const roleLevel = typeof data.roleLevel === "number" ? data.roleLevel : 50;
-      const roleName = data.roleName || "Counsel";
+      const roleName = data.roleName || (typeof data.role === "string" ? data.role : data.role?.name) || "Counsel";
       const userEmail = data.email || email || `${officeId}@lexvanguard.edu`;
 
       return {
         id: uid,
         name,
         email: userEmail,
-        role: { level: Number(roleLevel), name: roleName },
-        officeId: officeId || "counsel",
-        title: data.title || roleName,
+        role: { level: Number(roleLevel), name: typeof roleName === "string" ? roleName : "Counsel" },
+        officeId: officeId,
+        title: data.title || roleName || "Counsel",
         practice: data.practice || "Legal Counsel & Advisory"
       };
     }
   } catch (err) {
-    console.warn("User profile fetch from Firestore unavailable, using fallback profile:", err);
+    console.warn("User profile fetch from Firestore error:", err);
   }
 
-  // Fallback for any authenticated Firebase user so login never fails for valid members
+  // Fallback for authenticated user if document does not exist yet
   if (uid) {
     const fallbackOffice = "counsel";
     const userName = email ? email.split("@")[0].replace(/[._]/g, " ") : "Firm Member";
     return {
       id: uid,
       name: userName,
-      email: email || `${fallbackOffice}@lexvanguard.edu`,
+      email: email || `counsel@lexvanguard.edu`,
       role: { level: 50, name: "Counsel" },
       officeId: fallbackOffice,
       title: "Counsel",
@@ -123,6 +106,45 @@ export async function fetchFirmUser(uid: string, email?: string): Promise<FirmUs
   }
 
   return null;
+}
+
+/**
+ * Cleanup job: Verifies documents in `/users` and `/userProfiles` collections.
+ * Removes non-UID keys (legacy email/name keys) so that only valid authenticated 
+ * user UIDs exist as document keys in Firestore.
+ */
+export async function cleanupOrphanUserDocs(): Promise<{ cleaned: number }> {
+  if (!db) return { cleaned: 0 };
+  let cleanedCount = 0;
+
+  try {
+    const usersSnap = await getDocs(collection(db, "users"));
+    for (const docSnap of usersSnap.docs) {
+      const docId = docSnap.id;
+      // Valid Auth UIDs are typical Firebase UIDs without '@' or '_lexvanguard_edu' or legacy name strings
+      const isLegacyOrOrphan = docId.includes("@") || docId.includes("_lexvanguard_edu") || docId.includes("donel_aganyo") || docId.includes("prince_micah") || docId.includes("kelvin_musya") || docId.includes("linet_njeri");
+      
+      if (isLegacyOrOrphan) {
+        await deleteDoc(doc(db, "users", docId));
+        cleanedCount++;
+      }
+    }
+
+    const profilesSnap = await getDocs(collection(db, "userProfiles"));
+    for (const docSnap of profilesSnap.docs) {
+      const docId = docSnap.id;
+      const isLegacyOrOrphan = docId.includes("@") || docId.includes("_lexvanguard_edu") || docId.includes("donel_aganyo") || docId.includes("prince_micah") || docId.includes("kelvin_musya") || docId.includes("linet_njeri");
+      
+      if (isLegacyOrOrphan) {
+        await deleteDoc(doc(db, "userProfiles", docId));
+        cleanedCount++;
+      }
+    }
+  } catch (err) {
+    console.warn("Cleanup job error:", err);
+  }
+
+  return { cleaned: cleanedCount };
 }
 
 
@@ -205,9 +227,10 @@ export function getCanonicalKey(name: string, email?: string, uid?: string): str
 }
 
 export function subscribeFirestoreMembers(callback: (members: FirestoreMember[]) => void) {
-  // Trigger background auto-sync of any local profiles to Firestore
+  // Trigger background auto-sync of local profiles and auto-cleanup of legacy non-UID user docs
   try {
     syncLocalProfilesToFirestore();
+    cleanupOrphanUserDocs();
   } catch {}
 
   try {

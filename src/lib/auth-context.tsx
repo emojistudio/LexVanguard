@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { User, onAuthStateChanged, signOut } from "firebase/auth";
-import { auth } from "./firebase";
+import { doc, onSnapshot } from "firebase/firestore";
+import { auth, db } from "./firebase";
 import { fetchFirmUser, FirmUser } from "./users";
 
 interface AuthContextType {
@@ -23,16 +24,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let unsubDoc: (() => void) | null = null;
+
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (unsubDoc) {
+        unsubDoc();
+        unsubDoc = null;
+      }
+
       if (user) {
+        setFirebaseUser(user);
         const userData = await fetchFirmUser(user.uid, user.email || undefined);
         if (userData) {
-          setFirebaseUser(user);
           setFirmUser(userData);
         } else {
           await signOut(auth);
           setFirebaseUser(null);
           setFirmUser(null);
+        }
+
+        // Live subscription to user document in Firestore so officeId edits apply immediately
+        try {
+          const userRef = doc(db, "users", user.uid);
+          unsubDoc = onSnapshot(userRef, async (snap) => {
+            if (snap.exists()) {
+              const updated = await fetchFirmUser(user.uid, user.email || undefined);
+              if (updated) {
+                setFirmUser(updated);
+              }
+            }
+          }, (err) => {
+            console.warn("Auth user doc snapshot listener:", err);
+          });
+        } catch (e) {
+          console.warn("Could not set up real-time user doc listener:", e);
         }
       } else {
         setFirebaseUser(null);
@@ -41,7 +66,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false);
     });
 
-    return unsubscribe;
+    return () => {
+      if (unsubDoc) unsubDoc();
+      unsubscribe();
+    };
   }, []);
 
   const logout = async () => {

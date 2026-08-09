@@ -107,13 +107,10 @@ export default function RegisterPage() {
         updatedAt: new Date().toISOString()
       };
 
-      // 4. Save to Firestore
+      // 4. Save strictly to Firestore under Auth UID doc key
       if (db) {
         await setDoc(doc(db, "userProfiles", uid), userProfilePayload, { merge: true });
-        await setDoc(doc(db, "userProfiles", emailKey), userProfilePayload, { merge: true });
-
         await setDoc(doc(db, "users", uid), usersPayload, { merge: true });
-        await setDoc(doc(db, "users", emailKey), usersPayload, { merge: true });
       }
 
       // 5. Local store backup
