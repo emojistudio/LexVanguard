@@ -26,12 +26,14 @@ const toggleVariants = cva(
   }
 )
 
+const TogglePrimitiveRoot = TogglePrimitive.Root as any
+
 const Toggle = React.forwardRef<
-  React.ElementRef<typeof TogglePrimitive.Root>,
+  HTMLButtonElement,
   React.ComponentPropsWithoutRef<typeof TogglePrimitive.Root> &
     VariantProps<typeof toggleVariants>
 >(({ className, variant, size, ...props }, ref) => (
-  <TogglePrimitive.Root
+  <TogglePrimitiveRoot
     ref={ref}
     className={cn(toggleVariants({ variant, size, className }))}
     {...props}

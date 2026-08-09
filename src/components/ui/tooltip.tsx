@@ -11,12 +11,15 @@ const Tooltip = TooltipPrimitive.Root
 
 const TooltipTrigger = TooltipPrimitive.Trigger
 
+const TooltipPortal = TooltipPrimitive.Portal as any
+const TooltipPrimitiveContent = TooltipPrimitive.Content as any
+
 const TooltipContent = React.forwardRef<
-  React.ElementRef<typeof TooltipPrimitive.Content>,
+  HTMLDivElement,
   React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>
 >(({ className, sideOffset = 4, ...props }, ref) => (
-  <TooltipPrimitive.Portal>
-    <TooltipPrimitive.Content
+  <TooltipPortal>
+    <TooltipPrimitiveContent
       ref={ref}
       sideOffset={sideOffset}
       className={cn(
@@ -25,7 +28,7 @@ const TooltipContent = React.forwardRef<
       )}
       {...props}
     />
-  </TooltipPrimitive.Portal>
+  </TooltipPortal>
 ))
 TooltipContent.displayName = TooltipPrimitive.Content.displayName
 
