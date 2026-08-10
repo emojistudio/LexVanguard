@@ -1,4 +1,4 @@
-export const DEFAULT_FALLBACK_AVATAR = "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=400&q=80";
+export const DEFAULT_FALLBACK_AVATAR = "/default.png";
 
 export const NAME_TO_PROFILE_IMAGE: Record<string, string> = {
   "prince": "/images/profiles/prince.jpeg",
@@ -26,11 +26,10 @@ export const NAME_TO_PROFILE_IMAGE: Record<string, string> = {
 
 /**
  * Resolves a user's profile image based on their name and current image string.
- * Replaces generic unsplash photos or broken placeholders with real profile pictures from /images/profiles/.
- * If no matching image is found in /images/profiles/, defaults to the requested fallback avatar URL.
+ * Uses user uploaded photo if present, falls back to owner images in /images/profiles/, or /default.png.
  */
 export function resolveProfileImage(name?: string, currentImg?: string): string {
-  // If currentImg is a user-uploaded custom photo (e.g. ImgBB, Base64, or non-unsplash custom URL), keep it
+  // If currentImg is a valid user-uploaded custom photo (e.g. ImgBB, Base64, or non-unsplash custom URL), keep it
   if (currentImg && typeof currentImg === "string" && currentImg.trim() !== "") {
     const trimmed = currentImg.trim();
     const isUnsplashFake = trimmed.includes("unsplash.com");

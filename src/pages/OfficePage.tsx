@@ -3,7 +3,7 @@ import { useLocation } from "wouter";
 import { 
   Briefcase, Plus, Calendar, Sparkles, CheckCircle2, AlertCircle, Files,
   ChevronRight, ChevronLeft, Phone, Send, Search, Scale, Check, LogOut,
-  User, RefreshCw
+  User, RefreshCw, Image as ImageIcon, Trash2, MapPin, Clock, X
 } from "lucide-react";
 import { 
   collection, query, where, onSnapshot, addDoc, serverTimestamp, 
@@ -14,6 +14,9 @@ import { useAuth } from "../lib/auth-context";
 import { resolveProfileImage } from "../lib/profile-images";
 import { DEFAULT_ATTORNEY_LIST } from "../lib/users";
 import { ResearchCoHelper } from "../components/ResearchCoHelper";
+import { HostEventModal } from "../components/HostEventModal";
+import { EventGalleryModal } from "../components/EventGalleryModal";
+import { subscribeEvents, deleteFirmEvent, type FirmEvent } from "../lib/events-store";
 
 export interface OfficeData {
   id: string;
@@ -84,6 +87,12 @@ export const OfficePage: React.FC = () => {
   const [isResearchModalOpen, setIsResearchModalOpen] = useState(false);
   const [isNewTaskModalOpen, setIsNewTaskModalOpen] = useState(false);
   const [isNewMatterModalOpen, setIsNewMatterModalOpen] = useState(false);
+  const [isEventsManagerOpen, setIsEventsManagerOpen] = useState(false);
+  const [isHostModalOpen, setIsHostModalOpen] = useState(false);
+  const [galleryEvent, setGalleryEvent] = useState<FirmEvent | null>(null);
+
+  // Events State
+  const [allEvents, setAllEvents] = useState<FirmEvent[]>([]);
 
   // Form State
   const [newTaskTitle, setNewTaskTitle] = useState("");
@@ -113,8 +122,10 @@ export const OfficePage: React.FC = () => {
   const [chatInput, setChatInput] = useState("");
   const [chatMessages, setChatMessages] = useState<ChatMessageItem[]>([]);
 
-  // 1. Listen to Firebase Real-time Firestore Collections
+  // 1. Listen to Firebase Real-time Firestore Collections & Events Store
   useEffect(() => {
+    const unsubEvents = subscribeEvents((evts) => setAllEvents(evts));
+
     // Tasks listener
     const tasksQuery = query(collection(db, "office_tasks"), limit(25));
     const unsubTasks = onSnapshot(tasksQuery, (snapshot) => {
@@ -152,6 +163,7 @@ export const OfficePage: React.FC = () => {
     }, (err) => console.warn("Docs listener err:", err));
 
     return () => {
+      unsubEvents();
       unsubTasks();
       unsubMatters();
       unsubLogs();
@@ -184,34 +196,10 @@ export const OfficePage: React.FC = () => {
         });
       });
 
-      if (msgs.length > 0) {
-        setChatMessages(msgs);
-      } else {
-        // Fallback default message if fresh channel
-        setChatMessages([
-          {
-            id: "default_1",
-            senderName: activeChatContact.name,
-            senderInitials: activeChatContact.initials,
-            text: `Welcome to ${activeChatContact.name} channel. Send real-time updates to your firm colleagues.`,
-            time: "09:00 AM",
-            isMe: false
-          }
-        ]);
-      }
+      setChatMessages(msgs);
     }, (err) => {
-      console.warn("Messages listener fallback:", err);
-      // Fallback
-      setChatMessages([
-        {
-          id: "default_fallback",
-          senderName: "Linet Njeri",
-          senderInitials: "LN",
-          text: "Reminder: Q2 disbursement fee receipts should be uploaded to the financial ledger.",
-          time: "09:30 AM",
-          isMe: false
-        }
-      ]);
+      console.warn("Messages listener error:", err);
+      setChatMessages([]);
     });
 
     return () => unsubMsg();
@@ -352,18 +340,24 @@ export const OfficePage: React.FC = () => {
             </div>
 
             {/* High-Contrast Action Buttons */}
-            <div className="flex items-center gap-2.5 w-full sm:w-auto">
+            <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
               <button 
                 onClick={() => setIsNewMatterModalOpen(true)}
-                className="flex-1 sm:flex-none px-5 py-2.5 bg-[#1d1d1f] hover:bg-black text-white font-bold text-xs rounded-full transition-all flex items-center justify-center gap-2 shadow-md cursor-pointer active:scale-95"
+                className="flex-1 sm:flex-none px-4 py-2.5 bg-[#1d1d1f] hover:bg-black text-white font-bold text-xs rounded-full transition-all flex items-center justify-center gap-2 shadow-md cursor-pointer active:scale-95"
               >
                 <Plus className="w-4 h-4 stroke-[3]" /> New Matter
               </button>
               <button 
-                onClick={() => setLocation("/events")}
-                className="flex-1 sm:flex-none px-5 py-2.5 bg-white hover:bg-zinc-100 text-[#1d1d1f] border border-black/15 font-bold text-xs rounded-full transition-all flex items-center justify-center gap-2 shadow-xs cursor-pointer active:scale-95"
+                onClick={() => setIsEventsManagerOpen(true)}
+                className="flex-1 sm:flex-none px-4 py-2.5 bg-amber-500 hover:bg-amber-600 text-black font-bold text-xs rounded-full transition-all flex items-center justify-center gap-2 shadow-md cursor-pointer active:scale-95 border border-amber-400"
               >
-                <Calendar className="w-4 h-4" /> Calendar
+                <Calendar className="w-4 h-4" /> Manage Events
+              </button>
+              <button 
+                onClick={() => setLocation("/events")}
+                className="flex-1 sm:flex-none px-4 py-2.5 bg-white hover:bg-zinc-100 text-[#1d1d1f] border border-black/15 font-bold text-xs rounded-full transition-all flex items-center justify-center gap-2 shadow-xs cursor-pointer active:scale-95"
+              >
+                View Public Calendar
               </button>
               <button 
                 onClick={logout}
@@ -635,9 +629,6 @@ export const OfficePage: React.FC = () => {
                     <h3 className="text-xs font-bold text-[#1d1d1f] truncate">{activeChatContact.name}</h3>
                     <p className="text-[10px] font-medium text-[#86868b] truncate">{activeChatContact.title}</p>
                   </div>
-                  <button className="w-8 h-8 rounded-full hover:bg-black/10 flex items-center justify-center text-[#1d1d1f]">
-                    <Phone className="w-4 h-4" />
-                  </button>
                 </div>
 
                 <div className="flex-1 p-3 overflow-y-auto flex flex-col gap-3">
@@ -824,6 +815,124 @@ export const OfficePage: React.FC = () => {
             </form>
           </div>
         </div>
+      )}
+
+      {/* EVENTS MANAGEMENT MODAL */}
+      {isEventsManagerOpen && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="relative w-full max-w-4xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div className="bg-[#0A0A0A] p-5 text-white flex items-center justify-between border-b border-amber-500/30">
+              <div className="flex items-center space-x-3">
+                <Calendar className="w-5 h-5 text-amber-400" />
+                <div>
+                  <h3 className="text-base font-bold tracking-wide uppercase font-mono">Events & Symposia Control Panel</h3>
+                  <p className="text-xs text-zinc-400">Create upcoming events or update past event gallery photos</p>
+                </div>
+              </div>
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => setIsHostModalOpen(true)}
+                  className="bg-amber-500 hover:bg-amber-400 text-black text-xs font-bold px-4 py-2 rounded-full transition flex items-center gap-1.5 cursor-pointer shadow-sm"
+                >
+                  <Plus className="w-4 h-4 stroke-[3]" /> Host New Event
+                </button>
+                <button onClick={() => setIsEventsManagerOpen(false)} className="text-zinc-400 hover:text-white p-1 cursor-pointer">
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+            </div>
+
+            <div className="p-6 overflow-y-auto flex-1 space-y-4 bg-zinc-50">
+              {allEvents.length === 0 ? (
+                <div className="text-center py-12 bg-white rounded-2xl border border-zinc-200 p-8 space-y-3">
+                  <Calendar className="w-12 h-12 text-zinc-300 mx-auto" />
+                  <h4 className="text-sm font-bold text-zinc-800">No firm events registered</h4>
+                  <p className="text-xs text-zinc-500 max-w-sm mx-auto">Create your first LexVanguard symposium, keynote, or workshop.</p>
+                  <button
+                    onClick={() => setIsHostModalOpen(true)}
+                    className="px-5 py-2.5 bg-black text-white text-xs font-bold rounded-xl hover:bg-zinc-800 transition cursor-pointer"
+                  >
+                    + Create First Event
+                  </button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {allEvents.map((evt) => {
+                    const isPast = evt.status === "Past Event";
+                    return (
+                      <div key={evt.id} className="bg-white border border-zinc-200 rounded-2xl p-4 flex flex-col justify-between space-y-3 shadow-xs hover:border-amber-500/40 transition-colors">
+                        <div>
+                          <div className="flex items-center justify-between mb-2">
+                            <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md ${
+                              isPast ? "bg-zinc-200 text-zinc-700" : "bg-emerald-100 text-emerald-800"
+                            }`}>
+                              {evt.status || "Upcoming"}
+                            </span>
+                            <span className="text-xs font-mono text-zinc-500">{evt.category}</span>
+                          </div>
+                          <h4 className="text-sm font-bold text-zinc-900 leading-snug line-clamp-1">{evt.title}</h4>
+                          <p className="text-xs text-zinc-500 mt-1 flex items-center gap-2">
+                            <Clock className="w-3.5 h-3.5 text-amber-500" /> {evt.displayDate} ({evt.time})
+                          </p>
+                          <p className="text-xs text-zinc-500 mt-0.5 flex items-center gap-2 truncate">
+                            <MapPin className="w-3.5 h-3.5 text-zinc-400" /> {evt.location}
+                          </p>
+                        </div>
+
+                        <div className="pt-2 border-t border-zinc-100 flex items-center justify-between gap-2">
+                          <button
+                            onClick={() => setGalleryEvent(evt)}
+                            className="text-xs font-bold text-amber-600 hover:text-amber-700 flex items-center gap-1.5 cursor-pointer bg-amber-50 px-3 py-1.5 rounded-lg border border-amber-200"
+                          >
+                            <ImageIcon className="w-3.5 h-3.5" />
+                            {isPast ? "Manage Gallery Photos" : "Preview Banner"}
+                          </button>
+
+                          <button
+                            onClick={async () => {
+                              if (confirm(`Delete event "${evt.title}"?`)) {
+                                await deleteFirmEvent(evt.id);
+                              }
+                            }}
+                            className="p-1.5 text-rose-500 hover:bg-rose-50 rounded-lg transition cursor-pointer"
+                            title="Delete Event"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            <div className="p-4 bg-white border-t border-zinc-200 flex justify-end">
+              <button
+                onClick={() => setIsEventsManagerOpen(false)}
+                className="px-5 py-2 bg-black text-white rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-zinc-800 transition cursor-pointer"
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* HOST NEW EVENT MODAL */}
+      {isHostModalOpen && (
+        <HostEventModal
+          onClose={() => setIsHostModalOpen(false)}
+          onCreated={() => setIsHostModalOpen(false)}
+        />
+      )}
+
+      {/* EVENT GALLERY & PHOTO UPLOAD MODAL */}
+      {galleryEvent && (
+        <EventGalleryModal
+          event={galleryEvent}
+          onClose={() => setGalleryEvent(null)}
+        />
       )}
 
     </div>

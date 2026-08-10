@@ -315,8 +315,8 @@ export function handleProfileImageError(e: React.SyntheticEvent<HTMLImageElement
     imgEl.dataset.failedOnce = "true";
     imgEl.src = resolved;
   } else {
-    // Ultimate fallback if local image is missing
-    imgEl.src = "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=400&q=80";
+    // Ultimate fallback to default.png
+    imgEl.src = "/default.png";
   }
 }
 

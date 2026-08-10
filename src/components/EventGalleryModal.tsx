@@ -1,24 +1,23 @@
 import { useState } from "react";
-import { X, ChevronLeft, ChevronRight, Download, Calendar, MapPin, Image as ImageIcon } from "lucide-react";
-import type { FirmEvent } from "@/lib/events-store";
+import { X, ChevronLeft, ChevronRight, Download, Calendar, MapPin, Image as ImageIcon, Plus, Upload, Loader2 } from "lucide-react";
+import { updateEventGallery, type FirmEvent } from "@/lib/events-store";
+import { useAuth } from "@/lib/auth-context";
+import { uploadToImgBB } from "@/lib/imgbb";
 
 interface EventGalleryModalProps {
   event: FirmEvent;
   onClose: () => void;
 }
 
-const DEFAULT_GALLERY_PHOTOS = [
-  "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80",
-  "https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1200&q=80",
-  "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=1200&q=80",
-  "https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=1200&q=80",
-  "https://images.unsplash.com/photo-1475721027785-f74eccf877e2?auto=format&fit=crop&w=1200&q=80",
-  "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?auto=format&fit=crop&w=1200&q=80"
-];
-
 export function EventGalleryModal({ event, onClose }: EventGalleryModalProps) {
-  const images = (event.gallery && event.gallery.length > 0) ? event.gallery : [event.image, ...DEFAULT_GALLERY_PHOTOS];
+  const { firmUser } = useAuth();
+  const [images, setImages] = useState<string[]>(
+    (event.gallery && event.gallery.length > 0) ? event.gallery : [event.image]
+  );
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [newPhotoUrl, setNewPhotoUrl] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const [showAddForm, setShowAddForm] = useState(false);
 
   const currentImg = images[selectedIndex] || event.image;
 
@@ -28,6 +27,30 @@ export function EventGalleryModal({ event, onClose }: EventGalleryModalProps) {
 
   const handleNext = () => {
     setSelectedIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+  };
+
+  const handleAddPhoto = async (photoUrl: string) => {
+    if (!photoUrl.trim()) return;
+    const updated = [...images, photoUrl.trim()];
+    setImages(updated);
+    await updateEventGallery(event.id, updated);
+    setNewPhotoUrl("");
+    setSelectedIndex(updated.length - 1);
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    try {
+      const url = await uploadToImgBB(file);
+      await handleAddPhoto(url);
+    } catch (err) {
+      alert("Failed to upload image. Please enter direct URL.");
+    } finally {
+      setUploading(false);
+    }
   };
 
   return (
@@ -82,22 +105,26 @@ export function EventGalleryModal({ event, onClose }: EventGalleryModalProps) {
             />
 
             {/* Previous Button */}
-            <button
-              onClick={handlePrev}
-              className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/70 hover:bg-black text-white p-2.5 rounded-full border border-neutral-700 transition-all cursor-pointer opacity-90 group-hover:opacity-100"
-              title="Previous Photo"
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
+            {images.length > 1 && (
+              <button
+                onClick={handlePrev}
+                className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/70 hover:bg-black text-white p-2.5 rounded-full border border-neutral-700 transition-all cursor-pointer opacity-90 group-hover:opacity-100"
+                title="Previous Photo"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+            )}
 
             {/* Next Button */}
-            <button
-              onClick={handleNext}
-              className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/70 hover:bg-black text-white p-2.5 rounded-full border border-neutral-700 transition-all cursor-pointer opacity-90 group-hover:opacity-100"
-              title="Next Photo"
-            >
-              <ChevronRight className="w-5 h-5" />
-            </button>
+            {images.length > 1 && (
+              <button
+                onClick={handleNext}
+                className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/70 hover:bg-black text-white p-2.5 rounded-full border border-neutral-700 transition-all cursor-pointer opacity-90 group-hover:opacity-100"
+                title="Next Photo"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            )}
 
             {/* Download Link */}
             <a
@@ -110,6 +137,51 @@ export function EventGalleryModal({ event, onClose }: EventGalleryModalProps) {
               <Download className="w-3.5 h-3.5" /> High-Res
             </a>
           </div>
+
+          {/* Admin Upload / Add Photo Section */}
+          {firmUser && (
+            <div className="p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-xl">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-bold uppercase tracking-wider text-black flex items-center gap-1.5">
+                  <Upload className="w-4 h-4 text-black" /> Admin Event Gallery Management
+                </span>
+                <button
+                  onClick={() => setShowAddForm(!showAddForm)}
+                  className="text-xs font-bold bg-black text-white px-3 py-1 rounded-md hover:bg-neutral-800 transition cursor-pointer flex items-center gap-1"
+                >
+                  <Plus className="w-3.5 h-3.5" /> {showAddForm ? "Cancel" : "Add Photo"}
+                </button>
+              </div>
+
+              {showAddForm && (
+                <div className="mt-3 space-y-3 pt-2 border-t border-yellow-500/20">
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <input
+                      type="url"
+                      value={newPhotoUrl}
+                      onChange={(e) => setNewPhotoUrl(e.target.value)}
+                      placeholder="Paste image URL (e.g. ImgBB / direct link)"
+                      className="flex-1 bg-white border border-neutral-300 rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-black"
+                    />
+                    <button
+                      onClick={() => handleAddPhoto(newPhotoUrl)}
+                      className="bg-black text-white text-xs font-bold px-4 py-1.5 rounded-lg hover:bg-neutral-800 transition cursor-pointer shrink-0"
+                    >
+                      Save URL
+                    </button>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-neutral-600">
+                    <span>Or upload file:</span>
+                    <label className="bg-white border border-neutral-300 px-3 py-1 rounded-lg text-xs font-bold hover:bg-neutral-100 transition cursor-pointer flex items-center gap-1">
+                      {uploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5 text-black" />}
+                      {uploading ? "Uploading..." : "Choose Image File"}
+                      <input type="file" accept="image/*" onChange={handleFileUpload} className="hidden" />
+                    </label>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Thumbnails Row */}
           <div>

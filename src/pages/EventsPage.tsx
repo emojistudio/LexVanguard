@@ -279,8 +279,8 @@ export default function EventsPage() {
         </div>
       )}
 
-      {/* Main Events Container */}
-      <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 sm:pt-32 pb-20 flex-1">
+      {/* Main Events Container - Clean Full Viewport Display */}
+      <main className="w-full px-4 sm:px-8 lg:px-12 pt-28 sm:pt-32 pb-20 flex-1">
 
         {/* Section Heading & Host Button */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-neutral-200">

@@ -242,3 +242,23 @@ export function generateIcsCalendar(event: FirmEvent): string {
 
   return `data:text/calendar;charset=utf8,${encodeURIComponent(icsContent)}`;
 }
+
+export async function updateEventGallery(eventId: string, galleryPhotos: string[]): Promise<boolean> {
+  const current = getLocalEvents();
+  const updated = current.map(evt => {
+    if (evt.id === eventId) {
+      return { ...evt, gallery: galleryPhotos };
+    }
+    return evt;
+  });
+  saveLocalEvents(updated);
+
+  try {
+    const docRef = doc(db, "events", eventId);
+    await updateDoc(docRef, { gallery: galleryPhotos });
+  } catch (e) {
+    console.warn("Firestore update event gallery notice:", e);
+  }
+
+  return true;
+}

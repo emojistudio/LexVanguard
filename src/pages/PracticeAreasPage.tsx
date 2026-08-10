@@ -3,6 +3,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 import { motion, AnimatePresence } from "motion/react";
+import { resolveProfileImage } from "@/lib/profile-images";
 import { 
   ShieldAlert, Scale, Globe2, Landmark, BookOpenCheck, 
   CheckCircle2, ArrowRight, UserCheck, PhoneCall, FileText, 
@@ -55,12 +56,12 @@ const PRACTICE_AREAS: PracticeAreaItem[] = [
       {
         name: "Prince Micah",
         title: "Managing Partner & Senior Litigator",
-        image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=400&q=80"
+        image: resolveProfileImage("Prince Micah")
       },
       {
         name: "Kelvin Musya",
         title: "Senior Partner — Constitutional Advocacy",
-        image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80"
+        image: resolveProfileImage("Kelvin Musya")
       }
     ]
   },

@@ -140,8 +140,7 @@ export default function EventsSection() {
                       src={evt.image}
                       alt={evt.title}
                       onError={(e) => {
-                        (e.target as HTMLImageElement).src =
-                          "https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1200&q=80";
+                        (e.target as HTMLImageElement).src = "/default.png";
                       }}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
