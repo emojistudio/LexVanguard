@@ -29,10 +29,13 @@ export default function Footer() {
           <p className="text-sm font-light leading-relaxed text-gray-400 mb-6">
             Premier student law firm at Mount Kenya University Parklands Law Campus (MKUPLC). Excellence in moot court championships, youth in law advocacy, and legal innovation.
           </p>
-          <div className="flex space-x-4">
-            <Globe className="w-4 h-4 hover:text-white cursor-pointer transition-colors" />
-            <X className="w-4 h-4 hover:text-white cursor-pointer transition-colors" />
-            <Globe className="w-4 h-4 hover:text-white cursor-pointer transition-colors" />
+          <div className="flex space-x-3">
+            <a href="https://lexvanguard.xyz" target="_blank" rel="noopener noreferrer" title="Official Website" className="p-2 bg-neutral-900 border border-neutral-800 rounded-lg hover:border-[#C9A55C] hover:text-[#C9A55C] transition-colors">
+              <Globe className="w-4 h-4" />
+            </a>
+            <a href="mailto:counsel@lexvanguard.xyz" title="Email Chambers" className="p-2 bg-neutral-900 border border-neutral-800 rounded-lg hover:border-[#C9A55C] hover:text-[#C9A55C] transition-colors">
+              <Mail className="w-4 h-4" />
+            </a>
           </div>
         </div>
         <div>
@@ -58,6 +61,7 @@ export default function Footer() {
               { label: "Prince Micah Profile", href: "/attorneys/prince-micah" },
               { label: "Kelvin Musya Profile", href: "/attorneys/kelvin-musya" },
               { label: "Donel Aganyo Profile", href: "/attorneys/donel-aganyo" },
+              { label: "Research & Precedent Desk", href: "/desk" },
               { label: "Firm History & MKUPLC Legacy", href: "/history" },
               { label: "Visual Sitemap & Index", href: "/sitemap" }
             ].map(item => (

@@ -110,36 +110,46 @@ export async function fetchFirmUser(uid: string, email?: string): Promise<FirmUs
 }
 
 /**
- * Cleanup job: Verifies documents in `/users` and `/userProfiles` collections.
+ * Cleanup job: Verifies documents in `/users` and purges legacy `/userProfiles`.
  * Removes non-UID keys (legacy email/name keys) so that only valid authenticated 
- * user UIDs exist as document keys in Firestore.
+ * user UIDs exist as document keys in Firestore under `/users/{uid}`.
  */
 export async function cleanupOrphanUserDocs(): Promise<{ cleaned: number }> {
   if (!db) return { cleaned: 0 };
   let cleanedCount = 0;
 
   try {
+    // 1. Scan /users collection and delete any documents whose ID is a name or invalid UID
     const usersSnap = await getDocs(collection(db, "users"));
     for (const docSnap of usersSnap.docs) {
       const docId = docSnap.id;
-      // Valid Auth UIDs are typical Firebase UIDs without '@' or '_lexvanguard_edu' or legacy name strings
-      const isLegacyOrOrphan = docId.includes("@") || docId.includes("_lexvanguard_edu") || docId.includes("donel_aganyo") || docId.includes("prince_micah") || docId.includes("kelvin_musya") || docId.includes("linet_njeri");
-      
-      if (isLegacyOrOrphan) {
+      const isLegacyOrNameKey = 
+        !docId ||
+        docId.includes(" ") ||
+        docId.includes("@") ||
+        docId.includes("_lexvanguard_edu") ||
+        docId === "Prince Micah" ||
+        docId === "Kelvin Musya" ||
+        docId === "Donel Aganyo" ||
+        docId === "Linet Njeri" ||
+        docId === "Sharon Mwariri" ||
+        docId === "Kimathi Winner" ||
+        docId === "prince_micah" ||
+        docId === "kelvin_musya" ||
+        docId === "donel_aganyo" ||
+        docId === "linet_njeri";
+
+      if (isLegacyOrNameKey) {
         await deleteDoc(doc(db, "users", docId));
         cleanedCount++;
       }
     }
 
+    // 2. Purge legacy /userProfiles collection entirely so user data is strictly single-sourced in /users/{uid}
     const profilesSnap = await getDocs(collection(db, "userProfiles"));
     for (const docSnap of profilesSnap.docs) {
-      const docId = docSnap.id;
-      const isLegacyOrOrphan = docId.includes("@") || docId.includes("_lexvanguard_edu") || docId.includes("donel_aganyo") || docId.includes("prince_micah") || docId.includes("kelvin_musya") || docId.includes("linet_njeri");
-      
-      if (isLegacyOrOrphan) {
-        await deleteDoc(doc(db, "userProfiles", docId));
-        cleanedCount++;
-      }
+      await deleteDoc(doc(db, "userProfiles", docSnap.id));
+      cleanedCount++;
     }
   } catch (err) {
     console.warn("Cleanup job error:", err);
@@ -302,13 +312,8 @@ export function subscribeFirestoreMembers(callback: (members: FirestoreMember[])
       console.warn("Firestore users listener warning:", err);
     });
 
-    const unsubUserProfiles = onSnapshot(collection(db, "userProfiles"), processSnapshot, (err) => {
-      console.warn("Firestore userProfiles listener warning:", err);
-    });
-
     return () => {
       unsubUsers();
-      unsubUserProfiles();
     };
   } catch (e) {
     console.warn("Error setting up Firestore listener, using local default attorney list:", e);

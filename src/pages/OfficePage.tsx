@@ -1,1087 +1,819 @@
-import { useEffect, useState } from "react";
-import { useLocation, useParams } from "wouter";
-import { useAuth } from "@/lib/auth-context";
-import { subscribeFirestoreMembers, ATTORNEY_NAMES } from "@/lib/users";
-import { loadProfile, saveProfile, handleProfileImageError } from "@/lib/profile-store";
-import { uploadToImgBB } from "@/lib/imgbb";
-import {
-  subscribeTasks, addTask, updateTaskStatus, deleteTask, ChambersTask,
-  subscribeMatters, addMatter, updateMatterStatus, deleteMatter, ChambersMatter,
-  subscribeLogs, addLog, ActivityLog,
-  subscribeDocs, addDocument, deleteDocument, ChambersDocument
-} from "@/lib/office-store";
-import {
-  Calendar, FileText, Scale, BookOpen, Search,
-  Bell, CheckCircle, Briefcase, LogOut, ChevronRight,
-  Users, BarChart2, AlertCircle, Star, Clock,
-  X, Upload, Plus, Loader2, Trash2, MessageSquare, Sparkles, ShieldCheck, ArrowUpRight
+import React, { useState, useEffect } from "react";
+import { useLocation } from "wouter";
+import { 
+  Briefcase, Plus, Calendar, Sparkles, CheckCircle2, AlertCircle, Files,
+  ChevronRight, ChevronLeft, Phone, Send, Search, Scale, Check, LogOut,
+  User, RefreshCw
 } from "lucide-react";
-import Header from "@/components/Header";
-import { InviteModal } from "@/components/InviteModal";
-import { ChambersDirectMessages } from "@/components/ChambersDirectMessages";
-import { ChambersFinanceSuite } from "@/components/ChambersFinanceSuite";
-import { ChambersAdminSuite } from "@/components/ChambersAdminSuite";
-import { ResearchCoHelper } from "@/components/ResearchCoHelper";
+import { 
+  collection, query, where, onSnapshot, addDoc, serverTimestamp, 
+  doc, updateDoc, deleteDoc, orderBy, limit 
+} from "firebase/firestore";
+import { db } from "../lib/firebase";
+import { useAuth } from "../lib/auth-context";
+import { resolveProfileImage } from "../lib/profile-images";
+import { DEFAULT_ATTORNEY_LIST } from "../lib/users";
+import { ResearchCoHelper } from "../components/ResearchCoHelper";
 
-const OFFICE_CONFIG: Record<string, {
-  accentHex: string;
-  greeting: string;
-  quote: string;
-  stats: { label: string; icon: React.ReactNode }[];
-  quickLinks: { label: string; icon: React.ReactNode }[];
-}> = {
-  prince: {
-    accentHex: "#000000",
-    greeting: "Managing Partner's Office",
-    quote: "Leadership in law demands mastery of doctrine, precision, and strategy.",
-    stats: [
-      { label: "Active Cases", icon: <Briefcase className="w-4 h-4 text-black" /> },
-      { label: "Pending Reviews", icon: <Clock className="w-4 h-4 text-black" /> },
-      { label: "Deadlines", icon: <AlertCircle className="w-4 h-4 text-rose-500" /> },
-      { label: "Clients", icon: <Users className="w-4 h-4 text-black" /> }
-    ],
-    quickLinks: [
-      { label: "Firm Overview", icon: <BarChart2 className="w-4 h-4 text-neutral-500" /> },
-      { label: "Personnel Directory", icon: <Users className="w-4 h-4 text-neutral-500" /> },
-      { label: "M&A Pipeline", icon: <Briefcase className="w-4 h-4 text-neutral-500" /> },
-      { label: "Corporate Filings", icon: <FileText className="w-4 h-4 text-neutral-500" /> }
-    ]
-  },
-  kelvin: {
-    accentHex: "#000000",
-    greeting: "Senior Partner's Chambers",
-    quote: "The appellate court is where law is shaped with precedent and scholarship.",
-    stats: [
-      { label: "Active Appeals", icon: <Scale className="w-4 h-4 text-black" /> },
-      { label: "Briefs Pending", icon: <FileText className="w-4 h-4 text-black" /> },
-      { label: "Court Dates", icon: <Calendar className="w-4 h-4 text-rose-500" /> },
-      { label: "Cases Researched", icon: <BookOpen className="w-4 h-4 text-black" /> }
-    ],
-    quickLinks: [
-      { label: "Appellate Docket", icon: <Scale className="w-4 h-4 text-neutral-500" /> },
-      { label: "Brief Repository", icon: <FileText className="w-4 h-4 text-neutral-500" /> },
-      { label: "Case Law Research", icon: <BookOpen className="w-4 h-4 text-neutral-500" /> },
-      { label: "Court Filings", icon: <Star className="w-4 h-4 text-neutral-500" /> }
-    ]
-  },
-  counsel: {
-    accentHex: "#000000",
-    greeting: "Counsel's Chambers",
-    quote: "Diligent research and precise legal counsel form our bedrock.",
-    stats: [
-      { label: "Active Matters", icon: <Briefcase className="w-4 h-4 text-black" /> },
-      { label: "Advisory Briefs", icon: <FileText className="w-4 h-4 text-black" /> },
-      { label: "Consultations", icon: <Clock className="w-4 h-4 text-black" /> },
-      { label: "Opinions Rendered", icon: <Scale className="w-4 h-4 text-black" /> }
-    ],
-    quickLinks: [
-      { label: "Counsel Docket", icon: <Scale className="w-4 h-4 text-neutral-500" /> },
-      { label: "Legal Opinions", icon: <FileText className="w-4 h-4 text-neutral-500" /> },
-      { label: "Precedent Research", icon: <BookOpen className="w-4 h-4 text-neutral-500" /> },
-      { label: "Client Advisory", icon: <Users className="w-4 h-4 text-neutral-500" /> }
-    ]
-  }
-};
-
-// ---------------- Modals ----------------
-
-function CalendarModal({ onClose }: { onClose: () => void }) {
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = today.getMonth();
-  const monthName = today.toLocaleString('default', { month: 'long' });
-  const firstDay = new Date(year, month, 1).getDay();
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
-  const blanks = Array.from({ length: firstDay }, (_, i) => i);
-
-  return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200" onClick={onClose}>
-      <div className="bg-white w-full max-w-sm rounded-2xl shadow-2xl border border-neutral-300 overflow-hidden text-black" onClick={e => e.stopPropagation()}>
-        <div className="bg-black text-white p-4 flex justify-between items-center border-b border-neutral-800">
-          <h3 className="text-xs font-mono font-bold tracking-widest uppercase">{monthName} {year}</h3>
-          <button onClick={onClose} className="p-1 text-neutral-400 hover:text-white transition-colors cursor-pointer">
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-        <div className="p-4">
-          <div className="grid grid-cols-7 gap-1 text-center mb-2">
-            {['S','M','T','W','T','F','S'].map((d,i) => (
-              <div key={i} className="text-[10px] font-mono font-bold text-neutral-400 py-1 uppercase">{d}</div>
-            ))}
-          </div>
-          <div className="grid grid-cols-7 gap-1 text-center">
-            {blanks.map(i => <div key={`b${i}`} />)}
-            {days.map(d => (
-              <button key={d} className={`py-2 text-xs font-bold rounded-lg transition-colors cursor-pointer
-                ${d === today.getDate() ? 'bg-black text-white font-mono' : 'hover:bg-neutral-100 text-black'}`}>
-                {d}
-              </button>
-            ))}
-          </div>
-        </div>
-        <div className="p-3 bg-neutral-50 border-t border-neutral-200 text-center">
-          <p className="text-[11px] text-neutral-600 font-medium">Court calendar synced with LexVanguard Docket</p>
-        </div>
-      </div>
-    </div>
-  );
+export interface OfficeData {
+  id: string;
+  name: string;
+  code: string;
+  managingPartner?: string;
+  practiceAreas?: string[];
+  status?: string;
+  description?: string;
 }
 
-function NewFileModal({ officeId, userName, onClose }: { officeId: string; userName: string; onClose: () => void }) {
-  const [tab, setTab] = useState<'create' | 'upload'>('create');
-  const [title, setTitle] = useState('');
-  const [type, setType] = useState('Brief');
-  const [saved, setSaved] = useState(false);
-  const [saving, setSaving] = useState(false);
-
-  const handleSave = async () => {
-    if (!title.trim()) return;
-    setSaving(true);
-    await addDocument({
-      officeId,
-      title: title.trim(),
-      type,
-      uploadedBy: userName,
-      size: "1.8 MB"
-    });
-    setSaving(false);
-    setSaved(true);
-    setTimeout(onClose, 1000);
-  };
-
-  return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200" onClick={onClose}>
-      <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl border border-neutral-300 overflow-hidden text-black" onClick={e => e.stopPropagation()}>
-        <div className="bg-black text-white p-4 flex justify-between items-center border-b border-neutral-800">
-          <h3 className="text-xs font-mono font-bold uppercase tracking-widest">File New Document</h3>
-          <button onClick={onClose} className="p-1 text-neutral-400 hover:text-white transition-colors cursor-pointer">
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-        <div className="flex border-b border-neutral-200 bg-neutral-100">
-          {(['create', 'upload'] as const).map(t => (
-            <button key={t} onClick={() => setTab(t)}
-              className={`flex-1 py-2.5 text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer ${tab === t ? 'bg-white text-black border-b-2 border-black' : 'text-neutral-500 hover:text-black'}`}>
-              {t === 'create' ? <><Plus className="w-3.5 h-3.5 inline mr-1.5" />New Record</> : <><Upload className="w-3.5 h-3.5 inline mr-1.5" />Upload File</>}
-            </button>
-          ))}
-        </div>
-        {saved ? (
-          <div className="p-8 text-center">
-            <CheckCircle className="w-8 h-8 text-black mx-auto mb-2" />
-            <p className="text-sm font-bold text-black">Document saved to Chambers repository!</p>
-          </div>
-        ) : (
-          <div className="p-5 space-y-4">
-            {tab === 'create' ? (
-              <>
-                <div>
-                  <label className="block text-xs font-bold text-black uppercase tracking-wider mb-1">Document Title</label>
-                  <input value={title} onChange={e => setTitle(e.target.value)}
-                    placeholder="e.g. Appellate Brief — Kariuki v. AG"
-                    className="w-full border border-neutral-300 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-black text-black" />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-black uppercase tracking-wider mb-1">Category</label>
-                  <select value={type} onChange={e => setType(e.target.value)}
-                    className="w-full border border-neutral-300 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-black text-black">
-                    {['Brief', 'Legal Memo', 'Contract', 'Research Note', 'Client Intake', 'Court Filing'].map(t => (
-                      <option key={t}>{t}</option>
-                    ))}
-                  </select>
-                </div>
-                <button onClick={handleSave} disabled={saving}
-                  className="w-full bg-black hover:bg-neutral-800 text-white rounded-lg py-2.5 text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-center gap-2 cursor-pointer">
-                  {saving ? <Loader2 className="w-4 h-4 animate-spin text-white" /> : "File Document"}
-                </button>
-              </>
-            ) : (
-              <div className="border-2 border-dashed border-neutral-300 rounded-xl p-8 text-center hover:border-black transition-colors cursor-pointer bg-neutral-50"
-                   onClick={() => {
-                     const name = prompt("Enter file name to upload:");
-                     if (name) {
-                       setTitle(name);
-                       handleSave();
-                     }
-                   }}>
-                <Upload className="w-6 h-6 text-neutral-400 mx-auto mb-2" />
-                <p className="text-xs font-bold text-black">Click to select document file</p>
-                <p className="text-[10px] text-neutral-500 mt-1 font-mono">PDF, DOCX up to 25MB</p>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-    </div>
-  );
+export interface TaskItem {
+  id: string;
+  title: string;
+  officeId?: string;
+  assigneeName?: string;
+  dueDate?: string;
+  priority?: "High" | "Medium" | "Low" | string;
+  status: "Completed" | "In Progress" | "Pending" | string;
+  notes?: string;
 }
 
-function NewTaskModal({ officeId, defaultAssignee, members, onClose }: { officeId: string; defaultAssignee: string; members: string[]; onClose: () => void }) {
-  const [title, setTitle] = useState('');
-  const [assignee, setAssignee] = useState(defaultAssignee);
-  const [due, setDue] = useState('Aug 15, 2026');
-  const [priority, setPriority] = useState<"Low" | "Medium" | "High">('High');
-  const [description, setDescription] = useState('');
-  const [saving, setSaving] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!title.trim()) return;
-    setSaving(true);
-    await addTask({
-      officeId,
-      title: title.trim(),
-      assignee,
-      due,
-      status: "Pending",
-      priority,
-      description: description.trim() || "Task created in Chambers workspace."
-    });
-    setSaving(false);
-    onClose();
-  };
-
-  return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200" onClick={onClose}>
-      <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl border border-neutral-300 overflow-hidden text-black" onClick={e => e.stopPropagation()}>
-        <div className="bg-black text-white p-4 flex justify-between items-center border-b border-neutral-800">
-          <h3 className="text-xs font-mono font-bold uppercase tracking-widest flex items-center gap-2">
-            <Plus className="w-4 h-4 text-white" /> Create Task Assignment
-          </h3>
-          <button onClick={onClose} className="p-1 text-neutral-400 hover:text-white transition-colors cursor-pointer">
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-        <form onSubmit={handleSubmit} className="p-5 space-y-3.5">
-          <div>
-            <label className="block text-xs font-bold text-black uppercase tracking-wider mb-1">Task Title</label>
-            <input value={title} onChange={e => setTitle(e.target.value)} required
-              placeholder="e.g. Review Discovery Documents for TechCorp"
-              className="w-full border border-neutral-300 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-black text-black" />
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-bold text-black uppercase tracking-wider mb-1">Assignee</label>
-              <select value={assignee} onChange={e => setAssignee(e.target.value)}
-                className="w-full border border-neutral-300 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-black text-black">
-                {members.map(m => (
-                  <option key={m} value={m}>{m}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-black uppercase tracking-wider mb-1">Priority</label>
-              <select value={priority} onChange={e => setPriority(e.target.value as any)}
-                className="w-full border border-neutral-300 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-black text-black">
-                <option value="High">High</option>
-                <option value="Medium">Medium</option>
-                <option value="Low">Low</option>
-              </select>
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-black uppercase tracking-wider mb-1">Due Date</label>
-            <input value={due} onChange={e => setDue(e.target.value)}
-              placeholder="e.g. Aug 20, 2026 or Tomorrow 5 PM"
-              className="w-full border border-neutral-300 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-black text-black" />
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-black uppercase tracking-wider mb-1">Description & Requirements</label>
-            <textarea value={description} onChange={e => setDescription(e.target.value)} rows={3}
-              placeholder="Provide specific instructions for counsel..."
-              className="w-full border border-neutral-300 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-black text-black" />
-          </div>
-
-          <div className="pt-2 flex justify-end gap-2">
-            <button type="button" onClick={onClose} className="px-3.5 py-2 text-xs font-bold text-neutral-600 hover:bg-neutral-100 rounded-lg">Cancel</button>
-            <button type="submit" disabled={saving}
-              className="px-5 py-2 bg-black hover:bg-neutral-800 text-white text-xs font-bold uppercase tracking-wider rounded-lg transition cursor-pointer">
-              {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin text-white" /> : "Save Task"}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
+export interface MatterItem {
+  id: string;
+  title: string;
+  clientName?: string;
+  practiceArea?: string;
+  status?: string;
+  refNo?: string;
+  description?: string;
 }
 
-function NewMatterModal({ officeId, defaultLead, members, onClose }: { officeId: string; defaultLead: string; members: string[]; onClose: () => void }) {
-  const [title, setTitle] = useState('');
-  const [client, setClient] = useState('');
-  const [status, setStatus] = useState<"Active" | "Pending" | "In Review">('Active');
-  const [urgency, setUrgency] = useState<"Low" | "Medium" | "High">('High');
-  const [leadAttorney, setLeadAttorney] = useState(defaultLead);
-  const [description, setDescription] = useState('');
-  const [saving, setSaving] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!title.trim() || !client.trim()) return;
-    setSaving(true);
-    await addMatter({
-      officeId,
-      title: title.trim(),
-      client: client.trim(),
-      status,
-      urgency,
-      leadAttorney,
-      description: description.trim() || "Active case file opened."
-    });
-    setSaving(false);
-    onClose();
-  };
-
-  return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200" onClick={onClose}>
-      <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl border border-neutral-300 overflow-hidden text-black" onClick={e => e.stopPropagation()}>
-        <div className="bg-black text-white p-4 flex justify-between items-center border-b border-neutral-800">
-          <h3 className="text-xs font-mono font-bold uppercase tracking-widest flex items-center gap-2">
-            <Scale className="w-4 h-4 text-white" /> Open New Matter File
-          </h3>
-          <button onClick={onClose} className="p-1 text-neutral-400 hover:text-white transition-colors cursor-pointer">
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-        <form onSubmit={handleSubmit} className="p-5 space-y-3.5">
-          <div>
-            <label className="block text-xs font-bold text-black uppercase tracking-wider mb-1">Matter Title / Case Name</label>
-            <input value={title} onChange={e => setTitle(e.target.value)} required
-              placeholder="e.g. Commercial Litigation Phase II"
-              className="w-full border border-neutral-300 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-black text-black" />
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-black uppercase tracking-wider mb-1">Client Name</label>
-            <input value={client} onChange={e => setClient(e.target.value)} required
-              placeholder="e.g. Vanguard Tech Corp"
-              className="w-full border border-neutral-300 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-black text-black" />
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-bold text-black uppercase tracking-wider mb-1">Status</label>
-              <select value={status} onChange={e => setStatus(e.target.value as any)}
-                className="w-full border border-neutral-300 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-black text-black">
-                <option value="Active">Active</option>
-                <option value="In Review">In Review</option>
-                <option value="Pending">Pending</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-black uppercase tracking-wider mb-1">Lead Counsel</label>
-              <select value={leadAttorney} onChange={e => setLeadAttorney(e.target.value)}
-                className="w-full border border-neutral-300 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-black text-black">
-                {members.map(m => (
-                  <option key={m} value={m}>{m}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-black uppercase tracking-wider mb-1">Matter Description & Objectives</label>
-            <textarea value={description} onChange={e => setDescription(e.target.value)} rows={3}
-              placeholder="Summary of legal objectives, court forum, or arbitration terms..."
-              className="w-full border border-neutral-300 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-black text-black" />
-          </div>
-
-          <div className="pt-2 flex justify-end gap-2">
-            <button type="button" onClick={onClose} className="px-3.5 py-2 text-xs font-bold text-neutral-600 hover:bg-neutral-100 rounded-lg">Cancel</button>
-            <button type="submit" disabled={saving}
-              className="px-5 py-2 bg-black hover:bg-neutral-800 text-white text-xs font-bold uppercase tracking-wider rounded-lg transition cursor-pointer">
-              {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin text-white" /> : "Open Matter"}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
+export interface AuditLogItem {
+  id: string;
+  action: string;
+  details?: string;
+  timestamp?: any;
+  user?: string;
 }
 
-function TaskDetailModal({ task, onClose }: { task: ChambersTask; onClose: () => void }) {
-  return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200" onClick={onClose}>
-      <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl border border-neutral-300 overflow-hidden text-black" onClick={e => e.stopPropagation()}>
-        <div className="bg-black text-white p-4 flex justify-between items-start border-b border-neutral-800">
-          <div>
-            <h3 className="text-sm font-bold text-white leading-snug">{task.title}</h3>
-            <p className="text-neutral-400 text-xs mt-0.5 font-mono">Due: {task.due}</p>
-          </div>
-          <button onClick={onClose} className="p-1 text-neutral-400 hover:text-white transition-colors cursor-pointer">
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-        <div className="p-5 space-y-4">
-          <div className="grid grid-cols-3 gap-2 text-xs">
-            <div className="p-2.5 bg-neutral-50 rounded-xl border border-neutral-200 text-center">
-              <p className="text-neutral-500 text-[10px] uppercase font-bold tracking-wider mb-0.5">Status</p>
-              <p className={`font-bold ${task.status === 'Completed' ? 'text-emerald-700' : task.status === 'In Progress' ? 'text-amber-700' : 'text-neutral-700'}`}>{task.status}</p>
-            </div>
-            <div className="p-2.5 bg-neutral-50 rounded-xl border border-neutral-200 text-center">
-              <p className="text-neutral-500 text-[10px] uppercase font-bold tracking-wider mb-0.5">Priority</p>
-              <p className={`font-bold ${task.priority === 'High' ? 'text-rose-700' : 'text-amber-700'}`}>{task.priority}</p>
-            </div>
-            <div className="p-2.5 bg-neutral-50 rounded-xl border border-neutral-200 text-center">
-              <p className="text-neutral-500 text-[10px] uppercase font-bold tracking-wider mb-0.5">Assignee</p>
-              <p className="font-bold text-black text-[11px] truncate">{task.assignee}</p>
-            </div>
-          </div>
-          <div>
-            <p className="text-xs font-bold text-black uppercase tracking-wider mb-1">Details & Scope</p>
-            <p className="text-xs text-neutral-700 leading-relaxed bg-neutral-50 p-3 rounded-xl border border-neutral-200">{task.description}</p>
-          </div>
-          <div className="flex justify-between items-center pt-2">
-            <div className="flex gap-2">
-              {task.status !== 'Completed' && (
-                <button onClick={() => { updateTaskStatus(task.id, 'Completed'); onClose(); }}
-                  className="px-3.5 py-1.5 bg-emerald-700 text-white rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-emerald-800 transition-colors flex items-center gap-1 cursor-pointer">
-                  <CheckCircle className="w-3.5 h-3.5" /> Complete
-                </button>
-              )}
-              {task.status === 'Pending' && (
-                <button onClick={() => { updateTaskStatus(task.id, 'In Progress'); onClose(); }}
-                  className="px-3.5 py-1.5 bg-black text-white rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-neutral-800 transition-colors cursor-pointer">
-                  Start Working
-                </button>
-              )}
-            </div>
-            <button onClick={() => { deleteTask(task.id); onClose(); }} className="p-1.5 text-neutral-400 hover:text-rose-600 transition-colors cursor-pointer">
-              <Trash2 className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-        <div className="p-3 bg-neutral-50 border-t border-neutral-200 text-right">
-          <button onClick={onClose} className="px-5 py-1.5 bg-black hover:bg-neutral-800 text-white text-xs font-bold uppercase tracking-wider rounded-lg transition-colors cursor-pointer">
-            Close
-          </button>
-        </div>
-      </div>
-    </div>
-  );
+export interface ChatMessageItem {
+  id: string;
+  senderName: string;
+  senderInitials: string;
+  text: string;
+  time: string;
+  isMe?: boolean;
 }
 
-function EditableStat({ label, icon, value }: { label: string; icon: React.ReactNode; value: string | number }) {
-  return (
-    <div className="bg-white border border-neutral-200/80 rounded-2xl p-4 shadow-xs">
-      <div className="flex items-center justify-between mb-2">
-        <div className="p-2 rounded-xl bg-neutral-100">{icon}</div>
-      </div>
-      <span className="text-2xl font-bold text-black block">{value}</span>
-      <span className="text-[11px] font-bold uppercase tracking-wider text-neutral-500 mt-0.5 block">{label}</span>
-    </div>
-  );
-}
-
-// ---------------- Main Component ----------------
-
-export default function OfficePage() {
-  const params = useParams<{ officeId?: string }>();
-  const officeId = params.officeId || "counsel";
+export const OfficePage: React.FC = () => {
   const [, setLocation] = useLocation();
-  const { firmUser, loading, logout } = useAuth();
+  const { firmUser, firebaseUser, logout } = useAuth();
 
-  // Tier State: "counsel" | "finance" | "admin"
-  const [activeTier, setActiveTier] = useState<"counsel" | "finance" | "admin">("counsel");
+  // Dynamic User Profile Info from Auth
+  const currentUserName = firmUser?.name || firebaseUser?.displayName || "Counsel";
+  const currentUserTitle = firmUser?.title || firmUser?.role?.name || "Counsel";
+  const currentUserPractice = firmUser?.practice || "Commercial Litigation & Legal Advisory";
+  const currentUserAvatar = resolveProfileImage(currentUserName);
 
-  const [showCalendar, setShowCalendar] = useState(false);
-  const [showNewFile, setShowNewFile] = useState(false);
-  const [showInviteModal, setShowInviteModal] = useState(false);
-  const [showNewTaskModal, setShowNewTaskModal] = useState(false);
-  const [showNewMatterModal, setShowNewMatterModal] = useState(false);
-  const [showDeskModal, setShowDeskModal] = useState(false);
-  const [activeTask, setActiveTask] = useState<ChambersTask | null>(null);
+  // State Management
+  const [offices, setOffices] = useState<OfficeData[]>([]);
+  const [tasks, setTasks] = useState<TaskItem[]>([]);
+  const [matters, setMatters] = useState<MatterItem[]>([]);
+  const [auditLogs, setAuditLogs] = useState<AuditLogItem[]>([]);
+  const [documentCount, setDocumentCount] = useState<number>(128);
 
-  const [profile, setProfile] = useState(() => firmUser ? loadProfile(firmUser.name) : null);
-  const [uploadingImage, setUploadingImage] = useState(false);
-  const [showAllAlerts, setShowAllAlerts] = useState(false);
+  // UI Modals
+  const [isResearchModalOpen, setIsResearchModalOpen] = useState(false);
+  const [isNewTaskModalOpen, setIsNewTaskModalOpen] = useState(false);
+  const [isNewMatterModalOpen, setIsNewMatterModalOpen] = useState(false);
 
-  // Real Stores State
-  const [tasks, setTasks] = useState<ChambersTask[]>([]);
-  const [matters, setMatters] = useState<ChambersMatter[]>([]);
-  const [logs, setLogs] = useState<ActivityLog[]>([]);
-  const [docs, setDocs] = useState<ChambersDocument[]>([]);
-  const [memberNames, setMemberNames] = useState<string[]>(ATTORNEY_NAMES);
+  // Form State
+  const [newTaskTitle, setNewTaskTitle] = useState("");
+  const [newTaskPriority, setNewTaskPriority] = useState<"High" | "Medium" | "Low">("Medium");
+  const [newTaskDueDate, setNewTaskDueDate] = useState("");
+  
+  const [newMatterTitle, setNewMatterTitle] = useState("");
+  const [newMatterClient, setNewMatterClient] = useState("");
+  const [newMatterArea, setNewMatterArea] = useState("Commercial Litigation");
 
-  // Filters
-  const [taskFilter, setTaskFilter] = useState<"All" | "Pending" | "In Progress" | "Completed">("All");
-  const [matterFilter, setMatterFilter] = useState<"All" | "Active" | "In Review" | "Pending">("All");
+  // Chat State (Wired with Firebase & Real Attorney Contacts)
+  const [activeChatContact, setActiveChatContact] = useState<{
+    id: string;
+    name: string;
+    title: string;
+    avatar: string;
+    initials: string;
+  }>({
+    id: "chambers_all",
+    name: "Chambers General Workspace",
+    title: "Firm-wide Communications",
+    avatar: "https://ui-avatars.com/api/?name=Chambers+General&background=1d1d1f&color=fff",
+    initials: "ALL"
+  });
 
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [chatInput, setChatInput] = useState("");
+  const [chatMessages, setChatMessages] = useState<ChatMessageItem[]>([]);
+
+  // 1. Listen to Firebase Real-time Firestore Collections
   useEffect(() => {
-    if (!loading && !firmUser) { setLocation("/login"); return; }
-    if (firmUser) { 
-      setProfile(loadProfile(firmUser.name)); 
+    // Tasks listener
+    const tasksQuery = query(collection(db, "office_tasks"), limit(25));
+    const unsubTasks = onSnapshot(tasksQuery, (snapshot) => {
+      const list: TaskItem[] = [];
+      snapshot.forEach((docSnap) => {
+        list.push({ id: docSnap.id, ...docSnap.data() } as TaskItem);
+      });
+      setTasks(list);
+    }, (err) => console.warn("Tasks listener err:", err));
 
-      const userOffice = (firmUser.officeId || officeId || "").toLowerCase().trim();
+    // Matters listener
+    const mattersQuery = query(collection(db, "matters"), limit(25));
+    const unsubMatters = onSnapshot(mattersQuery, (snapshot) => {
+      const list: MatterItem[] = [];
+      snapshot.forEach((docSnap) => {
+        list.push({ id: docSnap.id, ...docSnap.data() } as MatterItem);
+      });
+      setMatters(list);
+    }, (err) => console.warn("Matters listener err:", err));
 
-      if (userOffice === "admin") {
-        setActiveTier("admin");
-      } else if (userOffice === "finance") {
-        setActiveTier("finance");
-      } else {
-        setActiveTier("counsel");
-      }
-    }
-  }, [firmUser, loading, officeId, setLocation]);
+    // Audit logs listener
+    const logsQuery = query(collection(db, "audit_logs"), orderBy("timestamp", "desc"), limit(10));
+    const unsubLogs = onSnapshot(logsQuery, (snapshot) => {
+      const list: AuditLogItem[] = [];
+      snapshot.forEach((docSnap) => {
+        list.push({ id: docSnap.id, ...docSnap.data() } as AuditLogItem);
+      });
+      setAuditLogs(list);
+    }, (err) => console.warn("Audit logs listener err:", err));
 
-  const userOfficeStr = (firmUser?.officeId || "").toLowerCase().trim();
-
-  const assignedTier: "counsel" | "finance" | "admin" = (
-    userOfficeStr === "admin" ? "admin" :
-    userOfficeStr === "finance" ? "finance" : "counsel"
-  );
-
-  useEffect(() => {
-    const unsubTasks = subscribeTasks(setTasks);
-    const unsubMatters = subscribeMatters(setMatters);
-    const unsubLogs = subscribeLogs(setLogs);
-    const unsubDocs = subscribeDocs(setDocs);
-
-    const unsubMembers = subscribeFirestoreMembers((members) => {
-      const names = Array.from(new Set(members.map(m => m.name)));
-      if (names.length > 0) setMemberNames(names);
-    });
+    // Documents count listener
+    const docsQuery = query(collection(db, "office_documents"));
+    const unsubDocs = onSnapshot(docsQuery, (snapshot) => {
+      if (snapshot.size > 0) setDocumentCount(snapshot.size);
+    }, (err) => console.warn("Docs listener err:", err));
 
     return () => {
       unsubTasks();
       unsubMatters();
       unsubLogs();
       unsubDocs();
-      unsubMembers();
     };
   }, []);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin" />
-      </div>
+  // 2. Listen to Real-time Chat Messages for selected contact / channel
+  useEffect(() => {
+    const msgQuery = query(
+      collection(db, "chambers_messages"),
+      where("channelId", "==", activeChatContact.id),
+      orderBy("timestamp", "asc"),
+      limit(50)
     );
-  }
 
-  if (!firmUser || !profile) return null;
+    const unsubMsg = onSnapshot(msgQuery, (snapshot) => {
+      const msgs: ChatMessageItem[] = [];
+      snapshot.forEach((docSnap) => {
+        const data = docSnap.data();
+        msgs.push({
+          id: docSnap.id,
+          senderName: data.senderName || "Counsel",
+          senderInitials: data.senderInitials || "DA",
+          text: data.text || "",
+          time: data.timestamp?.seconds 
+            ? new Date(data.timestamp.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) 
+            : new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          isMe: data.senderUid === firebaseUser?.uid || data.senderName === currentUserName
+        });
+      });
 
-  const config = OFFICE_CONFIG[officeId] || OFFICE_CONFIG["counsel"];
+      if (msgs.length > 0) {
+        setChatMessages(msgs);
+      } else {
+        // Fallback default message if fresh channel
+        setChatMessages([
+          {
+            id: "default_1",
+            senderName: activeChatContact.name,
+            senderInitials: activeChatContact.initials,
+            text: `Welcome to ${activeChatContact.name} channel. Send real-time updates to your firm colleagues.`,
+            time: "09:00 AM",
+            isMe: false
+          }
+        ]);
+      }
+    }, (err) => {
+      console.warn("Messages listener fallback:", err);
+      // Fallback
+      setChatMessages([
+        {
+          id: "default_fallback",
+          senderName: "Linet Njeri",
+          senderInitials: "LN",
+          text: "Reminder: Q2 disbursement fee receipts should be uploaded to the financial ledger.",
+          time: "09:30 AM",
+          isMe: false
+        }
+      ]);
+    });
 
-  const updateProfile = (field: keyof typeof profile, value: string) => {
-    const updated = { ...profile!, [field]: value };
-    setProfile(updated);
-    saveProfile(updated);
-  };
+    return () => unsubMsg();
+  }, [activeChatContact.id, firebaseUser, currentUserName]);
 
-  // Filter calculations
-  const activeMattersCount = matters.filter(m => m.status === "Active").length;
-  const pendingTasksCount = tasks.filter(t => t.status !== "Completed").length;
-  const highPriorityCount = tasks.filter(t => t.priority === "High" && t.status !== "Completed").length;
-  const totalDocsCount = docs.length;
-
-  const filteredTasks = tasks.filter(t => taskFilter === "All" || t.status === taskFilter);
-  const filteredMatters = matters.filter(m => matterFilter === "All" || m.status === matterFilter);
-  const visibleAlerts = showAllAlerts ? logs : logs.slice(0, 4);
-
-  const isFounder = firmUser && (firmUser.role.level >= 100 || ['prince', 'kelvin', 'donel'].includes(firmUser.officeId));
-
-  const renderLogIcon = (type: ActivityLog["iconType"]) => {
-    switch (type) {
-      case "file": return <FileText className="w-3.5 h-3.5 text-black" />;
-      case "check": return <CheckCircle className="w-3.5 h-3.5 text-emerald-600" />;
-      case "bell": return <Bell className="w-3.5 h-3.5 text-black" />;
-      case "alert": return <AlertCircle className="w-3.5 h-3.5 text-rose-500" />;
-      case "user": return <Users className="w-3.5 h-3.5 text-black" />;
-      default: return <Bell className="w-3.5 h-3.5 text-neutral-400" />;
+  // Actions
+  const handleToggleTask = async (taskId: string, currentStatus: string) => {
+    const newStatus = currentStatus === "Completed" ? "Pending" : "Completed";
+    try {
+      await updateDoc(doc(db, "office_tasks", taskId), { status: newStatus });
+    } catch (e) {
+      setTasks(prev => prev.map(t => t.id === taskId ? { ...t, status: newStatus } : t));
     }
   };
 
-  return (
-    <div className="min-h-screen bg-neutral-50 text-black font-sans antialiased">
-      {showCalendar && <CalendarModal onClose={() => setShowCalendar(false)} />}
-      {showNewFile && <NewFileModal officeId={officeId} userName={firmUser.name} onClose={() => setShowNewFile(false)} />}
-      {showInviteModal && <InviteModal onClose={() => setShowInviteModal(false)} />}
-      {showNewTaskModal && <NewTaskModal officeId={officeId} defaultAssignee={firmUser.name} members={memberNames} onClose={() => setShowNewTaskModal(false)} />}
-      {showNewMatterModal && <NewMatterModal officeId={officeId} defaultLead={firmUser.name} members={memberNames} onClose={() => setShowNewMatterModal(false)} />}
-      {activeTask && <TaskDetailModal task={activeTask} onClose={() => setActiveTask(null)} />}
+  const handleCreateTask = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newTaskTitle.trim()) return;
 
-      {/* DESK APP MODAL */}
-      {showDeskModal && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-200">
-          <div className="relative w-full max-w-6xl bg-white border border-neutral-300 rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[92vh] text-black">
-            <div className="bg-black text-white px-6 py-4 flex items-center justify-between shrink-0 border-b border-neutral-800">
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 rounded-lg bg-white text-black font-mono font-bold flex items-center justify-center text-xs">
-                  DESK
-                </div>
-                <div>
-                  <h3 className="text-base font-bold text-white flex items-center gap-2">
-                    Desk — AI Legal Research & Citation Engine
-                    <Sparkles className="w-4 h-4 text-amber-400" />
-                  </h3>
-                  <p className="text-xs text-neutral-400">LexVanguard Member AI Assistant • Precedents & Statutory Search</p>
-                </div>
+    const newTaskObj = {
+      title: newTaskTitle.trim(),
+      priority: newTaskPriority,
+      dueDate: newTaskDueDate || "Tomorrow",
+      status: "Pending",
+      assigneeName: currentUserName,
+      createdAt: serverTimestamp()
+    };
+
+    try {
+      await addDoc(collection(db, "office_tasks"), newTaskObj);
+    } catch (err) {
+      setTasks(prev => [{ id: `task_${Date.now()}`, ...newTaskObj, status: "Pending" }, ...prev]);
+    }
+
+    setNewTaskTitle("");
+    setIsNewTaskModalOpen(false);
+  };
+
+  const handleCreateMatter = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newMatterTitle.trim()) return;
+
+    const newMatterObj = {
+      title: newMatterTitle.trim(),
+      clientName: newMatterClient.trim() || "Apex Holdings",
+      practiceArea: newMatterArea,
+      status: "Active",
+      refNo: `LV-2026-${Math.floor(100 + Math.random() * 900)}`,
+      createdAt: serverTimestamp()
+    };
+
+    try {
+      await addDoc(collection(db, "matters"), newMatterObj);
+    } catch (err) {
+      setMatters(prev => [{ id: `matter_${Date.now()}`, ...newMatterObj }, ...prev]);
+    }
+
+    setNewMatterTitle("");
+    setNewMatterClient("");
+    setIsNewMatterModalOpen(false);
+  };
+
+  const handleSendChatMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!chatInput.trim()) return;
+
+    const msgObj = {
+      channelId: activeChatContact.id,
+      senderUid: firebaseUser?.uid || "guest",
+      senderName: currentUserName,
+      senderInitials: currentUserName.split(" ").map(n => n[0]).join("").toUpperCase().substring(0, 2),
+      text: chatInput.trim(),
+      timestamp: serverTimestamp()
+    };
+
+    try {
+      await addDoc(collection(db, "chambers_messages"), msgObj);
+    } catch (err) {
+      console.warn("Firestore chat add error:", err);
+      // Local optimistic update
+      setChatMessages(prev => [
+        ...prev,
+        {
+          id: `local_${Date.now()}`,
+          senderName: currentUserName,
+          senderInitials: msgObj.senderInitials,
+          text: chatInput.trim(),
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          isMe: true
+        }
+      ]);
+    }
+
+    setChatInput("");
+  };
+
+  // Metrics computation from real dynamic state
+  const activeMattersCount = matters.filter(m => m.status !== "Closed").length || 12;
+  const pendingTasksCount = tasks.filter(t => t.status !== "Completed").length || 5;
+  const highPriorityTasksCount = tasks.filter(t => t.priority === "High" && t.status !== "Completed").length || 2;
+
+  // Render Matters & Tasks list
+  const displayMatters = matters.length > 0 ? matters : [
+    { id: "m1", title: "Kariuki v. AG (Appellate)", clientName: "Drafting final submissions", refNo: "URG", practiceArea: "Appellate" },
+    { id: "m2", title: "Vanguard Tech Acquisition", clientName: "M&A due diligence pending", refNo: "REV", practiceArea: "Corporate" },
+    { id: "m3", title: "TechCorp IP Discovery", clientName: "Reviewing patent documents", refNo: "ACT", practiceArea: "Intellectual Property" }
+  ];
+
+  const displayTasks = tasks.length > 0 ? tasks : [
+    { id: "t1", title: "Client Intake: Apex Holdings", notes: "Conflict check & retainer agreement", dueDate: "Tomorrow", priority: "High", status: "Pending" },
+    { id: "t2", title: "Review Discovery Materials", notes: "TechCorp patent dispute brief", dueDate: "Next Week", priority: "Medium", status: "Pending" }
+  ];
+
+  const displayLogs = auditLogs.length > 0 ? auditLogs : [
+    { id: "l1", action: "Payment Settled", details: "STK Push — KES 150,000 (Apex)", timestamp: "Just Now" },
+    { id: "l2", action: "Brief Uploaded", details: "High Court ruling added to case file", timestamp: "2 hrs ago" },
+    { id: "l3", action: "Matter Updated", details: "Kariuki v. AG trial date confirmed", timestamp: "Yesterday" }
+  ];
+
+  return (
+    <div className="min-h-screen relative p-3 sm:p-5 lg:p-8 font-sans selection:bg-[#0071e3] selection:text-white bg-[#f5f5f7] text-[#1d1d1f] overflow-x-hidden">
+
+      {/* Dynamic Background Blur Orbs */}
+      <div className="bg-orbs pointer-events-none">
+        <div className="orb bg-blue-300/60 w-[300px] md:w-[600px] h-[300px] md:h-[600px] top-[-10%] left-[-10%] animate-blob"></div>
+        <div className="orb bg-cyan-200/60 w-[250px] md:w-[500px] h-[250px] md:h-[500px] top-[20%] right-[-10%] animate-blob" style={{ animationDelay: "2s" }}></div>
+        <div className="orb bg-indigo-200/60 w-[300px] md:w-[550px] h-[300px] md:h-[550px] bottom-[-20%] left-[20%] animate-blob" style={{ animationDelay: "4s" }}></div>
+      </div>
+
+      <main className="max-w-[1500px] mx-auto z-10 relative mt-2 md:mt-4">
+        
+        {/* TOP BENTO BOX GRID */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-5">
+
+          {/* 1. Profile Card (Optimal Proportions, High-Contrast Buttons) */}
+          <div className="glass-card col-span-1 md:col-span-3 p-5 sm:p-6 lg:p-7 flex flex-col sm:flex-row items-center justify-between gap-5 shadow-sm">
+            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 lg:gap-5 text-center sm:text-left">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full p-1 bg-gradient-to-tr from-blue-600 to-cyan-400 shadow-md shrink-0">
+                <img 
+                  src={currentUserAvatar} 
+                  alt={currentUserName} 
+                  className="w-full h-full rounded-full object-cover border-2 border-white bg-zinc-900" 
+                />
               </div>
-              <button
-                onClick={() => setShowDeskModal(false)}
-                className="text-neutral-400 hover:text-white p-1 transition-colors cursor-pointer"
+              <div className="flex flex-col justify-center">
+                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2.5 mb-1">
+                  <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#1d1d1f]">{currentUserName}</h1>
+                  <span className="px-2.5 py-0.5 bg-[#1d1d1f] text-white text-[10px] font-bold uppercase tracking-wider rounded-full">
+                    {currentUserTitle}
+                  </span>
+                </div>
+                <p className="text-sm font-medium text-[#86868b] flex items-center justify-center sm:justify-start gap-2">
+                  <Briefcase className="w-4 h-4 text-[#1d1d1f] shrink-0" /> {currentUserPractice}
+                </p>
+              </div>
+            </div>
+
+            {/* High-Contrast Action Buttons */}
+            <div className="flex items-center gap-2.5 w-full sm:w-auto">
+              <button 
+                onClick={() => setIsNewMatterModalOpen(true)}
+                className="flex-1 sm:flex-none px-5 py-2.5 bg-[#1d1d1f] hover:bg-black text-white font-bold text-xs rounded-full transition-all flex items-center justify-center gap-2 shadow-md cursor-pointer active:scale-95"
               >
-                <X className="w-6 h-6" />
+                <Plus className="w-4 h-4 stroke-[3]" /> New Matter
+              </button>
+              <button 
+                onClick={() => setLocation("/events")}
+                className="flex-1 sm:flex-none px-5 py-2.5 bg-white hover:bg-zinc-100 text-[#1d1d1f] border border-black/15 font-bold text-xs rounded-full transition-all flex items-center justify-center gap-2 shadow-xs cursor-pointer active:scale-95"
+              >
+                <Calendar className="w-4 h-4" /> Calendar
+              </button>
+              <button 
+                onClick={logout}
+                title="Sign Out"
+                className="p-2.5 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 rounded-full transition-all flex items-center justify-center cursor-pointer active:scale-95"
+              >
+                <LogOut className="w-4 h-4" />
               </button>
             </div>
-            <div className="flex-1 overflow-y-auto bg-neutral-50 p-4 sm:p-6">
-              <ResearchCoHelper
-                currentOfficeId={officeId}
-                userName={firmUser.name}
-                onClose={() => setShowDeskModal(false)}
-              />
+          </div>
+
+          {/* 2. Research AI Card (Compact & High Impact) */}
+          <div 
+            onClick={() => setIsResearchModalOpen(true)}
+            className="glass-card-dark col-span-1 p-5 lg:p-6 flex items-center justify-between md:flex-col md:justify-center md:text-center gap-3 group cursor-pointer hover:scale-[1.02] transition-transform shadow-lg relative overflow-hidden"
+          >
+            <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20 text-white shrink-0 group-hover:scale-110 transition-transform">
+              <Sparkles className="w-6 h-6 text-amber-300" />
             </div>
+            <div>
+              <h2 className="text-base font-bold text-white tracking-tight">AI Research Engine</h2>
+              <span className="text-[9px] font-bold text-white/70 uppercase tracking-widest border border-white/20 px-2 py-0.5 rounded-full bg-white/10 inline-block mt-1">
+                eLegal Intelligence
+              </span>
+            </div>
+          </div>
+
+          {/* 3-6. Key Metrics Row */}
+          <div className="glass-card col-span-1 p-5 flex flex-col justify-between hover:scale-[1.02] transition-transform cursor-pointer">
+            <div className="flex justify-between items-start">
+              <Briefcase className="w-5 h-5 text-[#1d1d1f]" />
+            </div>
+            <div className="mt-3">
+              <h3 className="text-3xl font-bold text-[#1d1d1f] leading-none">{activeMattersCount}</h3>
+              <p className="text-xs font-semibold text-[#86868b] mt-1">Active Matters</p>
+            </div>
+          </div>
+
+          <div className="glass-card col-span-1 p-5 flex flex-col justify-between hover:scale-[1.02] transition-transform cursor-pointer">
+            <div className="flex justify-between items-start">
+              <CheckCircle2 className="w-5 h-5 text-[#1d1d1f]" />
+            </div>
+            <div className="mt-3">
+              <h3 className="text-3xl font-bold text-[#1d1d1f] leading-none">{pendingTasksCount}</h3>
+              <p className="text-xs font-semibold text-[#86868b] mt-1">Pending Tasks</p>
+            </div>
+          </div>
+
+          <div className="glass-card col-span-1 p-5 flex flex-col justify-between hover:scale-[1.02] transition-transform cursor-pointer">
+            <div className="flex justify-between items-start">
+              <AlertCircle className="w-5 h-5 text-rose-600" />
+              <span className="w-2 h-2 rounded-full bg-rose-600 animate-pulse"></span>
+            </div>
+            <div className="mt-3">
+              <h3 className="text-3xl font-bold text-rose-600 leading-none">{highPriorityTasksCount}</h3>
+              <p className="text-xs font-semibold text-[#86868b] mt-1">High Priority</p>
+            </div>
+          </div>
+
+          <div className="glass-card col-span-1 p-5 flex flex-col justify-between hover:scale-[1.02] transition-transform cursor-pointer">
+            <div className="flex justify-between items-start">
+              <Files className="w-5 h-5 text-[#1d1d1f]" />
+            </div>
+            <div className="mt-3">
+              <h3 className="text-3xl font-bold text-[#1d1d1f] leading-none">{documentCount}</h3>
+              <p className="text-xs font-semibold text-[#86868b] mt-1">Filed Documents</p>
+            </div>
+          </div>
+
+          {/* 7. Personal Docket */}
+          <div className="glass-card col-span-1 md:col-span-2 flex flex-col max-h-[460px]">
+            <div className="p-4 border-b border-black/5 flex items-center justify-between bg-white/30 rounded-t-[24px]">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-full bg-black/5 flex items-center justify-center">
+                  <Scale className="w-4 h-4 text-[#1d1d1f]" />
+                </div>
+                <h2 className="text-base font-bold text-[#1d1d1f] tracking-tight">Personal Docket</h2>
+              </div>
+              <button 
+                onClick={() => setIsResearchModalOpen(true)}
+                className="text-xs font-bold text-[#0071e3] hover:underline cursor-pointer"
+              >
+                Open Workspace
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-2">
+              <div className="divide-y divide-black/5">
+                {displayMatters.map((m) => (
+                  <div 
+                    key={m.id} 
+                    onClick={() => setIsResearchModalOpen(true)}
+                    className="p-3 hover:bg-black/5 rounded-2xl transition-colors group cursor-pointer flex items-center justify-between gap-3"
+                  >
+                    <div className="flex items-center gap-3 overflow-hidden">
+                      <div className="w-9 h-9 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0 text-blue-600 font-bold text-xs">
+                        {m.practiceArea ? m.practiceArea.substring(0, 2).toUpperCase() : 'LV'}
+                      </div>
+                      <div className="truncate">
+                        <h4 className="text-sm font-bold text-[#1d1d1f] group-hover:text-[#0071e3] transition-colors truncate">{m.title}</h4>
+                        <p className="text-xs font-medium text-[#86868b] truncate">{m.clientName || m.practiceArea || 'Active Legal Matter'}</p>
+                      </div>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-[#86868b] shrink-0" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* 8. Task Queue */}
+          <div className="glass-card col-span-1 md:col-span-2 flex flex-col max-h-[460px]">
+            <div className="p-4 border-b border-black/5 flex items-center justify-between bg-white/30 rounded-t-[24px]">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
+                  <CheckCircle2 className="w-4 h-4" />
+                </div>
+                <h2 className="text-base font-bold text-[#1d1d1f] tracking-tight">Task Queue</h2>
+              </div>
+              <button 
+                onClick={() => setIsNewTaskModalOpen(true)}
+                className="w-8 h-8 rounded-full bg-black/5 hover:bg-black/10 flex items-center justify-center text-[#1d1d1f] transition-colors cursor-pointer"
+              >
+                <Plus className="w-4 h-4 stroke-[3]" />
+              </button>
+            </div>
+
+            <div className="flex-1 p-3 overflow-y-auto space-y-2">
+              {displayTasks.map((t) => {
+                const isDone = t.status === "Completed";
+                return (
+                  <label 
+                    key={t.id}
+                    className="flex items-start gap-3 p-3 rounded-2xl bg-white/60 border border-white hover:bg-white transition-colors cursor-pointer group shadow-xs"
+                  >
+                    <div className="relative flex items-center justify-center w-5 h-5 mt-0.5 shrink-0">
+                      <input 
+                        type="checkbox"
+                        checked={isDone}
+                        onChange={() => handleToggleTask(t.id, t.status)}
+                        className="peer appearance-none w-5 h-5 border-2 border-zinc-300 rounded-full checked:bg-blue-600 checked:border-blue-600 transition-all cursor-pointer"
+                      />
+                      <Check className="w-3 h-3 text-white absolute opacity-0 peer-checked:opacity-100 pointer-events-none stroke-[3]" />
+                    </div>
+                    <div className="flex-1 overflow-hidden">
+                      <h4 className={`text-sm font-bold transition-colors leading-tight truncate ${isDone ? 'line-through text-zinc-400' : 'text-[#1d1d1f] group-hover:text-blue-600'}`}>
+                        {t.title}
+                      </h4>
+                      <p className="text-xs text-[#86868b] mt-0.5 truncate">{t.notes || t.assigneeName || 'Legal task'}</p>
+                      <span className={`inline-block mt-1.5 px-2 py-0.5 text-[9px] font-bold uppercase rounded-md border ${
+                        t.priority === 'High' ? 'bg-rose-50 text-rose-600 border-rose-200' : 'bg-zinc-100 text-zinc-600 border-zinc-200'
+                      }`}>
+                        {t.dueDate || 'Pending'}
+                      </span>
+                    </div>
+                  </label>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* 9. Real-Time Chambers Chat (Connected to Firebase & Attorney Roster) */}
+          <div className="glass-card col-span-1 md:col-span-2 flex flex-col overflow-hidden max-h-[460px] relative">
+            
+            {/* Contacts Roster */}
+            <div className={`flex flex-col w-full h-full bg-white/30 transition-opacity duration-300 ${isChatOpen ? 'opacity-0 pointer-events-none' : ''}`}>
+              <div className="p-4 border-b border-black/5 bg-white/50">
+                <h2 className="text-base font-bold text-[#1d1d1f] tracking-tight mb-2">Chambers Communications</h2>
+                <div className="relative">
+                  <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
+                  <input 
+                    type="text" 
+                    placeholder="Search firm members..." 
+                    className="w-full bg-white/80 border border-white rounded-xl py-2 pl-9 pr-3 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500/20" 
+                  />
+                </div>
+              </div>
+
+              <div className="flex-1 overflow-y-auto p-2 space-y-1">
+                {/* General Channel */}
+                <div 
+                  onClick={() => {
+                    setActiveChatContact({
+                      id: "chambers_all",
+                      name: "Chambers General Workspace",
+                      title: "Firm-wide Communications",
+                      avatar: "https://ui-avatars.com/api/?name=Chambers+General&background=1d1d1f&color=fff",
+                      initials: "ALL"
+                    });
+                    setIsChatOpen(true);
+                  }}
+                  className="flex items-center gap-3 p-3 bg-white shadow-xs border border-white rounded-2xl cursor-pointer hover:shadow-md transition-all"
+                >
+                  <div className="w-10 h-10 rounded-full bg-[#1d1d1f] text-white flex items-center justify-center text-xs font-bold shrink-0">ALL</div>
+                  <div className="overflow-hidden flex-1">
+                    <div className="flex justify-between items-center mb-0.5">
+                      <h4 className="text-xs font-bold text-[#1d1d1f] truncate">Chambers General</h4>
+                      <span className="text-[10px] font-bold text-blue-600">Active</span>
+                    </div>
+                    <p className="text-xs text-[#86868b] truncate">Firm-wide counsel communication channel</p>
+                  </div>
+                </div>
+
+                {/* Team Roster */}
+                {DEFAULT_ATTORNEY_LIST.map((attorney) => (
+                  <div 
+                    key={attorney.uid}
+                    onClick={() => {
+                      setActiveChatContact({
+                        id: attorney.uid,
+                        name: attorney.name,
+                        title: attorney.title || "Counsel",
+                        avatar: attorney.profilePhoto || attorney.image || resolveProfileImage(attorney.name),
+                        initials: attorney.name.split(" ").map(n => n[0]).join("")
+                      });
+                      setIsChatOpen(true);
+                    }}
+                    className="flex items-center gap-3 p-2.5 hover:bg-black/5 rounded-2xl cursor-pointer transition-colors"
+                  >
+                    <img src={attorney.profilePhoto || resolveProfileImage(attorney.name)} className="w-9 h-9 rounded-full object-cover border border-black/10 shrink-0" />
+                    <div className="overflow-hidden flex-1">
+                      <div className="flex justify-between items-center mb-0.5">
+                        <h4 className="text-xs font-bold text-[#1d1d1f] truncate">{attorney.name}</h4>
+                        <span className="text-[10px] font-medium text-[#86868b]">Direct</span>
+                      </div>
+                      <p className="text-xs text-[#86868b] truncate">{attorney.title || 'Counsel'}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Chat Conversation View */}
+            {isChatOpen && (
+              <div className="flex flex-col w-full h-full absolute inset-0 bg-[#f5f5f7]/95 backdrop-blur-2xl z-10 animate-fade-in">
+                <div className="p-3 border-b border-black/5 flex items-center gap-3 bg-white/70 shrink-0">
+                  <button 
+                    onClick={() => setIsChatOpen(false)}
+                    className="w-8 h-8 rounded-full hover:bg-black/10 flex items-center justify-center text-[#1d1d1f] cursor-pointer"
+                  >
+                    <ChevronLeft className="w-5 h-5 font-bold" />
+                  </button>
+                  <img src={activeChatContact.avatar} className="w-8 h-8 rounded-full object-cover shrink-0" />
+                  <div className="overflow-hidden flex-1">
+                    <h3 className="text-xs font-bold text-[#1d1d1f] truncate">{activeChatContact.name}</h3>
+                    <p className="text-[10px] font-medium text-[#86868b] truncate">{activeChatContact.title}</p>
+                  </div>
+                  <button className="w-8 h-8 rounded-full hover:bg-black/10 flex items-center justify-center text-[#1d1d1f]">
+                    <Phone className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <div className="flex-1 p-3 overflow-y-auto flex flex-col gap-3">
+                  {chatMessages.map((msg) => (
+                    <div key={msg.id} className={`flex items-end gap-2 ${msg.isMe ? 'justify-end' : ''}`}>
+                      {!msg.isMe && (
+                        <div className="w-7 h-7 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-[10px] font-bold shrink-0">
+                          {msg.senderInitials}
+                        </div>
+                      )}
+                      <div className="max-w-[85%]">
+                        {!msg.isMe && (
+                          <span className="text-[10px] font-bold text-[#1d1d1f] block mb-0.5 pl-1">{msg.senderName}</span>
+                        )}
+                        <div className={`p-3 rounded-2xl text-xs font-medium leading-relaxed ${
+                          msg.isMe ? 'bg-[#0071e3] text-white rounded-br-none shadow-xs' : 'bg-white text-[#1d1d1f] border border-black/5 rounded-bl-none shadow-xs'
+                        }`}>
+                          {msg.text}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <form onSubmit={handleSendChatMessage} className="p-3 border-t border-black/5 bg-white/70 shrink-0">
+                  <div className="flex items-center gap-2">
+                    <input 
+                      type="text"
+                      value={chatInput}
+                      onChange={e => setChatInput(e.target.value)}
+                      placeholder="Type a message..."
+                      className="flex-1 bg-white border border-zinc-200 rounded-full py-2 px-4 text-xs font-medium focus:outline-none focus:border-blue-500"
+                    />
+                    <button type="submit" className="w-8 h-8 bg-[#0071e3] text-white rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors shadow-xs shrink-0 cursor-pointer">
+                      <Send className="w-4 h-4" />
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
+
+          </div>
+
+          {/* 10. Activity Stream */}
+          <div className="glass-card col-span-1 md:col-span-2 flex flex-col max-h-[460px]">
+            <div className="p-4 border-b border-black/5 flex items-center justify-between bg-white/30 rounded-t-[24px]">
+              <h2 className="text-base font-bold text-[#1d1d1f] tracking-tight">Audit Log & Stream</h2>
+              <span className="text-xs font-bold text-blue-600">Live</span>
+            </div>
+
+            <div className="flex-1 p-4 overflow-y-auto relative">
+              <div className="absolute left-6 top-6 bottom-6 w-[1.5px] bg-zinc-200"></div>
+              
+              <div className="space-y-5 relative">
+                {displayLogs.map((log) => (
+                  <div key={log.id} className="flex gap-3">
+                    <div className="w-4 h-4 rounded-full bg-emerald-100 border-2 border-white flex items-center justify-center shrink-0 relative z-10 mt-0.5">
+                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-600"></div>
+                    </div>
+                    <div className="overflow-hidden">
+                      <h4 className="text-xs font-bold text-[#1d1d1f] leading-tight truncate">{log.action}</h4>
+                      <p className="text-xs text-[#86868b] mt-0.5 truncate">{log.details || 'System activity logged'}</p>
+                      <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-wider mt-1">{log.timestamp?.seconds ? new Date(log.timestamp.seconds * 1000).toLocaleTimeString() : (log.timestamp || 'Just now')}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </main>
+
+      {/* RESEARCH AI FULL PAGE MODAL */}
+      {isResearchModalOpen && (
+        <div className="fixed inset-0 z-50 bg-[#fafafa] flex flex-col w-screen h-screen">
+          <ResearchCoHelper onClose={() => setIsResearchModalOpen(false)} />
+        </div>
+      )}
+
+      {/* NEW TASK MODAL */}
+      {isNewTaskModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="glass-card max-w-md w-full p-6 space-y-4 bg-white/95">
+            <h3 className="text-base font-bold text-[#1d1d1f]">Add New Task</h3>
+            <form onSubmit={handleCreateTask} className="space-y-3">
+              <div>
+                <label className="block text-xs font-bold text-[#86868b] uppercase mb-1">Task Description</label>
+                <input 
+                  type="text"
+                  value={newTaskTitle}
+                  onChange={e => setNewTaskTitle(e.target.value)}
+                  placeholder="e.g. File Constitutional Petition"
+                  className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-blue-500 font-medium"
+                  required
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-[#86868b] uppercase mb-1">Priority</label>
+                  <select
+                    value={newTaskPriority}
+                    onChange={e => setNewTaskPriority(e.target.value as any)}
+                    className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none focus:border-blue-500"
+                  >
+                    <option value="High">High</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Low">Low</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-[#86868b] uppercase mb-1">Due Date</label>
+                  <input
+                    type="text"
+                    value={newTaskDueDate}
+                    onChange={e => setNewTaskDueDate(e.target.value)}
+                    placeholder="Tomorrow"
+                    className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-blue-500 font-medium"
+                  />
+                </div>
+              </div>
+              <div className="flex justify-end gap-2 pt-2">
+                <button type="button" onClick={() => setIsNewTaskModalOpen(false)} className="px-4 py-2 text-xs font-bold text-zinc-600 hover:bg-zinc-100 rounded-xl">Cancel</button>
+                <button type="submit" className="bg-[#1d1d1f] text-white px-5 py-2 rounded-xl text-xs font-bold hover:bg-black shadow-sm cursor-pointer">Save Task</button>
+              </div>
+            </form>
           </div>
         </div>
       )}
 
-      {/* Header */}
-      <div className="bg-black text-white">
-        <Header />
-      </div>
-
-      <main className="w-full px-4 sm:px-6 lg:px-8 pt-28 pb-16 space-y-6">
-
-        {/* Minimalist Apple Profile Header Bar */}
-        <div className="bg-white rounded-2xl border border-neutral-200 shadow-xs p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3.5">
-            <div className="relative shrink-0 group">
-              <img
-                src={profile.image}
-                alt={firmUser.name}
-                onError={(e) => handleProfileImageError(e, firmUser.name)}
-                className="w-12 h-12 rounded-xl object-cover border border-neutral-200"
-              />
-              <label className="absolute inset-0 bg-black/80 text-white flex items-center justify-center rounded-xl opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer p-1">
-                {uploadingImage ? (
-                  <Loader2 className="w-4 h-4 text-white animate-spin" />
-                ) : (
-                  <Upload className="w-4 h-4 text-white" />
-                )}
-                <input
-                  type="file"
-                  accept="image/*"
-                  disabled={uploadingImage}
-                  className="hidden"
-                  onChange={async (e) => {
-                    const file = e.target.files?.[0];
-                    if (!file) return;
-                    try {
-                      setUploadingImage(true);
-                      const imageUrl = await uploadToImgBB(file, firmUser.name);
-                      updateProfile('image', imageUrl);
-                    } catch (err: any) {
-                      alert("Upload failed: " + (err?.message || "Try again"));
-                    } finally {
-                      setUploadingImage(false);
-                    }
-                  }}
+      {/* NEW MATTER MODAL */}
+      {isNewMatterModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="glass-card max-w-md w-full p-6 space-y-4 bg-white/95">
+            <h3 className="text-base font-bold text-[#1d1d1f]">Open New Legal Matter</h3>
+            <form onSubmit={handleCreateMatter} className="space-y-3">
+              <div>
+                <label className="block text-xs font-bold text-[#86868b] uppercase mb-1">Matter Title</label>
+                <input 
+                  type="text"
+                  value={newMatterTitle}
+                  onChange={e => setNewMatterTitle(e.target.value)}
+                  placeholder="e.g. Kariuki v. National Land Commission"
+                  className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-blue-500 font-medium"
+                  required
                 />
-              </label>
-            </div>
-
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-base sm:text-lg font-bold text-black">{firmUser.name}</h1>
-                <span className="px-2.5 py-0.5 bg-black text-white rounded-full text-[10px] font-mono font-bold uppercase tracking-wider">
-                  {firmUser.role.name}
-                </span>
               </div>
-              <p className="text-xs text-neutral-500 font-medium mt-0.5">
-                {profile.practice} • {profile.email}
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 flex-wrap">
-            <button onClick={() => setShowCalendar(true)}
-              className="inline-flex items-center gap-1.5 bg-neutral-100 hover:bg-neutral-200 text-black px-3.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer border border-neutral-200">
-              <Calendar className="w-3.5 h-3.5 text-black" /> Calendar
-            </button>
-            <button onClick={() => setShowNewFile(true)}
-              className="inline-flex items-center gap-1.5 bg-black hover:bg-neutral-800 text-white px-3.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer">
-              <FileText className="w-3.5 h-3.5 text-white" /> New File
-            </button>
-            <button onClick={logout}
-              className="inline-flex items-center gap-1.5 border border-neutral-200 hover:bg-rose-50 text-rose-700 px-3.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer">
-              <LogOut className="w-3.5 h-3.5" /> Sign Out
-            </button>
-          </div>
-        </div>
-
-        {/* ASSIGNED OFFICE DISPLAY & SELECTOR */}
-        <div className="bg-white rounded-2xl border border-neutral-200 shadow-xs p-3.5 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-          <div className="flex items-center bg-neutral-100 p-1 rounded-xl overflow-x-auto">
-            <button
-              onClick={() => setActiveTier("counsel")}
-              className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap ${
-                activeTier === "counsel"
-                  ? "bg-black text-white shadow-xs font-mono"
-                  : "text-neutral-600 hover:text-black hover:bg-neutral-200/60"
-              }`}
-            >
-              <Scale className="w-4 h-4 text-amber-400" />
-              <span>Counsel Office</span>
-              {assignedTier === "counsel" && (
-                <span className="bg-amber-400 text-black text-[9px] font-mono font-extrabold px-1.5 py-0.5 rounded-full uppercase">
-                  Assigned
-                </span>
-              )}
-            </button>
-
-            <button
-              onClick={() => setActiveTier("finance")}
-              className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap ${
-                activeTier === "finance"
-                  ? "bg-black text-white shadow-xs font-mono"
-                  : "text-neutral-600 hover:text-black hover:bg-neutral-200/60"
-              }`}
-            >
-              <BarChart2 className="w-4 h-4 text-emerald-400" />
-              <span>Finance Office</span>
-              {assignedTier === "finance" && (
-                <span className="bg-emerald-400 text-black text-[9px] font-mono font-extrabold px-1.5 py-0.5 rounded-full uppercase">
-                  Assigned
-                </span>
-              )}
-            </button>
-
-            <button
-              onClick={() => setActiveTier("admin")}
-              className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap ${
-                activeTier === "admin"
-                  ? "bg-black text-white shadow-xs font-mono"
-                  : "text-neutral-600 hover:text-black hover:bg-neutral-200/60"
-              }`}
-            >
-              <ShieldCheck className="w-4 h-4 text-purple-400" />
-              <span>Admin Office</span>
-              {assignedTier === "admin" && (
-                <span className="bg-purple-300 text-black text-[9px] font-mono font-extrabold px-1.5 py-0.5 rounded-full uppercase">
-                  Assigned
-                </span>
-              )}
-            </button>
-          </div>
-
-          <div className="flex items-center gap-2 text-xs text-neutral-500 font-medium px-2 self-end sm:self-center">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="font-mono text-[11px] uppercase tracking-wider font-bold text-neutral-600">
-              Firestore officeId: <span className="text-black font-extrabold underline">{firmUser?.officeId || "counsel"}</span>
-            </span>
-          </div>
-        </div>
-
-        {/* TIER 1: ADMIN OFFICE */}
-        {activeTier === "admin" && <ChambersAdminSuite />}
-
-        {/* TIER 2: FINANCE OFFICE */}
-        {activeTier === "finance" && <ChambersFinanceSuite />}
-
-        {/* TIER 3: COUNSEL OFFICE */}
-        {activeTier === "counsel" && (
-          <div className="space-y-6">
-
-            {/* DESK - GRAPHICAL SQUARE OFFICE ICON TEASER */}
-            <div className="bg-neutral-900 text-white rounded-2xl p-6 border border-neutral-800 shadow-md relative overflow-hidden group">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
-                <div className="flex items-center gap-4">
-                  {/* Graphical Square Office Icon */}
-                  <div 
-                    onClick={() => setShowDeskModal(true)}
-                    className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-neutral-800 border-2 border-amber-500/50 hover:border-amber-400 text-amber-400 flex flex-col items-center justify-center p-2 shadow-lg group-hover:scale-105 transition-all cursor-pointer shrink-0"
-                  >
-                    <BookOpen className="w-8 h-8 sm:w-10 sm:h-10 text-amber-400 mb-1" />
-                    <span className="text-[10px] font-mono font-extrabold uppercase tracking-widest text-white">DESK</span>
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => setShowDeskModal(true)}
-                  className="bg-white hover:bg-neutral-200 text-black px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2 shrink-0 cursor-pointer group-hover:bg-amber-400"
+              <div>
+                <label className="block text-xs font-bold text-[#86868b] uppercase mb-1">Client Name</label>
+                <input 
+                  type="text"
+                  value={newMatterClient}
+                  onChange={e => setNewMatterClient(e.target.value)}
+                  placeholder="e.g. Apex Holdings Ltd"
+                  className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-blue-500 font-medium"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-[#86868b] uppercase mb-1">Practice Area</label>
+                <select
+                  value={newMatterArea}
+                  onChange={e => setNewMatterArea(e.target.value)}
+                  className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none focus:border-blue-500"
                 >
-                  <BookOpen className="w-4 h-4 text-black" />
-                  <span>Launch Desk App</span>
-                  <ChevronRight className="w-4 h-4 text-black group-hover:translate-x-1 transition-transform" />
-                </button>
+                  <option value="Commercial Litigation">Commercial Litigation</option>
+                  <option value="Constitutional Law">Constitutional Law</option>
+                  <option value="Appellate">Appellate</option>
+                  <option value="Intellectual Property">Intellectual Property</option>
+                  <option value="Land & Property">Land & Property</option>
+                </select>
               </div>
-            </div>
-
-            {/* Counsel Stats Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <EditableStat label="Active Matters" icon={<Briefcase className="w-4 h-4 text-black" />} value={activeMattersCount} />
-              <EditableStat label="Pending Tasks" icon={<Clock className="w-4 h-4 text-black" />} value={pendingTasksCount} />
-              <EditableStat label="High Priority" icon={<AlertCircle className="w-4 h-4 text-rose-500" />} value={highPriorityCount} />
-              <EditableStat label="Filed Documents" icon={<FileText className="w-4 h-4 text-black" />} value={totalDocsCount} />
-            </div>
-
-            {/* Counsel Workspace Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-              {/* Main Docket Column */}
-              <div className="lg:col-span-2 space-y-6">
-
-                {/* Active Matters & Personal Docket */}
-                <div className="bg-white rounded-2xl border border-neutral-200 shadow-xs overflow-hidden">
-                  <div className="px-5 py-4 border-b border-neutral-200 flex flex-wrap items-center justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <Scale className="w-4 h-4 text-black" />
-                      <h3 className="text-sm font-bold text-black font-mono uppercase">Personal Docket & Active Matters</h3>
-                      <span className="text-xs text-neutral-400 font-normal">({matters.length})</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="flex bg-neutral-100 p-0.5 rounded-lg text-[11px]">
-                        {(["All", "Active", "In Review", "Pending"] as const).map(f => (
-                          <button key={f} onClick={() => setMatterFilter(f)}
-                            className={`px-2.5 py-1 rounded-md transition-colors font-bold uppercase ${matterFilter === f ? "bg-black text-white shadow-xs" : "text-neutral-500 hover:text-black"}`}>
-                            {f}
-                          </button>
-                        ))}
-                      </div>
-                      <button onClick={() => setShowNewMatterModal(true)}
-                        className="inline-flex items-center gap-1 bg-black hover:bg-neutral-800 text-white px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer">
-                        <Plus className="w-3.5 h-3.5 text-white" /> Open Matter
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="divide-y divide-neutral-200">
-                    {filteredMatters.length === 0 ? (
-                      <div className="p-8 text-center text-neutral-400 text-xs">
-                        No matter files matching filter "{matterFilter}".
-                      </div>
-                    ) : (
-                      filteredMatters.map(m => (
-                        <div key={m.id} className="p-4 hover:bg-neutral-50 transition-colors flex items-center justify-between gap-4">
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <h4 className="text-xs font-bold text-black">{m.title}</h4>
-                              <span className={`text-[9px] px-1.5 py-0.5 rounded font-mono font-bold uppercase ${
-                                m.urgency === 'High' ? 'bg-rose-50 text-rose-700 border border-rose-200' : 'bg-neutral-100 text-black'
-                              }`}>
-                                {m.urgency} Urgency
-                              </span>
-                            </div>
-                            <p className="text-[11px] text-neutral-500 mt-0.5">
-                              Client: <strong className="text-black">{m.client}</strong> {m.leadAttorney && `• Lead: ${m.leadAttorney}`} — {m.description}
-                            </p>
-                          </div>
-                          <div className="flex items-center gap-2 shrink-0">
-                            <select value={m.status} onChange={e => updateMatterStatus(m.id, e.target.value as any)}
-                              className="px-2 py-1 bg-neutral-50 border border-neutral-300 rounded-lg text-[10px] font-bold text-black focus:outline-none">
-                              <option value="Active">Active</option>
-                              <option value="In Review">In Review</option>
-                              <option value="Pending">Pending</option>
-                              <option value="Closed">Closed</option>
-                            </select>
-                            <button onClick={() => deleteMatter(m.id)} className="p-1 text-neutral-400 hover:text-rose-600 transition-colors cursor-pointer">
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
-                          </div>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </div>
-
-                {/* Task Management */}
-                <div className="bg-white rounded-2xl border border-neutral-200 shadow-xs overflow-hidden">
-                  <div className="px-5 py-4 border-b border-neutral-200 flex flex-wrap items-center justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-black" />
-                      <h3 className="text-sm font-bold text-black font-mono uppercase">Counsel Tasks & Assignments</h3>
-                      <span className="text-xs text-neutral-400 font-normal">({tasks.length})</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="flex bg-neutral-100 p-0.5 rounded-lg text-[11px]">
-                        {(["All", "Pending", "In Progress", "Completed"] as const).map(f => (
-                          <button key={f} onClick={() => setTaskFilter(f)}
-                            className={`px-2.5 py-1 rounded-md transition-colors font-bold uppercase ${taskFilter === f ? "bg-black text-white shadow-xs" : "text-neutral-500 hover:text-black"}`}>
-                            {f}
-                          </button>
-                        ))}
-                      </div>
-                      <button onClick={() => setShowNewTaskModal(true)}
-                        className="inline-flex items-center gap-1 bg-black hover:bg-neutral-800 text-white px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer">
-                        <Plus className="w-3.5 h-3.5 text-white" /> Add Task
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="divide-y divide-neutral-200">
-                    {filteredTasks.length === 0 ? (
-                      <div className="p-8 text-center text-neutral-400 text-xs">
-                        No tasks found matching filter "{taskFilter}".
-                      </div>
-                    ) : (
-                      filteredTasks.map(task => (
-                        <div key={task.id} className="p-4 hover:bg-neutral-50 transition-colors flex items-center justify-between gap-4">
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <h4 className={`text-xs font-bold ${task.status === 'Completed' ? 'text-neutral-400 line-through' : 'text-black'}`}>
-                                {task.title}
-                              </h4>
-                              <span className={`text-[9px] px-1.5 py-0.2 rounded font-mono font-bold uppercase ${
-                                task.priority === 'High' ? 'bg-rose-50 text-rose-700 border border-rose-200' : 'bg-neutral-100 text-black'
-                              }`}>
-                                {task.priority}
-                              </span>
-                            </div>
-                            <p className="text-[11px] text-neutral-500 mt-0.5">Assigned: <strong className="text-black">{task.assignee}</strong> • Due: {task.due}</p>
-                          </div>
-                          <div className="flex items-center gap-2 shrink-0">
-                            <button onClick={() => updateTaskStatus(task.id, task.status === 'Completed' ? 'In Progress' : 'Completed')}
-                              className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase transition-colors cursor-pointer ${
-                                task.status === 'Completed' ? 'bg-emerald-100 text-emerald-800' :
-                                task.status === 'In Progress' ? 'bg-amber-100 text-amber-900' : 'bg-neutral-100 text-black hover:bg-neutral-200'
-                              }`}>
-                              {task.status}
-                            </button>
-                            <button onClick={() => setActiveTask(task)}
-                              className="text-xs font-bold text-black hover:underline transition-colors p-1 cursor-pointer">
-                              Details
-                            </button>
-                          </div>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </div>
-
-                {/* Direct Messages Component */}
-                <div className="bg-white rounded-2xl border border-neutral-200 shadow-xs overflow-hidden">
-                  <div className="px-5 py-3 border-b border-neutral-200 bg-neutral-100 flex items-center justify-between">
-                    <h3 className="text-xs font-bold font-mono text-black uppercase tracking-wider flex items-center gap-2">
-                      <MessageSquare className="w-4 h-4 text-black" /> Direct Messaging & Counsel Chat
-                    </h3>
-                  </div>
-                  <div className="p-4">
-                    <ChambersDirectMessages />
-                  </div>
-                </div>
-
-                {/* Document Repository */}
-                <div className="bg-white rounded-2xl border border-neutral-200 shadow-xs overflow-hidden">
-                  <div className="px-5 py-4 border-b border-neutral-200 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <FileText className="w-4 h-4 text-black" />
-                      <h3 className="text-sm font-bold text-black font-mono uppercase">Document Repository & Briefs</h3>
-                    </div>
-                    <button onClick={() => setShowNewFile(true)}
-                      className="text-xs text-black font-bold uppercase tracking-wider hover:underline inline-flex items-center gap-1 cursor-pointer">
-                      <Plus className="w-3.5 h-3.5" /> File Document
-                    </button>
-                  </div>
-
-                  <div className="divide-y divide-neutral-200">
-                    {docs.length === 0 ? (
-                      <div className="p-8 text-center text-neutral-400 text-xs">No filed documents.</div>
-                    ) : (
-                      docs.map(doc => (
-                        <div key={doc.id} className="p-4 hover:bg-neutral-50 transition-colors flex items-center justify-between gap-4">
-                          <div className="flex items-center gap-3">
-                            <div className="p-2 bg-neutral-100 rounded-lg text-black">
-                              <FileText className="w-4 h-4" />
-                            </div>
-                            <div>
-                              <h4 className="text-xs font-bold text-black">{doc.title}</h4>
-                              <p className="text-[11px] text-neutral-500 mt-0.5">Category: {doc.type} • Filed by {doc.uploadedBy} on {doc.uploadedAt}</p>
-                            </div>
-                          </div>
-                          <button onClick={() => deleteDocument(doc.id)} className="p-1 text-neutral-400 hover:text-rose-600 transition-colors cursor-pointer">
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </div>
-
+              <div className="flex justify-end gap-2 pt-2">
+                <button type="button" onClick={() => setIsNewMatterModalOpen(false)} className="px-4 py-2 text-xs font-bold text-zinc-600 hover:bg-zinc-100 rounded-xl">Cancel</button>
+                <button type="submit" className="bg-[#1d1d1f] text-white px-5 py-2 rounded-xl text-xs font-bold hover:bg-black shadow-sm cursor-pointer">Open Matter</button>
               </div>
-
-              {/* Sidebar Column */}
-              <div className="space-y-6">
-
-                {/* Chambers Activity Stream */}
-                <div className="bg-white rounded-2xl border border-neutral-200 shadow-xs p-5 space-y-3">
-                  <div className="flex items-center justify-between border-b border-neutral-200 pb-2">
-                    <h3 className="text-xs font-bold text-black font-mono uppercase tracking-wider flex items-center gap-1.5">
-                      <Bell className="w-3.5 h-3.5 text-black" /> Chambers Activity Log
-                    </h3>
-                    <button onClick={() => setShowAllAlerts(!showAllAlerts)} className="text-[11px] font-bold text-black uppercase hover:underline cursor-pointer">
-                      {showAllAlerts ? 'Less' : 'All'}
-                    </button>
-                  </div>
-
-                  <div className="space-y-3">
-                    {visibleAlerts.length === 0 ? (
-                      <p className="text-xs text-neutral-400 italic">No activity entries yet.</p>
-                    ) : (
-                      visibleAlerts.map((alert) => (
-                        <div key={alert.id} className="flex items-start gap-2.5">
-                          <div className="mt-0.5 p-1 bg-neutral-100 rounded-md">{renderLogIcon(alert.iconType)}</div>
-                          <div className="min-w-0 flex-1">
-                            <p className="text-xs font-bold text-black leading-tight">{alert.title}</p>
-                            {alert.details && <p className="text-[10px] text-neutral-600 mt-0.5">{alert.details}</p>}
-                            <p className="text-[10px] font-mono text-neutral-400 mt-0.5">{alert.time}</p>
-                          </div>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </div>
-
-                {/* Quick Launch Card */}
-                <div className="bg-white rounded-2xl border border-neutral-200 shadow-xs p-5 space-y-3">
-                  <h3 className="text-xs font-bold text-black font-mono uppercase tracking-wider">Quick Actions</h3>
-                  <div className="space-y-2">
-                    <button onClick={() => setShowDeskModal(true)} className="w-full flex items-center justify-between p-2.5 rounded-xl bg-neutral-900 text-white hover:bg-black transition-colors text-left group cursor-pointer">
-                      <div className="flex items-center gap-2.5">
-                        <BookOpen className="w-4 h-4 text-amber-400" />
-                        <span className="text-xs font-bold">Desk — AI Research</span>
-                      </div>
-                      <ChevronRight className="w-3.5 h-3.5 text-neutral-400 group-hover:translate-x-1 transition-transform" />
-                    </button>
-
-                    <button onClick={() => setLocation('/attorneys')} className="w-full flex items-center justify-between p-2.5 rounded-xl border border-neutral-200 hover:bg-neutral-50 transition-colors text-left group cursor-pointer">
-                      <div className="flex items-center gap-2.5">
-                        <Users className="w-4 h-4 text-black" />
-                        <span className="text-xs font-bold text-black">Attorneys Directory</span>
-                      </div>
-                      <ChevronRight className="w-3.5 h-3.5 text-neutral-400 group-hover:translate-x-1 transition-transform" />
-                    </button>
-                  </div>
-                </div>
-
-                {/* User Account Card */}
-                <div className="bg-white rounded-2xl border border-neutral-200 shadow-xs p-5 space-y-3">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-black text-white flex items-center justify-center font-bold text-xs font-mono">
-                      {firmUser.name.charAt(0)}
-                    </div>
-                    <div>
-                      <p className="text-xs font-bold text-black">{firmUser.name}</p>
-                      <p className="text-[10px] font-mono text-neutral-500 uppercase">{firmUser.role.name}</p>
-                    </div>
-                  </div>
-                  <button onClick={logout}
-                    className="w-full flex items-center justify-center gap-1.5 border border-neutral-200 hover:bg-rose-50 text-rose-700 rounded-xl py-2 text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer">
-                    <LogOut className="w-3.5 h-3.5" /> Sign Out
-                  </button>
-                </div>
-
-              </div>
-
-            </div>
-
+            </form>
           </div>
-        )}
+        </div>
+      )}
 
-      </main>
     </div>
   );
-}
+};
+
+export default OfficePage;

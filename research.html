@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LexVanguard — Research Intelligence</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Phosphor Icons (Premium) -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <!-- Inter Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
+                    },
+                    colors: {
+                        zinc: {
+                            50: '#fafafa',
+                            100: '#f4f4f5',
+                            200: '#e4e4e7',
+                            300: '#d4d4d8',
+                            400: '#a1a1aa',
+                            500: '#71717a',
+                            600: '#52525b',
+                            700: '#3f3f46',
+                            800: '#27272a',
+                            900: '#18181b',
+                        },
+                        apple: {
+                            blue: '#007AFF',
+                            blueLight: '#E5F1FF',
+                        }
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'slide-up': 'slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'modal-in': 'modalIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'blob': 'blob 15s infinite',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { opacity: '0', transform: 'translateY(12px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        modalIn: {
+                            '0%': { opacity: '0', transform: 'scale(0.96) translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'scale(1) translateY(0)' },
+                        },
+                        blob: {
+                            '0%': { transform: 'translate(0px, 0px) scale(1)' },
+                            '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
+                            '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+                            '100%': { transform: 'translate(0px, 0px) scale(1)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #fafafa;
+            color: #18181b;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow: hidden; /* Prevent body scroll, layout handles internal scroll */
+        }
+
+        /* Ambient Glass Background */
+        .ambient-bg {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: -1;
+            background: 
+                radial-gradient(circle at 15% 50%, rgba(0, 122, 255, 0.04), transparent 50%),
+                radial-gradient(circle at 85% 30%, rgba(0, 198, 255, 0.03), transparent 50%);
+        }
+
+        /* High-end Glass Panel */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(40px) saturate(200%);
+            -webkit-backdrop-filter: blur(40px) saturate(200%);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 
+                0 4px 24px rgba(0, 0, 0, 0.02),
+                0 1px 2px rgba(0, 0, 0, 0.01),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+        }
+
+        /* Solid White Cards with soft depth */
+        .white-card {
+            background: #ffffff;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            box-shadow: 
+                0 2px 8px rgba(0, 0, 0, 0.02),
+                0 1px 2px rgba(0, 0, 0, 0.01);
+            border-radius: 24px;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .white-card:hover {
+            box-shadow: 
+                0 8px 30px rgba(0, 0, 0, 0.04),
+                0 2px 4px rgba(0, 0, 0, 0.01);
+        }
+
+        /* Elegant Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0,0,0,0.1);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0,0,0,0.2);
+        }
+        .hide-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* PDF Reader Page Shadow */
+        .pdf-page-shadow {
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.05);
+        }
+    </style>
+</head>
+<body class="h-screen w-screen flex flex-col font-sans selection:bg-apple-blue selection:text-white">
+
+    <div class="ambient-bg"></div>
+
+    <!-- Top Navigation Area -->
+    <header class="w-full px-4 pt-4 pb-2 z-40 shrink-0">
+        <div class="max-w-[1400px] mx-auto glass-panel rounded-[28px] p-2 flex items-center justify-between shadow-sm">
+            
+            <!-- Left: Branding & Back -->
+            <div class="flex items-center gap-3 pl-2">
+                <button onclick="window.location.href='/'" class="w-9 h-9 rounded-full hover:bg-zinc-100 flex items-center justify-center transition-colors text-zinc-900 group">
+                    <i class="ph-bold ph-arrow-left text-lg group-hover:-translate-x-0.5 transition-transform"></i>
+                </button>
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-xl bg-zinc-900 text-white flex items-center justify-center shadow-md">
+                        <i class="ph-fill ph-sparkle text-sm"></i>
+                    </div>
+                    <span class="font-bold text-zinc-900 tracking-tight text-sm">Research Intelligence</span>
+                </div>
+            </div>
+
+            <!-- Center: Segmented Navigation -->
+            <nav class="hidden md:flex bg-zinc-100/80 p-1 rounded-2xl border border-zinc-200/50 backdrop-blur-md">
+                <button onclick="switchView('cases')" id="nav-cases" class="nav-btn px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all bg-white text-zinc-900 shadow-sm border border-zinc-200/50">
+                    <i class="ph-bold ph-squares-four text-sm"></i> Cases
+                </button>
+                <button onclick="switchView('search')" id="nav-search" class="nav-btn px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all text-zinc-500 hover:text-zinc-900 hover:bg-zinc-200/50">
+                    <i class="ph-bold ph-scales text-sm"></i> eLegal Search
+                </button>
+                <button onclick="switchView('materials')" id="nav-materials" class="nav-btn px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all text-zinc-500 hover:text-zinc-900 hover:bg-zinc-200/50">
+                    <i class="ph-bold ph-folder text-sm"></i> Materials
+                </button>
+                <button onclick="switchView('ai')" id="nav-ai" class="nav-btn px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all text-zinc-500 hover:text-zinc-900 hover:bg-zinc-200/50">
+                    <i class="ph-bold ph-chat-teardrop-text text-sm"></i> Research AI
+                </button>
+                <button onclick="switchView('drafting')" id="nav-drafting" class="nav-btn px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all text-zinc-500 hover:text-zinc-900 hover:bg-zinc-200/50">
+                    <i class="ph-bold ph-file-text text-sm"></i> Drafting
+                </button>
+            </nav>
+
+            <!-- Right: User Profile -->
+            <div class="pr-2 flex items-center gap-3">
+                <button class="w-9 h-9 rounded-full hover:bg-zinc-100 flex items-center justify-center transition-colors text-zinc-600">
+                    <i class="ph-bold ph-bell text-lg"></i>
+                </button>
+                <div class="w-9 h-9 rounded-full overflow-hidden border border-zinc-200 shadow-sm cursor-pointer hover:shadow-md transition-shadow">
+                    <img src="https://ui-avatars.com/api/?name=Counsel&background=18181b&color=fff" class="w-full h-full object-cover">
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Workspace -->
+    <main class="flex-1 w-full max-w-[1400px] mx-auto px-4 pb-4 overflow-hidden relative">
+        <div class="w-full h-full relative">
+
+            <!-- ==========================================
+                 1. CASES VIEW (Default Active)
+            =========================================== -->
+            <div id="view-cases" class="view-section h-full flex flex-col animate-fade-in absolute inset-0 z-10">
+                
+                <!-- 1A: Cases List Container -->
+                <div id="cases-list-container" class="h-full flex flex-col">
+                    <div class="flex items-center justify-between mb-6 pt-4 px-2">
+                        <div>
+                            <h2 class="text-2xl font-bold text-zinc-900 tracking-tight">Active Cases Registry</h2>
+                            <p class="text-sm text-zinc-500 mt-1 font-medium">Manage and scope your research to specific case files.</p>
+                        </div>
+                        <button onclick="alert('Open New Case Flow')" class="bg-zinc-900 hover:bg-zinc-800 text-white px-5 py-2.5 rounded-[16px] text-sm font-semibold flex items-center gap-2 transition-transform hover:scale-[1.02] active:scale-95 shadow-lg shadow-zinc-900/10">
+                            <i class="ph-bold ph-plus"></i> New Case
+                        </button>
+                    </div>
+
+                    <!-- Cases Grid -->
+                    <div class="flex-1 overflow-y-auto pb-10 hide-scroll">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 px-2">
+                            
+                            <!-- Case Card 1 -->
+                            <div class="white-card p-6 flex flex-col h-full group">
+                                <div class="flex justify-between items-start mb-4">
+                                    <div class="w-12 h-12 rounded-[16px] bg-apple-blueLight text-apple-blue flex items-center justify-center text-xl font-bold shadow-inner">
+                                        <i class="ph-fill ph-briefcase"></i>
+                                    </div>
+                                    <span class="bg-rose-50 text-rose-600 text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-md border border-rose-100">Appellate</span>
+                                </div>
+                                <h3 class="text-lg font-bold text-zinc-900 leading-tight mb-2 group-hover:text-apple-blue transition-colors">Kariuki v. Attorney General</h3>
+                                <p class="text-sm text-zinc-500 mb-6 flex-1 line-clamp-2">Constitutional petition regarding fair administrative action and property rights under Article 40.</p>
+                                
+                                <div class="flex items-center justify-between border-t border-zinc-100 pt-4 mt-auto">
+                                    <button onclick="openCaseDetail('Kariuki v. Attorney General')" class="text-sm font-bold text-zinc-900 hover:text-apple-blue flex items-center gap-1.5 transition-colors">
+                                        Open Workspace <i class="ph-bold ph-arrow-right"></i>
+                                    </button>
+                                    <button class="w-8 h-8 rounded-full hover:bg-rose-50 hover:text-rose-600 text-zinc-400 flex items-center justify-center transition-colors" title="Delete Case">
+                                        <i class="ph-bold ph-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Case Card 2 -->
+                            <div class="white-card p-6 flex flex-col h-full group">
+                                <div class="flex justify-between items-start mb-4">
+                                    <div class="w-12 h-12 rounded-[16px] bg-zinc-100 text-zinc-700 flex items-center justify-center text-xl font-bold shadow-inner">
+                                        <i class="ph-fill ph-buildings"></i>
+                                    </div>
+                                    <span class="bg-zinc-100 text-zinc-600 text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-md border border-zinc-200">Corporate</span>
+                                </div>
+                                <h3 class="text-lg font-bold text-zinc-900 leading-tight mb-2 group-hover:text-apple-blue transition-colors">Vanguard Tech Acquisition</h3>
+                                <p class="text-sm text-zinc-500 mb-6 flex-1 line-clamp-2">M&A due diligence, IP transfer agreements, and regulatory compliance review.</p>
+                                
+                                <div class="flex items-center justify-between border-t border-zinc-100 pt-4 mt-auto">
+                                    <button onclick="openCaseDetail('Vanguard Tech Acquisition')" class="text-sm font-bold text-zinc-900 hover:text-apple-blue flex items-center gap-1.5 transition-colors">
+                                        Open Workspace <i class="ph-bold ph-arrow-right"></i>
+                                    </button>
+                                    <button class="w-8 h-8 rounded-full hover:bg-rose-50 hover:text-rose-600 text-zinc-400 flex items-center justify-center transition-colors">
+                                        <i class="ph-bold ph-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 1B: Case Detail Sub-View (Hidden by default) -->
+                <div id="case-detail-container" class="hidden h-full flex-col animate-slide-up bg-zinc-50/95 backdrop-blur-xl absolute inset-0 z-20 rounded-[32px] overflow-hidden border border-zinc-200/50 shadow-sm">
+                    <!-- Detail Header -->
+                    <div class="p-6 border-b border-zinc-200 bg-white/50 flex flex-col md:flex-row md:items-center justify-between gap-4 shrink-0">
+                        <div class="flex items-start gap-4">
+                            <button onclick="closeCaseDetail()" class="mt-1 w-10 h-10 rounded-full bg-white border border-zinc-200 hover:bg-zinc-50 flex items-center justify-center text-zinc-600 transition-colors shadow-sm shrink-0">
+                                <i class="ph-bold ph-arrow-left text-lg"></i>
+                            </button>
+                            <div>
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="bg-emerald-50 text-emerald-700 text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-md border border-emerald-100">Active</span>
+                                    <span class="text-xs font-mono font-medium text-zinc-500">Ref: LV-2026-084</span>
+                                </div>
+                                <h2 id="detail-case-title" class="text-2xl font-bold text-zinc-900 tracking-tight">Case Title</h2>
+                            </div>
+                        </div>
+                        <div class="flex bg-zinc-100 p-1 rounded-[16px] border border-zinc-200 shadow-inner overflow-x-auto hide-scroll">
+                            <button class="px-4 py-2 bg-white text-zinc-900 rounded-[12px] text-xs font-bold shadow-sm whitespace-nowrap">Overview & Facts</button>
+                            <button class="px-4 py-2 text-zinc-500 hover:text-zinc-900 rounded-[12px] text-xs font-semibold transition-colors whitespace-nowrap">Filed Briefs</button>
+                            <button class="px-4 py-2 text-zinc-500 hover:text-zinc-900 rounded-[12px] text-xs font-semibold transition-colors whitespace-nowrap">Saved Authorities</button>
+                        </div>
+                    </div>
+
+                    <!-- Detail Content Grid -->
+                    <div class="flex-1 overflow-y-auto p-6">
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+                            <!-- Left: Facts & Instructions -->
+                            <div class="lg:col-span-2 space-y-6">
+                                <div class="white-card p-6">
+                                    <div class="flex items-center justify-between mb-4">
+                                        <h3 class="text-sm font-bold text-zinc-900 uppercase tracking-widest flex items-center gap-2">
+                                            <i class="ph-fill ph-text-align-left text-zinc-400 text-lg"></i> Case Facts
+                                        </h3>
+                                        <button class="text-xs font-bold text-apple-blue hover:underline">Edit</button>
+                                    </div>
+                                    <p class="text-sm text-zinc-600 leading-relaxed font-medium">
+                                        The client, Mr. Kariuki, seeks to appeal the decision of the High Court regarding the compulsory acquisition of his property by the National Environment & Land Authority. The primary contention is the violation of Article 40 of the Constitution concerning fair and prompt compensation.
+                                        <br><br>
+                                        Instructions are to draft a skeleton argument focusing on procedural impropriety and the breach of the right to fair administrative action (Article 47).
+                                    </p>
+                                </div>
+                                
+                                <div class="white-card p-6">
+                                     <h3 class="text-sm font-bold text-zinc-900 uppercase tracking-widest flex items-center gap-2 mb-4">
+                                        <i class="ph-fill ph-files text-zinc-400 text-lg"></i> Attached Files & Evidence
+                                    </h3>
+                                    <div class="border border-zinc-200 rounded-[16px] p-2 divide-y divide-zinc-100">
+                                        <div class="p-3 flex items-center justify-between hover:bg-zinc-50 rounded-[12px] cursor-pointer group transition-colors">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-10 h-10 rounded-[12px] bg-red-50 text-red-500 flex items-center justify-center text-lg">
+                                                    <i class="ph-fill ph-file-pdf"></i>
+                                                </div>
+                                                <div>
+                                                    <p class="text-sm font-semibold text-zinc-900 group-hover:text-apple-blue">High_Court_Ruling_Signed.pdf</p>
+                                                    <p class="text-[11px] text-zinc-500 font-medium">2.4 MB • Uploaded Yesterday</p>
+                                                </div>
+                                            </div>
+                                            <button onclick="openPDFReader('High_Court_Ruling_Signed.pdf')" class="opacity-0 group-hover:opacity-100 bg-white border border-zinc-200 px-3 py-1.5 rounded-lg text-xs font-bold text-zinc-700 hover:bg-zinc-100 transition-all shadow-sm">
+                                                Read
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Right: Metadata & AI Quick Actions -->
+                            <div class="space-y-6">
+                                <div class="white-card p-6 bg-zinc-900 text-white border-zinc-800">
+                                    <h3 class="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-2 mb-4">
+                                        <i class="ph-fill ph-sparkle text-amber-400 text-lg"></i> AI Analysis
+                                    </h3>
+                                    <p class="text-xs text-zinc-400 leading-relaxed mb-5">
+                                        Run specialized legal AI agents scoped purely to the facts and documents of this case.
+                                    </p>
+                                    <div class="space-y-2">
+                                        <button class="w-full bg-white/10 hover:bg-white/20 border border-white/10 text-white text-xs font-semibold py-2.5 rounded-[12px] transition-colors text-left px-4 flex items-center justify-between">
+                                            Generate Chronology <i class="ph-bold ph-arrow-right"></i>
+                                        </button>
+                                        <button class="w-full bg-white/10 hover:bg-white/20 border border-white/10 text-white text-xs font-semibold py-2.5 rounded-[12px] transition-colors text-left px-4 flex items-center justify-between">
+                                            Identify Legal Issues <i class="ph-bold ph-arrow-right"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==========================================
+                 2. eLEGAL SEARCH VIEW
+            =========================================== -->
+            <div id="view-search" class="view-section hidden h-full flex-col animate-fade-in absolute inset-0 z-10 pt-4">
+                <div class="max-w-4xl mx-auto w-full space-y-6 flex flex-col h-full pb-8">
+                    
+                    <!-- Search Input Box -->
+                    <div class="white-card p-2 md:p-3 shrink-0">
+                        <div class="flex flex-col md:flex-row gap-2 md:gap-3">
+                            <div class="relative flex-1 group">
+                                <i class="ph-bold ph-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 group-focus-within:text-apple-blue transition-colors text-lg"></i>
+                                <input type="text" value="constitution land rights" class="w-full bg-zinc-50 border border-zinc-200 text-zinc-900 rounded-[16px] py-4 pl-12 pr-4 focus:outline-none focus:border-apple-blue focus:ring-4 focus:ring-apple-blue/10 transition-all font-semibold text-[15px] shadow-inner">
+                            </div>
+                            <div class="relative w-full md:w-[200px]">
+                                <select class="w-full appearance-none bg-zinc-50 border border-zinc-200 text-zinc-900 rounded-[16px] py-4 pl-4 pr-10 focus:outline-none focus:border-apple-blue transition-all font-semibold text-[14px] cursor-pointer">
+                                    <option>All Sources</option>
+                                    <option>Case Law</option>
+                                    <option>Statutes</option>
+                                </select>
+                                <i class="ph-bold ph-caret-down absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400 pointer-events-none"></i>
+                            </div>
+                            <button class="bg-zinc-900 text-white px-8 py-4 rounded-[16px] font-bold text-[14px] hover:bg-zinc-800 active:scale-95 transition-all shadow-lg shadow-zinc-900/20 flex items-center justify-center gap-2">
+                                Search
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Results List -->
+                    <div class="flex-1 overflow-y-auto hide-scroll space-y-4 px-2">
+                        <h3 class="text-xs font-bold text-zinc-500 uppercase tracking-widest pl-2">Authority Results (2)</h3>
+                        
+                        <!-- Result 1 -->
+                        <div class="white-card p-6 group">
+                            <div class="flex flex-wrap items-center gap-2 mb-3">
+                                <span class="bg-amber-50 text-amber-700 border border-amber-200/60 px-2.5 py-1 rounded-[8px] text-[10px] font-bold uppercase tracking-wider shadow-sm">Precedent</span>
+                                <span class="bg-zinc-100 text-zinc-600 px-2.5 py-1 rounded-[8px] text-[11px] font-mono font-bold border border-zinc-200/60"> [2024] KEHC 7012 (KLR) </span>
+                                <span class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Kenya</span>
+                            </div>
+                            <h4 class="text-lg md:text-xl font-bold text-zinc-900 leading-tight mb-2 pr-4 group-hover:text-apple-blue transition-colors">
+                                Republic v National Environment & Land Authority Ex-Parte Constitution land rights Applicants
+                            </h4>
+                            <p class="text-sm text-zinc-600 leading-relaxed mb-5 line-clamp-2 font-medium">
+                                High Court of Kenya binding decision establishing legal precedent, constitutional safeguards, and procedural requirements governing the compulsory acquisition...
+                            </p>
+                            <div class="flex flex-wrap gap-3">
+                                <button onclick="openPDFReader('Republic v NELA [2024] KEHC 7012.pdf')" class="bg-zinc-900 text-white px-5 py-2.5 rounded-[12px] text-xs font-bold flex items-center gap-2 hover:bg-zinc-800 transition-colors shadow-md">
+                                    <i class="ph-bold ph-eye"></i> Read Full Text
+                                </button>
+                                <button class="bg-white text-zinc-700 border border-zinc-200 px-5 py-2.5 rounded-[12px] text-xs font-bold flex items-center gap-2 hover:bg-zinc-50 transition-colors shadow-sm">
+                                    <i class="ph-bold ph-copy"></i> Copy Citation
+                                </button>
+                                <button class="bg-apple-blueLight text-apple-blue border border-blue-200/50 px-5 py-2.5 rounded-[12px] text-xs font-bold flex items-center gap-2 hover:bg-blue-100 transition-colors shadow-sm ml-auto">
+                                    <i class="ph-bold ph-folder-plus"></i> Save to Case
+                                </button>
+                            </div>
+                        </div>
+
+                         <!-- Result 2 -->
+                         <div class="white-card p-6 group">
+                            <div class="flex flex-wrap items-center gap-2 mb-3">
+                                <span class="bg-indigo-50 text-indigo-700 border border-indigo-200/60 px-2.5 py-1 rounded-[8px] text-[10px] font-bold uppercase tracking-wider shadow-sm">Statute</span>
+                                <span class="bg-zinc-100 text-zinc-600 px-2.5 py-1 rounded-[8px] text-[11px] font-mono font-bold border border-zinc-200/60">Const. of Kenya (2010)</span>
+                            </div>
+                            <h4 class="text-lg md:text-xl font-bold text-zinc-900 leading-tight mb-2 pr-4 group-hover:text-apple-blue transition-colors">
+                                Constitution of Kenya 2010 — Constitutional Provisions on Land Rights
+                            </h4>
+                            <p class="text-sm text-zinc-600 leading-relaxed mb-5 line-clamp-2 font-medium">
+                                Articles 40, 47, 48, and 159 guaranteeing constitutional rights to property, fair administrative action, access to justice, and alternative dispute resolution...
+                            </p>
+                            <div class="flex flex-wrap gap-3">
+                                <button onclick="openPDFReader('Constitution_of_Kenya_2010.pdf')" class="bg-zinc-900 text-white px-5 py-2.5 rounded-[12px] text-xs font-bold flex items-center gap-2 hover:bg-zinc-800 transition-colors shadow-md">
+                                    <i class="ph-bold ph-eye"></i> Read Full Text
+                                </button>
+                                <button class="bg-white text-zinc-700 border border-zinc-200 px-5 py-2.5 rounded-[12px] text-xs font-bold flex items-center gap-2 hover:bg-zinc-50 transition-colors shadow-sm">
+                                    <i class="ph-bold ph-copy"></i> Copy Citation
+                                </button>
+                                <button class="bg-apple-blueLight text-apple-blue border border-blue-200/50 px-5 py-2.5 rounded-[12px] text-xs font-bold flex items-center gap-2 hover:bg-blue-100 transition-colors shadow-sm ml-auto">
+                                    <i class="ph-bold ph-folder-plus"></i> Save to Case
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==========================================
+                 3. RESEARCH AI VIEW
+            =========================================== -->
+            <div id="view-ai" class="view-section hidden h-full flex-col animate-fade-in absolute inset-0 z-10 pt-4">
+                <div class="max-w-3xl mx-auto w-full h-full flex flex-col relative pb-24">
+                    
+                    <!-- Chat History -->
+                    <div class="flex-1 overflow-y-auto hide-scroll space-y-6 px-2 pt-4 pb-10">
+                        
+                        <!-- AI Greeting -->
+                        <div class="flex gap-4">
+                            <div class="w-10 h-10 rounded-[14px] bg-zinc-900 text-white flex items-center justify-center shrink-0 shadow-md">
+                                <i class="ph-fill ph-sparkle text-lg"></i>
+                            </div>
+                            <div class="white-card p-5 rounded-tl-sm text-[14px] text-zinc-800 font-medium leading-relaxed max-w-[85%] shadow-sm">
+                                Hello Counsel. I am your LexAI Legal Assistant. Search eLegal authorities, save precedent materials, organize case files, or analyze complex legal matters. How can I assist you today?
+                            </div>
+                        </div>
+
+                        <!-- User Query -->
+                        <div class="flex gap-4 justify-end">
+                            <div class="bg-apple-blue text-white p-5 rounded-[24px] rounded-tr-sm text-[14px] font-medium leading-relaxed max-w-[85%] shadow-md">
+                                What is the current judicial stance in Kenya regarding compensation for compulsory land acquisition when administrative procedures in Article 47 are breached?
+                            </div>
+                        </div>
+
+                        <!-- AI Response (Detailed) -->
+                        <div class="flex gap-4">
+                            <div class="w-10 h-10 rounded-[14px] bg-zinc-900 text-white flex items-center justify-center shrink-0 shadow-md">
+                                <i class="ph-fill ph-sparkle text-lg"></i>
+                            </div>
+                            <div class="white-card p-5 rounded-tl-sm text-[14px] text-zinc-800 font-medium leading-relaxed max-w-[90%] shadow-sm space-y-3">
+                                <p>Based on recent jurisprudence, particularly <strong>Republic v NELA [2024] KEHC 7012</strong>, the courts have taken a strict approach.</p>
+                                <p>If the acquiring authority breaches the right to fair administrative action (Article 47) by failing to provide adequate notice or a hearing, the court is likely to:</p>
+                                <ul class="list-disc pl-5 space-y-1 text-zinc-600">
+                                    <li>Nullify the acquisition process entirely.</li>
+                                    <li>Order aggravated damages beyond the standard "just compensation" required by Article 40.</li>
+                                    <li>Mandate a fresh valuation process involving independent assessors.</li>
+                                </ul>
+                                <div class="bg-zinc-50 border border-zinc-200 p-3 rounded-[12px] mt-4 flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <i class="ph-bold ph-scales text-zinc-400"></i>
+                                        <span class="text-xs font-bold font-mono text-zinc-700">[2024] KEHC 7012 (KLR)</span>
+                                    </div>
+                                    <button onclick="openPDFReader('Republic v NELA.pdf')" class="text-xs font-bold text-apple-blue hover:underline">Read Authority</button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    
+                    <!-- Fixed Input Area -->
+                    <div class="absolute bottom-4 left-0 right-0 px-2">
+                        <div class="glass-panel p-2 rounded-[24px] shadow-lg flex items-center gap-2">
+                            <button class="w-12 h-12 rounded-full flex items-center justify-center text-zinc-400 hover:text-zinc-900 hover:bg-zinc-100 transition-colors shrink-0">
+                                <i class="ph-bold ph-paperclip text-xl"></i>
+                            </button>
+                            <input type="text" placeholder="Ask a legal query or request precedent analysis..." class="flex-1 bg-transparent border-none py-3 px-2 text-[15px] font-medium text-zinc-900 placeholder-zinc-400 focus:outline-none focus:ring-0">
+                            <button class="bg-zinc-900 text-white px-6 py-3 rounded-[18px] font-bold text-sm hover:bg-zinc-800 transition-transform active:scale-95 shadow-md shrink-0 flex items-center gap-2">
+                                Send <i class="ph-bold ph-paper-plane-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Other views (Materials, Drafting) remain structural placeholders for brevity but follow the same premium aesthetic -->
+            <div id="view-materials" class="view-section hidden h-full flex flex-col items-center justify-center absolute inset-0 z-10">
+                 <div class="white-card p-10 max-w-md w-full text-center shadow-lg">
+                    <div class="w-16 h-16 bg-zinc-50 border border-zinc-200 rounded-[20px] mx-auto flex items-center justify-center mb-5">
+                        <i class="ph-duotone ph-folder text-3xl text-zinc-400"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-zinc-900 mb-2">No Materials Saved</h3>
+                    <p class="text-sm text-zinc-500 font-medium mb-8">Upload documents or save search results from the eLegal Search tab.</p>
+                    <button class="w-full bg-zinc-900 text-white py-3.5 rounded-[16px] font-bold text-sm hover:bg-zinc-800 transition-colors shadow-md">
+                        Upload Document
+                    </button>
+                 </div>
+            </div>
+
+            <div id="view-drafting" class="view-section hidden h-full absolute inset-0 z-10 pt-4 pb-8">
+                <div class="h-full flex flex-col lg:flex-row gap-6">
+                    <div class="flex-1 flex flex-col h-full">
+                         <h3 class="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-3 pl-1">Case Facts & Arguments</h3>
+                         <textarea class="flex-1 white-card p-6 text-[15px] font-medium text-zinc-900 resize-none focus:outline-none focus:ring-4 focus:ring-apple-blue/10 focus:border-apple-blue transition-all" placeholder="Enter instructions..."></textarea>
+                         <button class="mt-4 bg-zinc-900 text-white py-4 rounded-[16px] font-bold text-sm shadow-lg hover:bg-zinc-800 transition-colors">Generate Legal Brief</button>
+                    </div>
+                    <div class="flex-1 flex flex-col h-full">
+                         <h3 class="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-3 pl-1">Generated Draft</h3>
+                         <div class="flex-1 white-card p-8 bg-zinc-50/50 flex items-center justify-center overflow-y-auto">
+                             <p class="font-mono text-sm text-zinc-400 font-medium text-center">Your generated legal submission draft will appear here...</p>
+                         </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- ==========================================
+         PDF READER MODAL (Full Screen Overlay)
+    =========================================== -->
+    <div id="pdf-reader-modal" class="fixed inset-0 z-50 hidden bg-zinc-900/90 backdrop-blur-xl flex flex-col animate-fade-in opacity-0 transition-opacity duration-300">
+        
+        <!-- Mac-style Dark Toolbar -->
+        <div class="h-14 border-b border-white/10 bg-black/40 flex items-center justify-between px-4 shrink-0 shadow-sm backdrop-blur-md">
+            <div class="flex items-center gap-4 w-1/3">
+                <button onclick="closePDFReader()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors">
+                    <i class="ph-bold ph-x text-sm"></i>
+                </button>
+                <div class="hidden md:flex items-center gap-1 bg-white/5 rounded-lg p-1 border border-white/10">
+                    <button class="w-8 h-8 rounded hover:bg-white/10 text-zinc-300 flex items-center justify-center transition-colors"><i class="ph-bold ph-list"></i></button>
+                </div>
+            </div>
+            
+            <div class="flex-1 flex justify-center text-center truncate">
+                <span id="pdf-title-display" class="text-sm font-semibold text-zinc-200 font-mono tracking-tight truncate px-4">Document.pdf</span>
+            </div>
+            
+            <div class="flex items-center justify-end gap-2 w-1/3">
+                <div class="flex items-center gap-1 bg-white/5 rounded-lg p-1 border border-white/10 mr-4">
+                    <button class="w-8 h-8 rounded hover:bg-white/10 text-zinc-300 flex items-center justify-center transition-colors"><i class="ph-bold ph-minus"></i></button>
+                    <span class="text-xs font-mono text-zinc-400 px-2">100%</span>
+                    <button class="w-8 h-8 rounded hover:bg-white/10 text-zinc-300 flex items-center justify-center transition-colors"><i class="ph-bold ph-plus"></i></button>
+                </div>
+                <button class="hidden md:flex bg-apple-blue hover:bg-blue-600 text-white px-4 py-1.5 rounded-lg text-xs font-bold transition-colors">
+                    Download
+                </button>
+            </div>
+        </div>
+
+        <!-- Document Viewer Area -->
+        <div class="flex-1 overflow-y-auto bg-zinc-800/50 flex justify-center p-4 md:p-8">
+            <!-- Simulated PDF Page -->
+            <div class="bg-white w-full max-w-[850px] min-h-[1100px] pdf-page-shadow rounded-sm p-12 md:p-20 relative animate-modal-in">
+                
+                <!-- Mock PDF Content -->
+                <div class="text-center mb-12 border-b-2 border-black pb-6">
+                    <h1 class="text-2xl font-serif font-bold text-black uppercase tracking-widest mb-2">Republic of Kenya</h1>
+                    <h2 class="text-lg font-serif font-bold text-zinc-800 uppercase">In The High Court of Kenya</h2>
+                    <p class="text-sm font-mono mt-4 font-bold text-zinc-600">Constitutional Petition No. 7012 of 2024</p>
+                </div>
+
+                <div class="space-y-6 text-[15px] font-serif text-black leading-relaxed text-justify">
+                    <div class="flex gap-4">
+                        <span class="font-bold w-32 shrink-0">BETWEEN</span>
+                        <div class="flex-1 border-b border-dotted border-zinc-400 mb-1"></div>
+                    </div>
+                    <p class="uppercase font-bold text-center">John Kariuki .................................................... 1st Petitioner</p>
+                    
+                    <div class="flex gap-4">
+                        <span class="font-bold w-32 shrink-0">AND</span>
+                        <div class="flex-1 border-b border-dotted border-zinc-400 mb-1"></div>
+                    </div>
+                    <p class="uppercase font-bold text-center">National Environment & Land Authority ...... 1st Respondent</p>
+                    <p class="uppercase font-bold text-center">The Hon. Attorney General ............................. 2nd Respondent</p>
+                    
+                    <h3 class="font-bold text-center underline uppercase mt-10 mb-6">Judgment</h3>
+                    
+                    <p><span class="font-bold text-lg float-left mr-2 mt-1">1.</span> This petition concerns the fundamental rights to property as enshrined under Article 40 of the Constitution of Kenya (2010), read together with the right to fair administrative action under Article 47. The 1st Petitioner seeks conservatory orders and a declaration of unconstitutionality regarding the compulsory acquisition process initiated by the 1st Respondent.</p>
+                    
+                    <p><span class="font-bold text-lg float-left mr-2 mt-1">2.</span> The facts, which are largely undisputed, indicate that on the 14th of May 2024, the 1st Respondent published a gazette notice intending to acquire parcel L.R. No. 4589/2 for the construction of a public bypass. The Petitioner argues that no prior hearing, valuation, or prompt compensation was offered, rendering the administrative action procedurally flawed and void *ab initio*.</p>
+                    
+                    <!-- Watermark -->
+                    <div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-5">
+                        <i class="ph-fill ph-scales text-[400px]"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Main Tab Switching Logic
+        function switchView(viewId) {
+            const tabs = ['cases', 'search', 'materials', 'ai', 'drafting'];
+            
+            // Update Buttons
+            tabs.forEach(tab => {
+                const btn = document.getElementById(`nav-${tab}`);
+                if (!btn) return;
+                
+                if (tab === viewId) {
+                    btn.classList.remove('text-zinc-500', 'hover:bg-zinc-200/50');
+                    btn.classList.add('bg-white', 'text-zinc-900', 'shadow-sm', 'border', 'border-zinc-200/50');
+                } else {
+                    btn.classList.add('text-zinc-500', 'hover:bg-zinc-200/50');
+                    btn.classList.remove('bg-white', 'text-zinc-900', 'shadow-sm', 'border', 'border-zinc-200/50');
+                }
+            });
+
+            // Update Views
+            const sections = document.querySelectorAll('.view-section');
+            sections.forEach(section => {
+                if (section.id === `view-${viewId}`) {
+                    section.classList.remove('hidden');
+                    section.classList.add('flex');
+                } else {
+                    section.classList.add('hidden');
+                    section.classList.remove('flex');
+                }
+            });
+
+            // If switching back to cases, ensure main list is shown, not detail
+            if (viewId === 'cases') {
+                closeCaseDetail(false); // false = don't animate out, just reset state
+            }
+        }
+
+        // Case Detail Sliding Logic
+        function openCaseDetail(title) {
+            document.getElementById('detail-case-title').innerText = title;
+            const container = document.getElementById('case-detail-container');
+            container.classList.remove('hidden');
+            container.classList.add('flex');
+        }
+
+        function closeCaseDetail(animate = true) {
+            const container = document.getElementById('case-detail-container');
+            if(animate) {
+                 container.classList.add('hidden');
+                 container.classList.remove('flex');
+            } else {
+                 container.classList.add('hidden');
+                 container.classList.remove('flex');
+            }
+        }
+
+        // PDF Reader Modal Logic
+        function openPDFReader(title) {
+            document.getElementById('pdf-title-display').innerText = title;
+            const modal = document.getElementById('pdf-reader-modal');
+            modal.classList.remove('hidden');
+            // Allow display:flex to apply before changing opacity for transition
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+            }, 10);
+        }
+
+        function closePDFReader() {
+            const modal = document.getElementById('pdf-reader-modal');
+            modal.classList.add('opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300); // Wait for transition duration
+        }
+    </script>
+</body>
+</html>

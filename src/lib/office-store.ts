@@ -196,48 +196,7 @@ const INITIAL_MATTERS: ChambersMatter[] = [
   }
 ];
 
-const INITIAL_LOGS: ActivityLog[] = [
-  {
-    id: "log_1",
-    officeId: "all",
-    iconType: "file",
-    title: "Appellate Brief Uploaded",
-    details: "By A. Pendelton into Chambers Docket",
-    actorName: "A. Pendelton",
-    time: "Today, 9:00 AM",
-    timestamp: Date.now() - 3600000
-  },
-  {
-    id: "log_2",
-    officeId: "all",
-    iconType: "check",
-    title: "Client Intake Approved",
-    details: "Apex Innovations conflict clearance verified",
-    actorName: "Managing Partner",
-    time: "Yesterday, 4:30 PM",
-    timestamp: Date.now() - 86400000
-  },
-  {
-    id: "log_3",
-    officeId: "all",
-    iconType: "bell",
-    title: "Hearing Scheduled: Corp Tech vs ERB",
-    details: "Milimani High Court Courtroom 4",
-    actorName: "Registry",
-    time: "Tomorrow, 10:00 AM",
-    timestamp: Date.now() - 43200000
-  },
-  {
-    id: "log_4",
-    officeId: "all",
-    iconType: "alert",
-    title: "Filing Deadline Reminder",
-    details: "Supreme Court Appellate Brief due in 5 days",
-    actorName: "Calendar System",
-    time: "Apr 2, 2026",
-    timestamp: Date.now() - 172800000
-  }
-];
+const INITIAL_LOGS: ActivityLog[] = [];
 
 const INITIAL_DOCS: ChambersDocument[] = [
   {

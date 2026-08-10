@@ -73,8 +73,8 @@ export default function RegisterPage() {
       const finalPractice = practice.trim() || "Legal Counsel & Advisory";
       const avatarSvg = `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(name)}`;
 
-      // 2. Prepare userProfiles payload (includes profile info & photo)
-      const userProfilePayload = {
+      // 2. Prepare unified user payload (includes profile info, roles, and photo)
+      const usersPayload = {
         uid,
         name: name.trim(),
         displayName: name.trim(),
@@ -86,6 +86,8 @@ export default function RegisterPage() {
         achievements: "Legal Counsel",
         bio: `${finalTitle} specializing in ${finalPractice}.`,
         officeId: "counsel",
+        roleLevel: 50,
+        roleName: "Counsel",
         profilePhoto: avatarSvg,
         image: avatarSvg,
         photoURL: avatarSvg,
@@ -93,23 +95,8 @@ export default function RegisterPage() {
         updatedAt: new Date().toISOString()
       };
 
-      // 3. Prepare users payload (office assignment & roles)
-      const usersPayload = {
-        uid,
-        name: name.trim(),
-        displayName: name.trim(),
-        email: canonicalEmail,
-        title: finalTitle,
-        practice: finalPractice,
-        officeId: "counsel",
-        roleLevel: 50,
-        roleName: "Counsel",
-        updatedAt: new Date().toISOString()
-      };
-
-      // 4. Save strictly to Firestore under Auth UID doc key
+      // 3. Save strictly to Firestore under Auth UID doc key in users collection
       if (db) {
-        await setDoc(doc(db, "userProfiles", uid), userProfilePayload, { merge: true });
         await setDoc(doc(db, "users", uid), usersPayload, { merge: true });
       }
 

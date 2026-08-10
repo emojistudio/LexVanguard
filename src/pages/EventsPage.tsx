@@ -280,7 +280,7 @@ export default function EventsPage() {
       )}
 
       {/* Main Events Container */}
-      <main className="w-full px-4 sm:px-6 lg:px-8 pt-28 pb-20 flex-1">
+      <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 sm:pt-32 pb-20 flex-1">
 
         {/* Section Heading & Host Button */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-neutral-200">
@@ -309,7 +309,7 @@ export default function EventsPage() {
                   : "bg-white text-black hover:bg-neutral-100 border border-neutral-300"
               }`}
             >
-              Upcoming ({upcomingCount || 18})
+              Upcoming ({upcomingCount})
             </button>
 
             <button
@@ -320,7 +320,7 @@ export default function EventsPage() {
                   : "bg-white text-black hover:bg-neutral-100 border border-neutral-300"
               }`}
             >
-              Past ({pastCount || 203})
+              Past ({pastCount})
             </button>
           </div>
 

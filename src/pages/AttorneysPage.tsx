@@ -340,7 +340,7 @@ function AttorneyCard({
           src={profile.image}
           alt={profile.name}
           onError={(e) => handleProfileImageError(e, member.name)}
-          className="w-full h-[380px] object-cover grayscale-0 brightness-100 md:grayscale md:brightness-95 md:group-hover:grayscale-0 md:group-hover:brightness-100 group-focus:grayscale-0 group-focus:brightness-105 group-active:grayscale-0 group-active:brightness-105 transition-all duration-500 transform group-hover:scale-105 group-focus:scale-105"
+          className="w-full h-[200px] object-cover grayscale-0 brightness-100 md:grayscale md:brightness-95 md:group-hover:grayscale-0 md:group-hover:brightness-100 group-focus:grayscale-0 group-focus:brightness-105 group-active:grayscale-0 group-active:brightness-105 transition-all duration-500 transform group-hover:scale-105 group-focus:scale-105"
         />
         <div className="absolute inset-0 bg-transparent md:bg-black/10 md:group-hover:bg-transparent group-focus:bg-transparent transition-colors duration-300" />
         
@@ -402,18 +402,14 @@ export default function AttorneysPage() {
   const [members, setMembers] = useState<FirestoreMember[]>(DEFAULT_ATTORNEY_LIST);
   const [activeProfile, setActiveProfile] = useState<FirestoreMember | null>(null);
   const [showInviteModal, setShowInviteModal] = useState(false);
-  const [showAll, setShowAll] = useState(false);
 
   const isFounder = firmUser && (firmUser.role.level >= 100 || ['prince', 'kelvin', 'donel'].includes(firmUser.officeId));
-
   useEffect(() => {
     const unsubscribe = subscribeFirestoreMembers((updated) => {
       setMembers(updated);
     });
     return () => unsubscribe();
   }, []);
-
-  const visibleMembers = showAll ? members : members.slice(0, 6);
 
   return (
     <div className="w-full max-w-full overflow-x-hidden bg-white">
@@ -494,7 +490,7 @@ export default function AttorneysPage() {
 
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-10 lg:px-16 pb-12 sm:pb-20">
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-8">
-          {visibleMembers.map((m, idx) => (
+          {members.map((m, idx) => (
             <AttorneyCard
               key={`${m.uid || 'member'}-${m.name}-${idx}`}
               member={m}
@@ -506,16 +502,6 @@ export default function AttorneysPage() {
             />
           ))}
         </div>
-        {members.length > 6 && (
-          <div className="text-center mt-8 sm:mt-12">
-            <button
-              onClick={() => setShowAll(!showAll)}
-              className="border-2 border-black text-black hover:bg-black hover:text-white transition-colors px-6 py-2.5 sm:px-8 sm:py-3 font-bold uppercase tracking-widest text-xs sm:text-sm flex items-center gap-2 mx-auto cursor-pointer">
-              {showAll ? 'Show Less' : `Show All ${members.length} Members`}
-              <ChevronDown className={`w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform ${showAll ? 'rotate-180' : ''}`} />
-            </button>
-          </div>
-        )}
       </div>
 
       <Footer />

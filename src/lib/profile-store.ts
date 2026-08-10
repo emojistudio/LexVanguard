@@ -89,8 +89,20 @@ const DEFAULT_PROFILES: Record<string, AttorneyProfile> = {
 
 const STORAGE_KEY = "lexvanguard_attorney_profiles";
 
+function findDefaultProfile(name: string): Partial<AttorneyProfile> {
+  if (!name) return {};
+  if (DEFAULT_PROFILES[name]) return DEFAULT_PROFILES[name];
+  const normalized = name.toLowerCase();
+  for (const key of Object.keys(DEFAULT_PROFILES)) {
+    if (normalized.includes(key.toLowerCase()) || key.toLowerCase().includes(normalized)) {
+      return DEFAULT_PROFILES[key];
+    }
+  }
+  return {};
+}
+
 export function loadProfile(name: string, fallbackData?: Partial<AttorneyProfile>): AttorneyProfile {
-  const base: Partial<AttorneyProfile> = DEFAULT_PROFILES[name] || {};
+  const base: Partial<AttorneyProfile> = findDefaultProfile(name);
 
   let storedObj: Partial<AttorneyProfile> = {};
   try {
@@ -108,7 +120,7 @@ export function loadProfile(name: string, fallbackData?: Partial<AttorneyProfile
     name,
     title: fallbackData?.title || storedObj.title || base.title || "Counsel",
     practice: fallbackData?.practice || storedObj.practice || base.practice || "Legal Counsel & Advisory",
-    bio: fallbackData?.bio || storedObj.bio || base.bio || "Click to add professional biography.",
+    bio: fallbackData?.bio || storedObj.bio || base.bio || "Dedicated advocate providing legal counsel and advocacy at LexVanguard Advocates LLP.",
     phone: fallbackData?.phone || storedObj.phone || base.phone || "+254 116 171 396",
     email: fallbackData?.email || storedObj.email || base.email || `${name.toLowerCase().replace(/\s+/g, '.')}@lexvanguard.xyz`,
     education: fallbackData?.education || storedObj.education || base.education || "LLB, Mount Kenya University",
@@ -192,7 +204,7 @@ export function saveProfile(profile: AttorneyProfile): void {
           } catch {}
         }
 
-        const userProfilePayload = cleanFirestorePayload({
+        const userPayload = cleanFirestorePayload({
           uid: activeUid,
           name: profileToSave.name || "",
           displayName: profileToSave.name || "",
@@ -210,19 +222,8 @@ export function saveProfile(profile: AttorneyProfile): void {
           updatedAt: new Date().toISOString()
         });
 
-        const usersPayload = cleanFirestorePayload({
-          uid: activeUid,
-          name: profileToSave.name || "",
-          displayName: profileToSave.name || "",
-          title: profileToSave.title || "Counsel",
-          practice: profileToSave.practice || "",
-          email: profileToSave.email || "",
-          updatedAt: new Date().toISOString()
-        });
-
-        // Write user profile data with photos strictly to "userProfiles/uid" and "users/uid"
-        await setDoc(doc(db, "userProfiles", activeUid), userProfilePayload, { merge: true });
-        await setDoc(doc(db, "users", activeUid), usersPayload, { merge: true });
+        // Write user profile data strictly to "users/{activeUid}"
+        await setDoc(doc(db, "users", activeUid), userPayload, { merge: true });
       }
     } catch (err) {
       console.warn("Could not sync profile to Firestore:", err);
@@ -249,7 +250,7 @@ export async function syncLocalProfilesToFirestore(): Promise<void> {
       } catch {}
     }
 
-    const userProfilePayload = cleanFirestorePayload({
+    const userPayload = cleanFirestorePayload({
       uid: activeUid,
       name: prof.name || "",
       displayName: prof.name || "",
@@ -267,18 +268,7 @@ export async function syncLocalProfilesToFirestore(): Promise<void> {
       updatedAt: new Date().toISOString()
     });
 
-    const usersPayload = cleanFirestorePayload({
-      uid: activeUid,
-      name: prof.name || "",
-      displayName: prof.name || "",
-      title: prof.title || "Counsel",
-      practice: prof.practice || "",
-      email: prof.email || "",
-      updatedAt: new Date().toISOString()
-    });
-
-    await setDoc(doc(db, "userProfiles", activeUid), userProfilePayload, { merge: true });
-    await setDoc(doc(db, "users", activeUid), usersPayload, { merge: true });
+    await setDoc(doc(db, "users", activeUid), userPayload, { merge: true });
   } catch (err) {
     console.warn("Auto-sync local profiles to Firestore failed:", err);
   }

@@ -8,27 +8,26 @@ import { SITE_KEYWORDS } from "@/lib/seo-data";
 
 export default function ResearchCoHelperPage() {
   return (
-    <div className="min-h-screen bg-slate-900 flex flex-col text-slate-100">
+    <div className="min-h-screen bg-black flex flex-col text-white font-sans">
       <SEOHead
-        title="LexAI Legal Research Co-Helper | Kenyan Case Law Engine"
-        description="Search-grounded legal research, statutory citation engine, and court document drafting for Kenyan law students at Mount Kenya University Parklands Law Campus (MKUPLC)."
+        title="Desk Legal Research Engine | Kenyan Case Law & Statutory Search"
+        description="Search-grounded legal research, statutory citation engine, and court document drafting for LexVanguard members."
         keywords={[
-          "LexAI Legal Research",
+          "LexVanguard Desk AI",
           "Kenyan Law Research Engine",
           "MKUPLC Legal Research",
-          "Constitution of Kenya 2010 Citations",
           ...SITE_KEYWORDS
         ]}
         url="https://lexvanguard.xyz/research"
       />
       <Header />
-      <div className="flex-1 pt-24 pb-8 px-4 sm:px-6 max-w-7xl mx-auto w-full flex flex-col space-y-4">
+      <div className="flex-1 pt-28 pb-16 px-4 sm:px-6 max-w-[1400px] mx-auto w-full flex flex-col space-y-6">
         <div className="flex items-center justify-between">
-          <Link href="/office" className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-slate-300 hover:text-white transition-colors bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700">
-            <ArrowLeft className="w-3.5 h-3.5" /> Back to Counsel Office
+          <Link href="/office" className="inline-flex items-center gap-2 text-xs font-extrabold uppercase tracking-widest text-white hover:text-yellow-500 transition-colors bg-neutral-900 px-4 py-2 rounded-xs border border-white/10 cursor-pointer hover:border-yellow-500">
+            <ArrowLeft className="w-3.5 h-3.5 text-yellow-500" /> Return to Office Suite
           </Link>
         </div>
-        <div className="flex-1 bg-white text-slate-800 rounded-2xl overflow-hidden shadow-2xl min-h-[700px] flex flex-col">
+        <div className="flex-1 bg-neutral-900 text-white rounded-xs overflow-hidden border border-white/10 shadow-2xl min-h-[750px] flex flex-col">
           <ResearchCoHelper />
         </div>
       </div>

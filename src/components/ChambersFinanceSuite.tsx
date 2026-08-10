@@ -163,89 +163,89 @@ export const ChambersFinanceSuite: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 text-white">
       {/* KPI METRICS OVERVIEW */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-2xs flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold shrink-0">
+        <div className="bg-neutral-900 rounded-xs border border-white/10 p-4 shadow-sm flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xs bg-yellow-500/10 border border-yellow-500/30 text-yellow-500 flex items-center justify-center font-bold shrink-0">
             <DollarSign className="w-5 h-5" />
           </div>
           <div>
-            <span className="text-xs text-slate-500 font-medium block">Total Revenue Paid</span>
-            <span className="text-lg font-bold text-slate-900">KES {totalCollected.toLocaleString()}</span>
+            <span className="text-[10px] text-gray-400 font-extrabold uppercase tracking-widest block">Total Revenue Paid</span>
+            <span className="text-lg font-extrabold text-white">KES {totalCollected.toLocaleString()}</span>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-2xs flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center font-bold shrink-0">
+        <div className="bg-neutral-900 rounded-xs border border-white/10 p-4 shadow-sm flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xs bg-yellow-500/10 border border-yellow-500/30 text-yellow-500 flex items-center justify-center font-bold shrink-0">
             <Clock className="w-5 h-5" />
           </div>
           <div>
-            <span className="text-xs text-slate-500 font-medium block">Outstanding Retainers</span>
-            <span className="text-lg font-bold text-slate-900">KES {totalOutstanding.toLocaleString()}</span>
+            <span className="text-[10px] text-gray-400 font-extrabold uppercase tracking-widest block">Outstanding Retainers</span>
+            <span className="text-lg font-extrabold text-white">KES {totalOutstanding.toLocaleString()}</span>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-2xs flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center font-bold shrink-0">
+        <div className="bg-neutral-900 rounded-xs border border-white/10 p-4 shadow-sm flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xs bg-yellow-500/10 border border-yellow-500/30 text-yellow-500 flex items-center justify-center font-bold shrink-0">
             <FileText className="w-5 h-5" />
           </div>
           <div>
-            <span className="text-xs text-slate-500 font-medium block">Active Fee Invoices</span>
-            <span className="text-lg font-bold text-slate-900">{invoices.length} Registered</span>
+            <span className="text-[10px] text-gray-400 font-extrabold uppercase tracking-widest block">Active Fee Invoices</span>
+            <span className="text-lg font-extrabold text-white">{invoices.length} Registered</span>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-2xs flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-purple-50 text-purple-700 flex items-center justify-center font-bold shrink-0">
+        <div className="bg-neutral-900 rounded-xs border border-white/10 p-4 shadow-sm flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xs bg-yellow-500/10 border border-yellow-500/30 text-yellow-500 flex items-center justify-center font-bold shrink-0">
             <CreditCard className="w-5 h-5" />
           </div>
           <div>
-            <span className="text-xs text-slate-500 font-medium block">STK Gateway Receipts</span>
-            <span className="text-lg font-bold text-slate-900">{transactions.length} Transactions</span>
+            <span className="text-[10px] text-gray-400 font-extrabold uppercase tracking-widest block">STK Gateway Receipts</span>
+            <span className="text-lg font-extrabold text-white">{transactions.length} Transactions</span>
           </div>
         </div>
       </div>
 
       {/* FINANCE TABBED NAVIGATION */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
-        <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 pb-3 border-b border-slate-200">
+      <div className="bg-neutral-900 rounded-xs border border-white/10 shadow-xl p-5">
+        <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 pb-4 border-b border-white/10">
           <div>
-            <h2 className="font-bold text-slate-900 text-base flex items-center gap-2">
-              <Building2 className="w-4 h-4 text-slate-800" />
-              Finance & Billing
+            <h2 className="font-extrabold text-white text-sm uppercase tracking-wider flex items-center gap-2">
+              <Building2 className="w-4 h-4 text-yellow-500" />
+              Finance & Billing Operations
             </h2>
           </div>
 
-          <div className="flex space-x-1 bg-slate-100 p-1 rounded-lg overflow-x-auto">
+          <div className="flex space-x-1 bg-black p-1 rounded-xs border border-white/10 overflow-x-auto">
             <button
               onClick={() => setActiveTab("invoices")}
-              className={`px-3 py-1 rounded-md text-xs font-bold transition ${
-                activeTab === "invoices" ? "bg-slate-900 text-white shadow-2xs" : "text-slate-600 hover:text-slate-900"
+              className={`px-4 py-1.5 rounded-xs text-xs font-extrabold uppercase tracking-widest transition ${
+                activeTab === "invoices" ? "bg-yellow-500 text-black shadow-sm" : "text-gray-400 hover:text-white"
               }`}
             >
               Invoices
             </button>
             <button
               onClick={() => setActiveTab("calculator")}
-              className={`px-3 py-1 rounded-md text-xs font-bold transition ${
-                activeTab === "calculator" ? "bg-slate-900 text-white shadow-2xs" : "text-slate-600 hover:text-slate-900"
+              className={`px-4 py-1.5 rounded-xs text-xs font-extrabold uppercase tracking-widest transition ${
+                activeTab === "calculator" ? "bg-yellow-500 text-black shadow-sm" : "text-gray-400 hover:text-white"
               }`}
             >
               Fee Calculator
             </button>
             <button
               onClick={() => setActiveTab("stk")}
-              className={`px-3 py-1 rounded-md text-xs font-bold transition ${
-                activeTab === "stk" ? "bg-slate-900 text-white shadow-2xs" : "text-slate-600 hover:text-slate-900"
+              className={`px-4 py-1.5 rounded-xs text-xs font-extrabold uppercase tracking-widest transition ${
+                activeTab === "stk" ? "bg-yellow-500 text-black shadow-sm" : "text-gray-400 hover:text-white"
               }`}
             >
               STK Push
             </button>
             <button
               onClick={() => setActiveTab("reports")}
-              className={`px-3 py-1 rounded-md text-xs font-bold transition ${
-                activeTab === "reports" ? "bg-slate-900 text-white shadow-2xs" : "text-slate-600 hover:text-slate-900"
+              className={`px-4 py-1.5 rounded-xs text-xs font-extrabold uppercase tracking-widest transition ${
+                activeTab === "reports" ? "bg-yellow-500 text-black shadow-sm" : "text-gray-400 hover:text-white"
               }`}
             >
               Analytics
