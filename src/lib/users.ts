@@ -73,17 +73,23 @@ export async function fetchFirmUser(uid: string, email?: string): Promise<FirmUs
       const rawOffice = data.officeId ?? data.office ?? data.office_id ?? data.officeID ?? "counsel";
       const officeId = rawOffice.toString().toLowerCase().trim() || "counsel";
       
-      const roleLevel = typeof data.roleLevel === "number" ? data.roleLevel : 50;
-      const roleName = data.roleName || (typeof data.role === "string" ? data.role : data.role?.name) || "Counsel";
+      let role: Role = ROLES.COUNSEL;
+      if (officeId === "admin") role = ROLES.ADMIN;
+      else if (officeId === "finance") role = { level: 5, name: "Finance Manager" };
+      else if (officeId === "managing_partner" || officeId === "partner") role = ROLES.MANAGING_PARTNER;
+      else if (officeId === "associate") role = ROLES.ASSOCIATE;
+      else if (officeId === "researcher") role = ROLES.RESEARCHER;
+      else if (typeof data.roleLevel === "number") role = { level: Number(data.roleLevel), name: data.roleName || "Counsel" };
+
       const userEmail = data.email || email || `${officeId}@lexvanguard.xyz`;
 
       return {
         id: uid,
         name,
         email: userEmail,
-        role: { level: Number(roleLevel), name: typeof roleName === "string" ? roleName : "Counsel" },
+        role: role,
         officeId: officeId,
-        title: data.title || roleName || "Counsel",
+        title: data.title || role.name || "Counsel",
         practice: data.practice || "Legal Counsel & Advisory"
       };
     }
@@ -91,21 +97,7 @@ export async function fetchFirmUser(uid: string, email?: string): Promise<FirmUs
     console.warn("User profile fetch from Firestore error:", err);
   }
 
-  // Fallback for authenticated user if document does not exist yet
-  if (uid) {
-    const fallbackOffice = "counsel";
-    const userName = email ? email.split("@")[0].replace(/[._]/g, " ") : "Firm Member";
-    return {
-      id: uid,
-      name: userName,
-      email: email || `counsel@lexvanguard.xyz`,
-      role: { level: 50, name: "Counsel" },
-      officeId: fallbackOffice,
-      title: "Counsel",
-      practice: "Legal Counsel & Advisory"
-    };
-  }
-
+  // Strictly no fallback: if no document exists in /users/{uid}, return null
   return null;
 }
 

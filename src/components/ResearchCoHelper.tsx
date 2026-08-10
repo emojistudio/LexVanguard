@@ -171,12 +171,45 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
     }
   }, [chatMessages, isChatLoading]);
 
-  // Execute eLegal Corpus Search
+  // Restore cached eLegal search results from LocalStorage on component mount
+  useEffect(() => {
+    try {
+      const cachedLast = localStorage.getItem("lex_elegal_last_results");
+      const cachedQuery = localStorage.getItem("lex_elegal_last_query");
+      if (cachedLast) {
+        const parsed = JSON.parse(cachedLast);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setELegalResults(parsed);
+        }
+      }
+      if (cachedQuery) {
+        setELegalQuery(cachedQuery);
+      }
+    } catch (e) {
+      console.warn("eLegal cache restore notice:", e);
+    }
+  }, []);
+
+  // Execute eLegal Corpus Search with LocalStorage caching
   const runELegalSearch = async (queryText: string, sourceFilter: string) => {
     if (!queryText.trim()) {
       setELegalResults([]);
       return;
     }
+
+    const cacheKey = `lex_elegal_query_${queryText.trim().toLowerCase()}_${sourceFilter}`;
+    
+    // Check LocalStorage cache first for instant retrieval
+    try {
+      const cached = localStorage.getItem(cacheKey);
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setELegalResults(parsed);
+        }
+      }
+    } catch {}
+
     setIsELegalLoading(true);
     try {
       const res = await fetch(`/api/elegal/search?q=${encodeURIComponent(queryText)}&source=${encodeURIComponent(sourceFilter)}`);
@@ -184,12 +217,16 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
         const data = await res.json();
         const resultsArray = Array.isArray(data) ? data : [];
         setELegalResults(resultsArray);
-      } else {
-        setELegalResults([]);
+
+        // Cache search results in LocalStorage
+        try {
+          localStorage.setItem(cacheKey, JSON.stringify(resultsArray));
+          localStorage.setItem("lex_elegal_last_results", JSON.stringify(resultsArray));
+          localStorage.setItem("lex_elegal_last_query", queryText.trim());
+        } catch {}
       }
     } catch (err) {
       console.error("eLegal Search Error:", err);
-      setELegalResults([]);
     } finally {
       setIsELegalLoading(false);
     }
@@ -771,10 +808,20 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
                       <p className="text-xs text-zinc-600 leading-relaxed font-medium bg-zinc-50 p-3 rounded-xl border border-zinc-100">
                         {result.excerpt}
                       </p>
-                      <div className="flex items-center justify-between pt-1 text-xs">
-                        <a href={result.url} target="_blank" rel="noopener noreferrer" className="font-bold text-[#0071e3] hover:underline flex items-center gap-1">
-                          Read Authority File <ArrowRight className="w-3 h-3" />
-                        </a>
+                      <div className="flex flex-wrap items-center justify-between gap-3 pt-1 text-xs">
+                        <div className="flex items-center gap-3">
+                          <a href={result.url} target="_blank" rel="noopener noreferrer" className="font-bold text-[#0071e3] hover:underline flex items-center gap-1">
+                            Read Authority File <ArrowRight className="w-3 h-3" />
+                          </a>
+                          <a 
+                            href={`/read.html?sourceUrl=${encodeURIComponent(result.url || '')}&title=${encodeURIComponent(result.title || '')}&type=${encodeURIComponent(result.type || '')}`}
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="px-3 py-1 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg font-bold text-[11px] flex items-center gap-1 cursor-pointer transition shadow-xs"
+                          >
+                            <FileText className="w-3 h-3 text-amber-300" /> Render PDF (read.html)
+                          </a>
+                        </div>
                         <div className="flex items-center gap-2">
                           <button 
                             onClick={() => handleCopyCitation(result.citation, idx)}

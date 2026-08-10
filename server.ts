@@ -383,11 +383,21 @@ Sitemap: ${baseUrl}/sitemap.xml`;
 `;
 
       let sendResult = await resend.emails.send({
-        from: "Lex Vanguard Chambers <onboarding@lexshub.xyz>",
+        from: "Lex Vanguard Chambers <onboarding@lexvanguard.xyz>",
         to: [email.trim()],
         subject: "Official Invitation to Join Lex Vanguard Chambers as Counsel",
         html: htmlContent,
       });
+
+      if (sendResult.error) {
+        console.warn("lexvanguard.xyz domain send notice:", sendResult.error.message);
+        sendResult = await resend.emails.send({
+          from: "Lex Vanguard Chambers <onboarding@lexshub.xyz>",
+          to: [email.trim()],
+          subject: "Official Invitation to Join Lex Vanguard Chambers as Counsel",
+          html: htmlContent,
+        });
+      }
 
       if (sendResult.error) {
         console.warn("Primary domain send notice:", sendResult.error.message);
@@ -1150,6 +1160,16 @@ DRAFTING INSTRUCTIONS:
   app.use("/images", express.static(imagesPath));
   app.use("/images", express.static(publicImagesPath));
   app.use(express.static(publicPath));
+
+  // Serve read.html Document Reader for PDFs and Legal Transcripts
+  app.get(["/read.html", "/read"], (req, res) => {
+    const readPath = path.join(process.cwd(), "read.html");
+    if (fs.existsSync(readPath)) {
+      res.sendFile(readPath);
+    } else {
+      res.sendFile(path.join(process.cwd(), "public", "read.html"));
+    }
+  });
 
   // Serve Vite in development mode or static dist in production
   if (process.env.NODE_ENV !== "production") {

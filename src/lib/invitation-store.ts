@@ -1,4 +1,4 @@
-import { collection, doc, setDoc, getDoc, updateDoc } from "firebase/firestore";
+import { collection, doc, setDoc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
 import { db } from "./firebase";
 
 export interface TeamInvitation {
@@ -28,7 +28,8 @@ export async function sendTeamMemberInvite({
 }): Promise<{ success: boolean; inviteUrl: string; message: string }> {
   const cleanEmail = email.toLowerCase().trim();
   const token = `inv_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-  const baseUrl = typeof window !== "undefined" ? window.location.origin : "https://lexvanguard.xyz";
+  const origin = typeof window !== "undefined" ? window.location.origin : "https://lexvanguard.xyz";
+  const baseUrl = origin.includes("localhost") || origin.includes("127.0.0.1") ? "https://lexvanguard.xyz" : origin;
   const inviteUrl = `${baseUrl}/register?email=${encodeURIComponent(cleanEmail)}&token=${token}`;
 
   const invitation: TeamInvitation = {
@@ -250,14 +251,17 @@ async function sendEmailViaResendDirectly({
 }
 
 export async function verifyInvitation(token: string, email?: string): Promise<TeamInvitation | null> {
-  // 1. Check Firestore
+  if (!token && !email) return null;
+
+  // 1. Check Firestore invitations
   if (db) {
     try {
       if (token) {
         const invRef = doc(db, "invitations", token);
         const snap = await getDoc(invRef);
         if (snap.exists()) {
-          return snap.data() as TeamInvitation;
+          const inv = snap.data() as TeamInvitation;
+          if (inv.status !== "accepted") return inv;
         }
       }
       if (email) {
@@ -265,68 +269,58 @@ export async function verifyInvitation(token: string, email?: string): Promise<T
         const invRef = doc(db, "invitations_by_email", emailKey);
         const snap = await getDoc(invRef);
         if (snap.exists()) {
-          return snap.data() as TeamInvitation;
+          const inv = snap.data() as TeamInvitation;
+          if (inv.status !== "accepted") return inv;
         }
       }
     } catch (err) {
-      // Ignore Firestore permission/block error, fallback to local storage below
+      console.warn("Firestore invitation lookup error:", err);
     }
   }
 
-  // 2. Fallback to localStorage
+  // 2. Check LocalStorage fallback
   try {
     if (typeof localStorage !== "undefined") {
       if (token) {
         const local = localStorage.getItem(`lex_invitation_${token}`);
-        if (local) return JSON.parse(local) as TeamInvitation;
+        if (local) {
+          const inv = JSON.parse(local) as TeamInvitation;
+          if (inv.status !== "accepted") return inv;
+        }
       }
       if (email) {
         const cleanEmail = email.toLowerCase().trim();
         const local = localStorage.getItem(`lex_invitation_email_${cleanEmail}`);
-        if (local) return JSON.parse(local) as TeamInvitation;
+        if (local) {
+          const inv = JSON.parse(local) as TeamInvitation;
+          if (inv.status !== "accepted") return inv;
+        }
       }
     }
   } catch {}
 
-  // 3. Fallback: if token exists and starts with 'inv_', construct valid invitation metadata
-  if (token && token.startsWith("inv_")) {
-    return {
-      id: token,
-      email: email?.toLowerCase().trim() || "counsel@lexvanguard.xyz",
-      name: "Counsel",
-      invitedBy: "Lex Vanguard Administration",
-      invitedByEmail: "admin@lexvanguard.xyz",
-      officeId: "counsel",
-      roleName: "Counsel",
-      roleLevel: 50,
-      token,
-      status: "pending",
-      createdAt: new Date().toISOString()
-    };
-  }
-
+  // Return null if no valid, unaccepted invitation exists
   return null;
 }
 
-export async function markInvitationAccepted(token: string): Promise<void> {
-  if (typeof localStorage !== "undefined" && token) {
+export async function markInvitationAccepted(token: string, email?: string): Promise<void> {
+  if (typeof localStorage !== "undefined") {
     try {
-      const localStr = localStorage.getItem(`lex_invitation_${token}`);
-      if (localStr) {
-        const parsed = JSON.parse(localStr);
-        parsed.status = "accepted";
-        parsed.acceptedAt = new Date().toISOString();
-        localStorage.setItem(`lex_invitation_${token}`, JSON.stringify(parsed));
-      }
+      if (token) localStorage.removeItem(`lex_invitation_${token}`);
+      if (email) localStorage.removeItem(`lex_invitation_email_${email.toLowerCase().trim()}`);
     } catch {}
   }
 
-  if (!db || !token) return;
+  if (!db) return;
   try {
-    const invRef = doc(db, "invitations", token);
-    await updateDoc(invRef, {
-      status: "accepted",
-      acceptedAt: new Date().toISOString()
-    });
-  } catch {}
+    if (token) {
+      await deleteDoc(doc(db, "invitations", token));
+    }
+    if (email) {
+      const emailKey = email.toLowerCase().trim().replace(/[^a-z0-9]/g, "_");
+      await deleteDoc(doc(db, "invitations_by_email", emailKey));
+    }
+  } catch (err) {
+    console.warn("Error purging invitation:", err);
+  }
 }

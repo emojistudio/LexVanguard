@@ -3,7 +3,7 @@ import { useLocation } from "wouter";
 import { 
   Briefcase, Plus, Calendar, Sparkles, CheckCircle2, AlertCircle, Files,
   ChevronRight, ChevronLeft, Phone, Send, Search, Scale, Check, LogOut,
-  User, RefreshCw, Image as ImageIcon, Trash2, MapPin, Clock, X, Mail
+  User, RefreshCw, Image as ImageIcon, Trash2, MapPin, Clock, X, Mail, Home
 } from "lucide-react";
 import { 
   collection, query, where, onSnapshot, addDoc, serverTimestamp, 
@@ -17,6 +17,7 @@ import { ResearchCoHelper } from "../components/ResearchCoHelper";
 import { HostEventModal } from "../components/HostEventModal";
 import { EventGalleryModal } from "../components/EventGalleryModal";
 import { NewsletterAdminModal } from "../components/NewsletterAdminModal";
+import { EditProfileModal } from "../components/EditProfileModal";
 import { subscribeEvents, deleteFirmEvent, type FirmEvent } from "../lib/events-store";
 
 export interface OfficeData {
@@ -91,6 +92,7 @@ export const OfficePage: React.FC = () => {
   const [isEventsManagerOpen, setIsEventsManagerOpen] = useState(false);
   const [isHostModalOpen, setIsHostModalOpen] = useState(false);
   const [isNewsletterModalOpen, setIsNewsletterModalOpen] = useState(false);
+  const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
   const [galleryEvent, setGalleryEvent] = useState<FirmEvent | null>(null);
 
   // Events State
@@ -321,19 +323,39 @@ export const OfficePage: React.FC = () => {
           {/* 1. Profile Card (Optimal Proportions, High-Contrast Buttons) */}
           <div className="glass-card col-span-1 md:col-span-3 p-5 sm:p-6 lg:p-7 flex flex-col sm:flex-row items-center justify-between gap-5 shadow-sm">
             <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 lg:gap-5 text-center sm:text-left">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full p-1 bg-gradient-to-tr from-blue-600 to-cyan-400 shadow-md shrink-0">
+              <div 
+                onClick={() => setIsEditProfileOpen(true)}
+                title="Click to Edit Profile Photo & Portfolio"
+                className="relative group cursor-pointer w-16 h-16 sm:w-20 sm:h-20 rounded-full p-1 bg-gradient-to-tr from-blue-600 to-cyan-400 shadow-md shrink-0 transition transform hover:scale-105"
+              >
                 <img 
                   src={currentUserAvatar} 
                   alt={currentUserName} 
                   className="w-full h-full rounded-full object-cover border-2 border-white bg-zinc-900" 
                 />
+                <div className="absolute inset-0 bg-black/60 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white text-[9px] font-bold uppercase tracking-wider">
+                  <span>Edit</span>
+                  <span>Photo</span>
+                </div>
               </div>
               <div className="flex flex-col justify-center">
                 <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2.5 mb-1">
-                  <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#1d1d1f]">{currentUserName}</h1>
+                  <h1 
+                    onClick={() => setIsEditProfileOpen(true)}
+                    title="Click to Edit Profile"
+                    className="text-xl sm:text-2xl font-bold tracking-tight text-[#1d1d1f] hover:text-amber-600 cursor-pointer transition-colors"
+                  >
+                    {currentUserName}
+                  </h1>
                   <span className="px-2.5 py-0.5 bg-[#1d1d1f] text-white text-[10px] font-bold uppercase tracking-wider rounded-full">
                     {currentUserTitle}
                   </span>
+                  <button
+                    onClick={() => setIsEditProfileOpen(true)}
+                    className="px-2 py-0.5 bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-300 rounded-md text-[10px] font-bold cursor-pointer transition-all"
+                  >
+                    Edit Profile
+                  </button>
                 </div>
                 <p className="text-sm font-medium text-[#86868b] flex items-center justify-center sm:justify-start gap-2">
                   <Briefcase className="w-4 h-4 text-[#1d1d1f] shrink-0" /> {currentUserPractice}
@@ -343,6 +365,13 @@ export const OfficePage: React.FC = () => {
 
             {/* High-Contrast Action Buttons */}
             <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
+              <button 
+                onClick={() => setLocation("/")}
+                title="Return to Main Homepage"
+                className="flex-1 sm:flex-none px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-full transition-all flex items-center justify-center gap-2 shadow-md cursor-pointer active:scale-95"
+              >
+                <Home className="w-4 h-4" /> Home
+              </button>
               <button 
                 onClick={() => setIsNewMatterModalOpen(true)}
                 className="flex-1 sm:flex-none px-4 py-2.5 bg-[#1d1d1f] hover:bg-black text-white font-bold text-xs rounded-full transition-all flex items-center justify-center gap-2 shadow-md cursor-pointer active:scale-95"
@@ -947,6 +976,16 @@ export const OfficePage: React.FC = () => {
       {isNewsletterModalOpen && (
         <NewsletterAdminModal
           onClose={() => setIsNewsletterModalOpen(false)}
+        />
+      )}
+
+      {/* EDIT PROFILE MODAL */}
+      {isEditProfileOpen && (
+        <EditProfileModal
+          onClose={() => setIsEditProfileOpen(false)}
+          onSaved={() => {
+            setIsEditProfileOpen(false);
+          }}
         />
       )}
 

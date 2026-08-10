@@ -23,6 +23,7 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const [isInviteVerified, setIsInviteVerified] = useState<boolean | null>(null);
 
   useEffect(() => {
     try {
@@ -31,15 +32,25 @@ export default function RegisterPage() {
       const qToken = searchParams.get("token") || "";
 
       if (qEmail) setEmail(qEmail);
-      if (qToken) {
-        setInviteToken(qToken);
-        verifyInvitation(qToken, qEmail).then((inv) => {
-          if (inv?.name && inv.name !== "Legal Counsel") {
+      if (qToken) setInviteToken(qToken);
+
+      verifyInvitation(qToken, qEmail).then((inv) => {
+        if (inv) {
+          setIsInviteVerified(true);
+          if (inv.name && inv.name !== "Legal Counsel") {
             setName(inv.name);
           }
-        });
-      }
-    } catch {}
+          if (inv.email) {
+            setEmail(inv.email);
+          }
+        } else {
+          setIsInviteVerified(false);
+          setError("Registration requires an official invitation link sent via email by LexVanguard Chambers.");
+        }
+      });
+    } catch {
+      setIsInviteVerified(false);
+    }
   }, []);
 
   const handleRegister = async (e: React.FormEvent) => {
@@ -114,9 +125,8 @@ export default function RegisterPage() {
         profilePhoto: avatarSvg
       });
 
-      if (inviteToken) {
-        await markInvitationAccepted(inviteToken);
-      }
+      // 6. Automatically purge/delete invitation token & email from whitelist so it cannot be reused
+      await markInvitationAccepted(inviteToken, canonicalEmail);
 
       setSuccess(true);
       setTimeout(() => {
