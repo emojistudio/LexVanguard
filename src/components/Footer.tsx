@@ -1,8 +1,30 @@
-import { Globe, X, MapPin, Phone, Mail, FileText } from "lucide-react";
+import { useState } from "react";
+import { Globe, MapPin, Phone, Mail, FileText, Instagram, Send, CheckCircle2 } from "lucide-react";
 import { Link } from "wouter";
 import RotatingPhoneDisplay from "@/components/RotatingPhoneDisplay";
+import { subscribeNewsletter } from "@/lib/newsletter-store";
 
 export default function Footer() {
+  const [newsletterEmail, setNewsletterEmail] = useState("");
+  const [subStatus, setSubStatus] = useState<string | null>(null);
+  const [subLoading, setSubLoading] = useState(false);
+
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newsletterEmail.trim()) return;
+
+    try {
+      setSubLoading(true);
+      const res = await subscribeNewsletter(newsletterEmail.trim());
+      setSubStatus(res.message);
+      setNewsletterEmail("");
+    } catch (err: any) {
+      setSubStatus(err?.message || "Failed to subscribe.");
+    } finally {
+      setSubLoading(false);
+    }
+  };
+
   return (
     <footer className="bg-[#111111] text-gray-400 py-12 sm:py-16 px-4 sm:px-6 w-full max-w-full overflow-x-hidden">
       <div className="w-full max-w-7xl mx-auto px-2 sm:px-6 lg:px-10 grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12">
@@ -33,11 +55,15 @@ export default function Footer() {
             <a href="https://lexvanguard.xyz" target="_blank" rel="noopener noreferrer" title="Official Website" className="p-2 bg-neutral-900 border border-neutral-800 rounded-lg hover:border-[#C9A55C] hover:text-[#C9A55C] transition-colors">
               <Globe className="w-4 h-4" />
             </a>
-            <a href="mailto:counsel@lexvanguard.xyz" title="Email Chambers" className="p-2 bg-neutral-900 border border-neutral-800 rounded-lg hover:border-[#C9A55C] hover:text-[#C9A55C] transition-colors">
+            <a href="mailto:infolexvanguardfirm@gmail.com" title="Email Chambers" className="p-2 bg-neutral-900 border border-neutral-800 rounded-lg hover:border-[#C9A55C] hover:text-[#C9A55C] transition-colors">
               <Mail className="w-4 h-4" />
+            </a>
+            <a href="https://www.instagram.com/lex_vanguard.firm?igsh=MTh4dXlrdzEzN3lvbw==" target="_blank" rel="noopener noreferrer" title="Follow on Instagram" className="p-2 bg-neutral-900 border border-neutral-800 rounded-lg hover:border-[#C9A55C] hover:text-[#C9A55C] transition-colors">
+              <Instagram className="w-4 h-4 text-pink-400" />
             </a>
           </div>
         </div>
+
         <div>
           <h4 className="text-white font-serif text-lg mb-6 uppercase tracking-wider">Practice Areas</h4>
           <ul className="space-y-2">
@@ -53,24 +79,40 @@ export default function Footer() {
             ))}
           </ul>
         </div>
+
         <div>
-          <h4 className="text-white font-serif text-lg mb-6 uppercase tracking-wider">The Firm</h4>
-          <ul className="space-y-2">
-            {[
-              { label: "Founding Members & Attorneys", href: "/attorneys" },
-              { label: "Prince Micah Profile", href: "/attorneys/prince-micah" },
-              { label: "Kelvin Musya Profile", href: "/attorneys/kelvin-musya" },
-              { label: "Donel Aganyo Profile", href: "/attorneys/donel-aganyo" },
-              { label: "Research & Precedent Desk", href: "/desk" },
-              { label: "Firm History & MKUPLC Legacy", href: "/history" },
-              { label: "Visual Sitemap & Index", href: "/sitemap" }
-            ].map(item => (
-              <li key={item.label}>
-                <Link href={item.href} className="text-gray-400 text-sm hover:text-yellow-500 transition-colors block mb-2">{item.label}</Link>
-              </li>
-            ))}
-          </ul>
+          <h4 className="text-white font-serif text-lg mb-6 uppercase tracking-wider">The Gazette Newsletter</h4>
+          <p className="text-xs text-gray-400 mb-4 leading-relaxed">
+            Subscribe to receiving LexVanguard legal dispatches, symposia announcements, and appellate jurisprudence directly in your inbox.
+          </p>
+          {subStatus ? (
+            <div className="bg-amber-500/10 border border-amber-500/30 p-3 rounded-xl text-xs text-amber-300 flex items-start gap-2">
+              <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-amber-400" />
+              <span>{subStatus}</span>
+            </div>
+          ) : (
+            <form onSubmit={handleSubscribe} className="space-y-2">
+              <div className="relative">
+                <input
+                  type="email"
+                  required
+                  placeholder="Enter your email..."
+                  value={newsletterEmail}
+                  onChange={(e) => setNewsletterEmail(e.target.value)}
+                  className="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-[#C9A55C]"
+                />
+                <button
+                  type="submit"
+                  disabled={subLoading}
+                  className="absolute right-1.5 top-1.5 bottom-1.5 px-3 bg-[#C9A55C] hover:bg-yellow-500 text-black text-xs font-bold rounded-lg transition flex items-center justify-center cursor-pointer"
+                >
+                  <Send className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </form>
+          )}
         </div>
+
         <div>
           <h4 className="text-white font-serif text-lg mb-6 uppercase tracking-wider">Chambers Contact</h4>
           <ul className="space-y-4 text-sm font-light">
@@ -84,7 +126,7 @@ export default function Footer() {
             </li>
             <li className="flex items-center">
               <Mail className="w-4 h-4 text-yellow-500 mr-3 shrink-0" />
-              <span>counsel@lexvanguard.xyz</span>
+              <span className="text-xs text-yellow-400 font-mono">infolexvanguardfirm@gmail.com</span>
             </li>
           </ul>
         </div>

@@ -281,7 +281,7 @@ Sitemap: ${baseUrl}/sitemap.xml`;
 
       const inviteeName = name?.trim() || "Counsel";
       const senderName = invitedBy || "Kelvin Musya";
-      const senderEmail = invitedByEmail || "kelvin@lexvanguard.xyz";
+      const senderEmail = invitedByEmail || "infolexvanguardfirm@gmail.com";
 
       const htmlContent = `
 <!DOCTYPE html>
@@ -425,6 +425,89 @@ Sitemap: ${baseUrl}/sitemap.xml`;
         success: false,
         error: err?.message || "An unexpected server error occurred while sending the email."
       });
+    }
+  });
+
+  // Resend Email Endpoint for Gazette Newsletters
+  app.post("/api/send-newsletter", async (req, res) => {
+    try {
+      const { title, subject, content, authorName, recipientEmails } = req.body;
+
+      if (!title || !content) {
+        return res.status(400).json({ success: false, error: "Newsletter title and content are required." });
+      }
+
+      const apiKey = process.env.RESEND_API_KEY;
+      if (!apiKey) {
+        return res.status(500).json({ success: false, error: "RESEND_API_KEY is not configured on the server." });
+      }
+
+      const resend = new Resend(apiKey);
+      const targets = Array.isArray(recipientEmails) && recipientEmails.length > 0
+        ? recipientEmails
+        : ["infolexvanguardfirm@gmail.com"];
+
+      const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin:0; padding:0; background-color:#0A0A0A; font-family:'Segoe UI', Arial, sans-serif; color:#E5E5E5;">
+<table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#0A0A0A; padding:40px 10px;">
+  <tr>
+    <td align="center">
+      <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:680px; background-color:#141414; border-radius:12px; border:1px solid #262626; overflow:hidden;">
+        <tr>
+          <td style="background-color:#000000; padding:35px 40px; border-bottom:1px solid #262626;">
+            <div style="font-size:24px; font-weight:800; letter-spacing:1px; color:#FFFFFF; text-transform:uppercase;">
+              Lex <span style="color:#F59E0B;">Vanguard</span> Gazette
+            </div>
+            <div style="font-size:11px; color:#A3A3A3; margin-top:6px; letter-spacing:1px; text-transform:uppercase;">
+              Legal Dispatch &bull; Published by ${authorName || "LexVanguard Editorial Board"} &bull; LexVanguard Advocates LLP
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:40px; line-height:1.8; font-size:15px; color:#D4D4D4;">
+            <h1 style="font-size:22px; font-weight:700; color:#FFFFFF; margin-top:0; margin-bottom:16px;">
+              ${title}
+            </h1>
+            <div style="white-space:pre-wrap; color:#D4D4D4; line-height:1.8;">
+              ${content}
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:25px 40px; background-color:#0A0A0A; border-top:1px solid #262626; font-size:12px; color:#737373;">
+            <p style="margin:0;">LexVanguard Advocates LLP &bull; Mount Kenya University Parklands Law Campus (MKUPLC)</p>
+            <p style="margin:4px 0 0 0;">Contact: <a href="mailto:infolexvanguardfirm@gmail.com" style="color:#F59E0B; text-decoration:none;">infolexvanguardfirm@gmail.com</a></p>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+</body>
+</html>
+`;
+
+      let sendResult = await resend.emails.send({
+        from: "LexVanguard Gazette <onboarding@resend.dev>",
+        to: targets.slice(0, 50),
+        subject: subject || title,
+        html: htmlContent,
+      });
+
+      return res.json({
+        success: true,
+        count: targets.length,
+        message: `Newsletter broadcast successfully sent via Resend to ${targets.length} recipients.`
+      });
+    } catch (err: any) {
+      console.error("Resend Newsletter Exception:", err);
+      return res.status(500).json({ success: false, error: err?.message || "Newsletter dispatch failed." });
     }
   });
 

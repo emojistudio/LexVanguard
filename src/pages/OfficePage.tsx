@@ -3,7 +3,7 @@ import { useLocation } from "wouter";
 import { 
   Briefcase, Plus, Calendar, Sparkles, CheckCircle2, AlertCircle, Files,
   ChevronRight, ChevronLeft, Phone, Send, Search, Scale, Check, LogOut,
-  User, RefreshCw, Image as ImageIcon, Trash2, MapPin, Clock, X
+  User, RefreshCw, Image as ImageIcon, Trash2, MapPin, Clock, X, Mail
 } from "lucide-react";
 import { 
   collection, query, where, onSnapshot, addDoc, serverTimestamp, 
@@ -16,6 +16,7 @@ import { DEFAULT_ATTORNEY_LIST } from "../lib/users";
 import { ResearchCoHelper } from "../components/ResearchCoHelper";
 import { HostEventModal } from "../components/HostEventModal";
 import { EventGalleryModal } from "../components/EventGalleryModal";
+import { NewsletterAdminModal } from "../components/NewsletterAdminModal";
 import { subscribeEvents, deleteFirmEvent, type FirmEvent } from "../lib/events-store";
 
 export interface OfficeData {
@@ -89,6 +90,7 @@ export const OfficePage: React.FC = () => {
   const [isNewMatterModalOpen, setIsNewMatterModalOpen] = useState(false);
   const [isEventsManagerOpen, setIsEventsManagerOpen] = useState(false);
   const [isHostModalOpen, setIsHostModalOpen] = useState(false);
+  const [isNewsletterModalOpen, setIsNewsletterModalOpen] = useState(false);
   const [galleryEvent, setGalleryEvent] = useState<FirmEvent | null>(null);
 
   // Events State
@@ -352,6 +354,12 @@ export const OfficePage: React.FC = () => {
                 className="flex-1 sm:flex-none px-4 py-2.5 bg-amber-500 hover:bg-amber-600 text-black font-bold text-xs rounded-full transition-all flex items-center justify-center gap-2 shadow-md cursor-pointer active:scale-95 border border-amber-400"
               >
                 <Calendar className="w-4 h-4" /> Manage Events
+              </button>
+              <button 
+                onClick={() => setIsNewsletterModalOpen(true)}
+                className="flex-1 sm:flex-none px-4 py-2.5 bg-zinc-800 hover:bg-black text-amber-400 border border-amber-500/30 font-bold text-xs rounded-full transition-all flex items-center justify-center gap-2 shadow-md cursor-pointer active:scale-95"
+              >
+                <Mail className="w-4 h-4 text-amber-400" /> Gazette Newsletter
               </button>
               <button 
                 onClick={() => setLocation("/events")}
@@ -932,6 +940,13 @@ export const OfficePage: React.FC = () => {
         <EventGalleryModal
           event={galleryEvent}
           onClose={() => setGalleryEvent(null)}
+        />
+      )}
+
+      {/* GAZETTE NEWSLETTER ADMIN MODAL */}
+      {isNewsletterModalOpen && (
+        <NewsletterAdminModal
+          onClose={() => setIsNewsletterModalOpen(false)}
         />
       )}
 

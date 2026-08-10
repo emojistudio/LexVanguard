@@ -29,7 +29,7 @@ const PRACTICE_AREAS: PracticeAreaItem[] = [
     title: "Criminal Litigation & Defense",
     badge: "Trial Advocacy & Constitutional Rights",
     icon: <ShieldAlert className="w-6 h-6 text-amber-500" />,
-    heroImage: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=1200&q=80",
+    heroImage: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=800&q=60",
     shortDesc: "Aggressive, strategic trial defense and constitutional safeguard enforcement across felonies, white-collar crimes, and criminal appeals.",
     overview: "LexVanguard's Criminal Litigation division provides unyielding defense representation for individuals and corporate entities facing criminal charges. Grounded in the constitutional guarantee of fair trial under Article 50, our litigators combine deep procedural mastery with meticulous evidentiary analysis to protect client liberty and reputation.",
     competencies: [

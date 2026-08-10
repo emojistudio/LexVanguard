@@ -339,15 +339,12 @@ function AttorneyCard({
         <img
           src={profile.image}
           alt={profile.name}
+          loading="lazy"
+          decoding="async"
           onError={(e) => handleProfileImageError(e, member.name)}
           className="w-full h-[200px] object-cover grayscale-0 brightness-100 md:grayscale md:brightness-95 md:group-hover:grayscale-0 md:group-hover:brightness-100 group-focus:grayscale-0 group-focus:brightness-105 group-active:grayscale-0 group-active:brightness-105 transition-all duration-500 transform group-hover:scale-105 group-focus:scale-105"
         />
         <div className="absolute inset-0 bg-transparent md:bg-black/10 md:group-hover:bg-transparent group-focus:bg-transparent transition-colors duration-300" />
-        
-        {/* Office Rank Hierarchy Badge */}
-        <div className="absolute bottom-3 left-3 bg-black/85 backdrop-blur-sm text-yellow-500 text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-1 border-l-2 border-yellow-500 shadow-md">
-          {badgeText}
-        </div>
 
         {canEdit && (
           <div className="absolute top-3 right-3 bg-yellow-500 text-black text-[10px] font-extrabold uppercase tracking-wider px-2 py-1 flex items-center gap-1 shadow-md">
