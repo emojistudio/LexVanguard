@@ -246,10 +246,12 @@ export const OfficePage: React.FC = () => {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [chatInput, setChatInput] = useState("");
   const [chatMessages, setChatMessages] = useState<ChatMessageItem[]>([]);
+  const [rosterMembers, setRosterMembers] = useState<FirestoreMember[]>([]);
 
   // 1. Listen to Firebase Real-time Firestore Collections & Events Store
   useEffect(() => {
     const unsubEvents = subscribeEvents((evts) => setAllEvents(evts));
+    const unsubRoster = subscribeFirestoreMembers((updated) => setRosterMembers(updated));
 
     // Tasks listener
     const tasksQuery = query(collection(db, "office_tasks"), limit(25));
@@ -289,6 +291,7 @@ export const OfficePage: React.FC = () => {
 
     return () => {
       unsubEvents();
+      unsubRoster();
       unsubTasks();
       unsubMatters();
       unsubLogs();
@@ -874,7 +877,7 @@ export const OfficePage: React.FC = () => {
                 </div>
 
                 {/* Team Roster */}
-                {DEFAULT_ATTORNEY_LIST.map((attorney) => (
+                {rosterMembers.map((attorney) => (
                   <div 
                     key={attorney.uid}
                     onClick={() => {

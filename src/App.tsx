@@ -25,7 +25,7 @@ function ScrollToTop() {
   return null;
 }
 
-function ProtectedOfficeRoute({ params }: { params: { officeId: string } }) {
+function ProtectedOfficeRoute({ params }: { params: { officeId?: string } }) {
   const { firmUser, loading } = useAuth();
 
   if (loading) {
@@ -33,7 +33,7 @@ function ProtectedOfficeRoute({ params }: { params: { officeId: string } }) {
       <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-white text-center">
           <div className="w-12 h-12 border-4 border-yellow-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-sm text-gray-400 uppercase tracking-widest">Loading...</p>
+          <p className="text-sm text-gray-400 uppercase tracking-widest font-mono">Loading LexVanguard Office...</p>
         </div>
       </div>
     );
@@ -41,10 +41,6 @@ function ProtectedOfficeRoute({ params }: { params: { officeId: string } }) {
 
   if (!firmUser) {
     return <Redirect to="/login" />;
-  }
-
-  if (firmUser.officeId !== params.officeId) {
-    return <Redirect to={`/office/${firmUser.officeId}`} />;
   }
 
   return <OfficePage />;

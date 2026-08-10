@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/lib/auth-context";
-import { subscribeFirestoreMembers, DEFAULT_ATTORNEY_LIST, getOfficeBadge, type FirestoreMember } from "@/lib/users";
+import { subscribeFirestoreMembers, getOfficeBadge, type FirestoreMember } from "@/lib/users";
 import { loadProfile, saveProfile, handleProfileImageError, type AttorneyProfile } from "@/lib/profile-store";
 import { uploadToImgBB, IMGBB_ALBUM_URL } from "@/lib/imgbb";
 import { makeAvatarSvg } from "@/lib/avatar";
@@ -396,7 +396,7 @@ function AttorneyCard({
 
 export default function AttorneysPage() {
   const { firmUser } = useAuth();
-  const [members, setMembers] = useState<FirestoreMember[]>(DEFAULT_ATTORNEY_LIST);
+  const [members, setMembers] = useState<FirestoreMember[]>([]);
   const [activeProfile, setActiveProfile] = useState<FirestoreMember | null>(null);
   const [showInviteModal, setShowInviteModal] = useState(false);
 
