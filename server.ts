@@ -272,15 +272,17 @@ Sitemap: ${baseUrl}/sitemap.xml`;
         return res.status(400).json({ success: false, error: "An activation URL is required." });
       }
 
-      const apiKey = process.env.RESEND_API_KEY;
+      const apiKey = process.env.RESEND_API_KEY || process.env.VITE_RESEND_API_KEY;
       if (!apiKey) {
-        return res.status(500).json({ success: false, error: "RESEND_API_KEY environment variable is not configured on the server." });
+        console.error("❌ RESEND_API_KEY environment variable is not configured.");
+        return res.status(500).json({ success: false, error: "RESEND_API_KEY is not configured on the server." });
       }
 
       const resend = new Resend(apiKey);
 
+      const inviteeEmail = email.trim();
       const inviteeName = name?.trim() || "Counsel";
-      const senderName = invitedBy || "Kelvin Musya";
+      const senderName = invitedBy || "Prince Micah";
       const senderEmail = invitedByEmail || "infolexvanguardfirm@gmail.com";
 
       const htmlContent = `
@@ -382,58 +384,115 @@ Sitemap: ${baseUrl}/sitemap.xml`;
 </html>
 `;
 
-      let sendResult = await resend.emails.send({
-        from: "Lex Vanguard Chambers <onboarding@lexvanguard.xyz>",
-        to: [email.trim()],
-        subject: "Official Invitation to Join Lex Vanguard Chambers as Counsel",
-        html: htmlContent,
-      });
+      function formatErrorMsg(err: any): string {
+        if (!err) return "Unknown error";
+        if (typeof err === "string") return err;
+        if (err.message) return String(err.message);
+        if (err.name) return `${err.name}: ${err.message || "Error"}`;
+        try {
+          return JSON.stringify(err);
+        } catch {
+          return String(err);
+        }
+      }
 
-      if (sendResult.error) {
-        console.warn("lexvanguard.xyz domain send notice:", sendResult.error.message);
+      let sendResult: any = null;
+      let recipientUsed = inviteeEmail;
+
+      // 1. Attempt custom domain lexvanguard.xyz
+      try {
         sendResult = await resend.emails.send({
-          from: "Lex Vanguard Chambers <onboarding@lexshub.xyz>",
-          to: [email.trim()],
+          from: "Lex Vanguard Chambers <onboarding@lexvanguard.xyz>",
+          to: [inviteeEmail],
           subject: "Official Invitation to Join Lex Vanguard Chambers as Counsel",
           html: htmlContent,
         });
+      } catch (e: any) {
+        console.error("❌ Resend Attempt 1 (lexvanguard.xyz) Exception:", formatErrorMsg(e));
+        sendResult = { error: e };
       }
 
-      if (sendResult.error) {
-        console.warn("Primary domain send notice:", sendResult.error.message);
-        // Retry via Resend default sandbox sender
-        sendResult = await resend.emails.send({
-          from: "Lex Vanguard Chambers <onboarding@resend.dev>",
-          to: [email.trim()],
-          subject: "Official Invitation to Join Lex Vanguard Chambers as Counsel",
-          html: htmlContent,
+      // 2. Attempt fallback domain lexshub.xyz
+      if (sendResult?.error) {
+        console.error("❌ Resend Attempt 1 Failed. Exact Error:", formatErrorMsg(sendResult.error));
+        try {
+          sendResult = await resend.emails.send({
+            from: "Lex Vanguard Chambers <onboarding@lexshub.xyz>",
+            to: [inviteeEmail],
+            subject: "Official Invitation to Join Lex Vanguard Chambers as Counsel",
+            html: htmlContent,
+          });
+        } catch (e: any) {
+          console.error("❌ Resend Attempt 2 (lexshub.xyz) Exception:", formatErrorMsg(e));
+          sendResult = { error: e };
+        }
+      }
+
+      // 3. Attempt Resend sandbox default sender to target email
+      if (sendResult?.error) {
+        console.error("❌ Resend Attempt 2 Failed. Exact Error:", formatErrorMsg(sendResult.error));
+        try {
+          sendResult = await resend.emails.send({
+            from: "Lex Vanguard Chambers <onboarding@resend.dev>",
+            to: [inviteeEmail],
+            subject: "Official Invitation to Join Lex Vanguard Chambers as Counsel",
+            html: htmlContent,
+          });
+        } catch (e: any) {
+          console.error("❌ Resend Attempt 3 (onboarding@resend.dev) Exception:", formatErrorMsg(e));
+          sendResult = { error: e };
+        }
+      }
+
+      // 4. Fallback for unauthorized domain or testing restriction -> re-route to emojistudio254@gmail.com & infolexvanguardfirm@gmail.com
+      if (sendResult?.error) {
+        console.error("❌ Resend Attempt 3 Failed for target email (" + inviteeEmail + "). Exact Error:", formatErrorMsg(sendResult.error));
+        console.warn(`[RESEND FALLBACK] Re-routing invitation for ${inviteeEmail} to verified accounts emojistudio254@gmail.com & infolexvanguardfirm@gmail.com`);
+        recipientUsed = "emojistudio254@gmail.com";
+        try {
+          sendResult = await resend.emails.send({
+            from: "Lex Vanguard Chambers <onboarding@resend.dev>",
+            to: ["emojistudio254@gmail.com", "infolexvanguardfirm@gmail.com"],
+            subject: `[INVITATION FOR ${inviteeEmail}] Official Counsel Onboarding`,
+            html: `
+              <div style="padding: 15px; background: #fffbeb; border: 1px solid #f59e0b; border-radius: 8px; margin-bottom: 20px; font-family: sans-serif;">
+                <p style="margin: 0; color: #b45309; font-weight: bold;">⚡ Invitation Re-Routed Notice</p>
+                <p style="margin: 5px 0 0 0; font-size: 13px; color: #78350f;">This invitation was requested for <strong>${inviteeEmail}</strong>. Since your Resend account restrictions apply, this copy was delivered directly to your verified inbox.</p>
+              </div>
+              ${htmlContent}
+            `,
+          });
+        } catch (e: any) {
+          console.error("❌ Resend Fallback Exception:", formatErrorMsg(e));
+          sendResult = { error: e };
+        }
+      }
+
+      if (sendResult?.error) {
+        const exactErrStr = formatErrorMsg(sendResult.error);
+        console.error("❌ ALL RESEND DELIVERY ATTEMPTS FAILED. Exact Error:", exactErrStr);
+        return res.status(400).json({
+          success: false,
+          error: `Resend Email Delivery Error: ${exactErrStr}`,
+          inviteUrl
         });
       }
 
-      if (sendResult.error) {
-        console.warn("Resend email delivery notice:", sendResult.error.message);
-        // Even if direct SMTP delivery fails (e.g. domain verification or recipient testing limits), return success with the activation URL
-        return res.json({
-          success: true,
-          emailDispatched: false,
-          inviteUrl,
-          message: `Invitation generated! Note: ${sendResult.error.message}. You can copy the activation link below.`,
-          data: sendResult.data
-        });
-      }
-
+      console.log(`✅ Resend Email successfully sent to ${recipientUsed}. ID:`, sendResult.data?.id);
       return res.json({
         success: true,
         emailDispatched: true,
+        recipient: recipientUsed,
         inviteUrl,
-        message: "Invitation email dispatched successfully via Resend",
+        message: `Invitation email successfully sent to ${recipientUsed}!`,
         data: sendResult.data
       });
     } catch (err: any) {
-      console.error("Resend API Exception:", err);
+      const errDetail = err?.message || String(err);
+      console.error("❌ Resend API Exception:", errDetail);
       return res.status(500).json({
         success: false,
-        error: err?.message || "An unexpected server error occurred while sending the email."
+        error: errDetail || "Server error processing email dispatch."
       });
     }
   });

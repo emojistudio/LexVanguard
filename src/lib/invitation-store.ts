@@ -86,32 +86,15 @@ export async function sendTeamMemberInvite({
       body: JSON.stringify(payload)
     });
 
-    if (apiRes.status === 405 || apiRes.status === 404) {
-      // Hosted on static web server where backend Express route /api/send-invite is not served directly
-      try {
-        emailDispatched = await sendEmailViaResendDirectly(payload);
-      } catch (fbErr: any) {
-        resendNotice = fbErr.message || "Resend email notice.";
-      }
+    const data = await apiRes.json().catch(() => ({}));
+    if (apiRes.ok && data.success) {
+      emailDispatched = data.emailDispatched !== false;
+      if (data.message) resendNotice = data.message;
     } else {
-      const data = await apiRes.json().catch(() => ({}));
-      if (apiRes.ok && data.success) {
-        emailDispatched = true;
-      } else {
-        resendNotice = data.error || `HTTP ${apiRes.status}`;
-        try {
-          emailDispatched = await sendEmailViaResendDirectly(payload);
-        } catch (fbErr: any) {
-          resendNotice = fbErr.message || resendNotice;
-        }
-      }
+      resendNotice = data.error || `HTTP ${apiRes.status}`;
     }
   } catch (err: any) {
-    try {
-      emailDispatched = await sendEmailViaResendDirectly(payload);
-    } catch (fbErr: any) {
-      resendNotice = fbErr.message || "Invitation link generated.";
-    }
+    resendNotice = err.message || "Network issue contacting invitation server.";
   }
 
   if (emailDispatched) {
@@ -125,7 +108,7 @@ export async function sendTeamMemberInvite({
   return {
     success: true,
     inviteUrl,
-    message: `Invitation link generated for ${cleanEmail}! You can copy the activation link below.`
+    message: resendNotice || `Invitation link generated for ${cleanEmail}! You can copy the activation link below.`
   };
 
 }
