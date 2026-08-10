@@ -428,6 +428,96 @@ Sitemap: ${baseUrl}/sitemap.xml`;
     }
   });
 
+  // API Endpoint: Fellowship & Careers Application
+  app.post("/api/careers/apply", async (req, res) => {
+    try {
+      const { fullName, email, phone, position, yearOfStudy, coverLetter } = req.body;
+      if (!fullName || !email) {
+        return res.status(400).json({ success: false, error: "Full name and email are required." });
+      }
+
+      console.log(`[CAREERS] Application received from ${fullName} (${email}) for position: ${position}`);
+
+      const resendApiKey = process.env.RESEND_API_KEY;
+      if (resendApiKey) {
+        try {
+          const resend = new Resend(resendApiKey);
+          await resend.emails.send({
+            from: "LexVanguard Recruitment <onboarding@resend.dev>",
+            to: ["counsel@lexvanguard.xyz"],
+            subject: `[New Fellowship Application] ${fullName} — ${position}`,
+            html: `
+              <h2>LexVanguard Advocates LLP — Fellowship Application</h2>
+              <p><strong>Applicant Name:</strong> ${fullName}</p>
+              <p><strong>Email:</strong> ${email}</p>
+              <p><strong>Phone:</strong> ${phone || "N/A"}</p>
+              <p><strong>Position:</strong> ${position}</p>
+              <p><strong>Academic Status:</strong> ${yearOfStudy || "N/A"}</p>
+              <br/>
+              <h3>Statement of Purpose / Cover Letter:</h3>
+              <p style="white-space: pre-wrap; background: #f4f4f5; padding: 12px; border-radius: 6px;">${coverLetter || "No statement provided."}</p>
+            `
+          });
+        } catch (emailErr) {
+          console.warn("[CAREERS] Resend dispatch notice:", emailErr);
+        }
+      }
+
+      return res.json({
+        success: true,
+        applicationId: `LV-APP-${Date.now()}`,
+        message: "Application submitted successfully! Our recruitment committee will review your dossier."
+      });
+    } catch (err: any) {
+      return res.status(500).json({ success: false, error: err?.message || "Server error processing application." });
+    }
+  });
+
+  // API Endpoint: Contact & Legal Consultation Inquiry
+  app.post("/api/contact", async (req, res) => {
+    try {
+      const { name, email, phone, practiceArea, subject, message } = req.body;
+      if (!name || !email || !message) {
+        return res.status(400).json({ success: false, error: "Name, email, and message are required." });
+      }
+
+      console.log(`[CONTACT] Inquiry from ${name} (${email}) — Area: ${practiceArea}`);
+
+      const resendApiKey = process.env.RESEND_API_KEY;
+      if (resendApiKey) {
+        try {
+          const resend = new Resend(resendApiKey);
+          await resend.emails.send({
+            from: "LexVanguard Inquiry <onboarding@resend.dev>",
+            to: ["counsel@lexvanguard.xyz"],
+            subject: `[Legal Inquiry] ${subject || practiceArea} — ${name}`,
+            html: `
+              <h2>LexVanguard Advocates LLP — Client Consultation Inquiry</h2>
+              <p><strong>Name:</strong> ${name}</p>
+              <p><strong>Email:</strong> ${email}</p>
+              <p><strong>Phone:</strong> ${phone || "N/A"}</p>
+              <p><strong>Practice Division:</strong> ${practiceArea}</p>
+              <p><strong>Subject:</strong> ${subject}</p>
+              <br/>
+              <h3>Message Details:</h3>
+              <p style="white-space: pre-wrap; background: #f4f4f5; padding: 12px; border-radius: 6px;">${message}</p>
+            `
+          });
+        } catch (emailErr) {
+          console.warn("[CONTACT] Resend dispatch notice:", emailErr);
+        }
+      }
+
+      return res.json({
+        success: true,
+        ticketId: `LV-INQ-${Date.now()}`,
+        message: "Inquiry received. A representative from LexVanguard Advocates LLP will reach out within 24 hours."
+      });
+    } catch (err: any) {
+      return res.status(500).json({ success: false, error: err?.message || "Server error processing inquiry." });
+    }
+  });
+
   // In-Memory Global Cache for eLegal Search Queries across all users
   const eLegalSearchCache = new Map<string, any[]>();
 
@@ -446,13 +536,14 @@ Sitemap: ${baseUrl}/sitemap.xml`;
       return res.json(eLegalSearchCache.get(cacheKey));
     }
 
-    const eLegalApiKey = process.env.ELEGAL_API_KEY || "el_vanguard_default_key";
+    const eLegalApiKey = process.env.ELEGAL_API_KEY || "el_582ffe9d8fd8c4d38932adaf27fb2e67";
+    const apiSourceParam = (source === "international" || source === "kenya") ? source : "all";
 
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 20000);
 
-      const targetUrl = `https://elegal-1.onrender.com/api/search?q=${encodeURIComponent(q)}&source=${encodeURIComponent(source)}`;
+      const targetUrl = `https://elegal-1.onrender.com/api/search?q=${encodeURIComponent(q)}&source=${encodeURIComponent(apiSourceParam)}`;
       const response = await fetch(targetUrl, {
         method: "GET",
         headers: {
@@ -465,13 +556,20 @@ Sitemap: ${baseUrl}/sitemap.xml`;
 
       if (response.ok) {
         const rawData = await response.json();
-        const rawList = Array.isArray(rawData) 
+        let rawList = Array.isArray(rawData) 
           ? rawData 
           : (Array.isArray(rawData?.results) 
             ? rawData.results 
             : (Array.isArray(rawData?.items) 
               ? rawData.items 
               : (Array.isArray(rawData?.data) ? rawData.data : [])));
+
+        // Perform sub-type filtering if requested (precedent vs statute)
+        if (source === "precedent") {
+          rawList = rawList.filter((i: any) => i.type?.toLowerCase() !== "legislation" && i.type?.toLowerCase() !== "statute");
+        } else if (source === "statute") {
+          rawList = rawList.filter((i: any) => i.type?.toLowerCase() === "legislation" || i.type?.toLowerCase() === "statute" || i.type?.toLowerCase() === "act");
+        }
 
         if (rawList.length > 0) {
           const results = rawList.map((item: any) => ({
@@ -481,7 +579,7 @@ Sitemap: ${baseUrl}/sitemap.xml`;
             type: item.type || "precedent",
             source: item.source || "kenya",
             score: item.score || 100,
-            excerpt: item.excerpt || item.title || item.citation || `Official Kenya Law decision regarding '${q}'.`
+            excerpt: item.excerpt || (item.snippets && item.snippets[0]) || item.title || item.citation || `Official Kenya Law decision regarding '${q}'.`
           }));
           eLegalSearchCache.set(cacheKey, results);
           return res.json(results);
@@ -851,32 +949,77 @@ Please provide a structured legal analysis report:
     }
   });
 
-  // API Endpoint: Draft Court Submissions & Briefs
+  // API Endpoint: Draft Court Submissions & Briefs (Groq Llama-3.3-70b Engine + Gemini Fallback)
   app.post("/api/research/draft-submission", async (req, res) => {
     try {
-      const { submissionType, matterTitle, clientName, facts, researchNotes, courtForum } = req.body;
+      const { submissionType, matterTitle, clientName, facts, researchNotes, courtForum, wordCountTarget } = req.body;
       if (!submissionType || !matterTitle) {
         return res.status(400).json({ error: "Submission type and matter title are required" });
       }
 
-      const apiKey = process.env.GEMINI_API_KEY;
-      if (!apiKey) {
-        return res.json({
-          draft: `IN THE ${courtForum || "HIGH COURT OF KENYA"}\n\nMATTER: ${matterTitle}\nCLIENT: ${clientName || "Client"}\n\n[DRAFT ${submissionType.toUpperCase()}]\n\n1. Take notice that the Applicant intends to move this Honorable Court for orders under the Civil Procedure Rules.\n2. Ground 1: Based on established statutory authorities.`
-        });
+      const targetWords = wordCountTarget || 3000;
+      let draftText = "";
+
+      // 1. Groq Llama-3.3-70b-versatile for ultra-fast, high-capacity long-form legal drafting (up to 5,000 words)
+      const groqApiKey = process.env.GROQ_API_KEY;
+      if (groqApiKey) {
+        try {
+          const groqRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${groqApiKey}`,
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              model: "llama-3.3-70b-versatile",
+              messages: [
+                {
+                  role: "system",
+                  content: `You are Senior Master Drafter at LexVanguard Chambers. You specialize in drafting exhaustive, highly detailed, court-ready legal documents up to 5,000 words under Laws of Kenya, Constitution of Kenya 2010, Civil Procedure Act Cap 21, Evidence Act Cap 80, and Appellate Court Rules.
+Draft a complete, comprehensive ${submissionType} containing:
+1. FORMAL PREAMBLE & HEADING (IN THE ${courtForum ? courtForum.toUpperCase() : "HIGH COURT OF KENYA"}).
+2. PARTIES & REPRESENTATION.
+3. EXHAUSTIVE STATEMENT OF BACKGROUND FACTS & CHRONOLOGY.
+4. APPLICABLE STATUTORY FRAMEWORK (Detailed statutory sections & constitutional provisions).
+5. COMPREHENSIVE LEGAL SUBMISSIONS & ARGUMENTS (Divided into numbered grounds, sub-grounds, ratio decidendi of binding Kenya Law precedents).
+6. COMPARATIVE / CONSTITUTIONAL ANALYSIS.
+7. DETAILED PRAYERS FOR RELIEF.`
+                },
+                {
+                  role: "user",
+                  content: `DRAFT TYPE: ${submissionType}
+COURT/FORUM: ${courtForum || "High Court of Kenya"}
+MATTER TITLE: ${matterTitle}
+CLIENT NAME: ${clientName || "The Client / Applicant"}
+FACTS & CASE MATERIALS: ${facts || "As set out in client instructions and evidence file."}
+RESEARCH NOTES & AUTHORITIES: ${researchNotes || "Standard statutory requirements under Kenyan law."}
+TARGET LENGTH: Approx. ${targetWords} words. Provide extensive analysis and full statutory text.`
+                }
+              ],
+              temperature: 0.2,
+              max_tokens: 8000
+            })
+          });
+          if (groqRes.ok) {
+            const groqData = await groqRes.json();
+            draftText = groqData.choices?.[0]?.message?.content || "";
+          }
+        } catch (groqErr) {
+          console.warn("Groq drafting engine notice:", groqErr);
+        }
       }
 
-      const ai = new GoogleGenAI({
-        apiKey,
-        httpOptions: {
-          headers: {
-            'User-Agent': 'aistudio-build'
-          }
-        }
-      });
+      // 2. Gemini Fallback Engine if Groq API key is missing or encounters rate limits
+      if (!draftText) {
+        const apiKey = process.env.GEMINI_API_KEY;
+        if (apiKey) {
+          const ai = new GoogleGenAI({
+            apiKey,
+            httpOptions: { headers: { 'User-Agent': 'aistudio-build' } }
+          });
 
-      const promptText = `You are a Master Legal Drafter at LexVanguard Chambers.
-Draft a complete, formal, highly detailed ${submissionType} for court filing or legal client advisory.
+          const promptText = `You are a Master Legal Drafter at LexVanguard Chambers.
+Draft a complete, formal, highly detailed, multi-page ${submissionType} for court filing or legal client advisory (Targeting approx. ${targetWords} words).
 
 CASE DETAILS:
 - Court / Forum: ${courtForum || "High Court of Kenya"}
@@ -887,26 +1030,31 @@ CASE DETAILS:
 
 DRAFTING INSTRUCTIONS:
 - Use formal legal court language, standard numbering, statutory citations, and formal preamble (IN THE COURT OF...).
-- Include specific legal grounds, statutory sections, and case citations.
-- Provide a clear, comprehensive "PRAYER FOR RELIEF" or "LEGAL CONCLUSION" section.
-- Formatted in clear Markdown suitable for copying directly into court filings or word processors.`;
+- Include specific legal grounds, statutory sections from Laws of Kenya, and binding ratio decidendi.
+- Provide an exhaustive, comprehensive "PRAYER FOR RELIEF" section.
+- Formatted in clean Markdown.`;
 
-      let draftText = "";
-      try {
-        const response = await ai.models.generateContent({
-          model: "gemini-3.6-flash",
-          contents: promptText,
-        });
-        draftText = response.text || "";
-      } catch (geminiErr: any) {
-        console.warn("Drafting Gemini notice:", geminiErr?.message);
-        draftText = `IN THE ${courtForum || "HIGH COURT OF KENYA"}\n\nMATTER: ${matterTitle}\nPARTY: ${clientName || "Applicant / Client"}\n\n**${submissionType.toUpperCase()}**\n\n**1. GROUNDS OF APPLICATION**\n1. THAT the Applicant is a party with locus standi in this matter.\n2. THAT the orders sought are necessary to preserve the ends of justice under the Civil Procedure Rules.\n3. THAT this Application is supported by the facts set out in the Supporting Affidavit.\n\n**2. DRAFT PRAYERS**\nWHEREFORE the Applicant prays for:\n(a) LEAVE to file supplementary affidavits.\n(b) COSTS in the cause.`;
+          try {
+            const response = await ai.models.generateContent({
+              model: "gemini-3.6-flash",
+              contents: promptText,
+            });
+            draftText = response.text || "";
+          } catch (geminiErr: any) {
+            console.warn("Drafting Gemini notice:", geminiErr?.message);
+          }
+        }
       }
 
-      return res.json({ draft: draftText || "Submission draft created." });
+      if (!draftText) {
+        draftText = `IN THE ${courtForum ? courtForum.toUpperCase() : "HIGH COURT OF KENYA AT NAIROBI"}\n\nMATTER: ${matterTitle}\nPARTY: ${clientName || "Applicant / Client"}\n\n**${submissionType.toUpperCase()}**\n\n**1. STATEMENT OF FACTS**\n1. THAT the Applicant is a party with locus standi in this matter.\n2. ${facts || "Facts as set out in client affidavit."}\n\n**2. STATUTORY FRAMEWORK & SUBMISSIONS**\n1. Pursuant to Constitution of Kenya 2010 Article 50 and Civil Procedure Rules Cap 21.\n2. The Respondent's actions violate statutory safeguards.\n\n**3. PRAYERS FOR RELIEF**\nWHEREFORE the Applicant prays for:\n(a) LEAVE to file supplementary affidavits.\n(b) COSTS of this application.`;
+      }
+
+      return res.json({ draft: draftText, engineUsed: groqApiKey ? "Groq Llama-3.3-70B" : "Gemini 3.6 Flash" });
     } catch (error: any) {
       console.error("Drafting Error:", error);
-      return res.json({
+      return res.status(500).json({
+        error: "Failed to generate legal draft.",
         draft: `IN THE HIGH COURT OF KENYA\n\nMATTER: ${req.body?.matterTitle || 'LEGAL MATTER'}\n\nFORMAL SUBMISSION DRAFT\n\n1. The Applicant moves the Court pursuant to statutory provisions.\n2. Costs in the cause.`
       });
     }

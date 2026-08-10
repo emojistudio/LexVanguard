@@ -103,7 +103,7 @@ export default function HomePage() {
       <Header />
 
       {/* Hero Slider */}
-      <div className="relative h-[85vh] sm:h-screen w-full max-w-full flex items-center overflow-hidden">
+      <div className="relative h-[60vh] sm:h-[85vh] md:h-screen w-full max-w-full flex items-center overflow-hidden">
         {SLIDES.map((s, i) => (
           <div key={i} className={`absolute inset-0 z-0 transition-opacity duration-1000 ease-in-out ${i === slide ? 'opacity-100' : 'opacity-0'}`}>
             <img
@@ -151,7 +151,7 @@ export default function HomePage() {
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 sm:mb-6 text-black uppercase tracking-wider">Welcome to LexVanguard</h2>
           <div className="h-1 w-12 sm:w-16 bg-yellow-500 mx-auto mb-6 sm:mb-8" />
           <p className="text-gray-700 leading-relaxed sm:leading-loose text-sm sm:text-base md:text-lg mb-4 sm:mb-6 max-w-5xl mx-auto">
-            Recognized as one of the most prestigious student-led law firms at Mounk Kenya University, LexVanguard's reputation extends across the country. We are not merely a university society — we are a formidable incubator for legal talent, providing hands-on experience that bridges the gap between academic theory and real-world legal practice.
+            Recognized as one of the most prestigious student-led law firms at Mount Kenya University, LexVanguard's reputation extends across the country. We are not merely a university society — we are a formidable incubator for legal talent, providing hands-on experience that bridges the gap between academic theory and real-world legal practice.
           </p>
           <p className="text-gray-600 leading-relaxed sm:leading-loose text-xs sm:text-base mb-8 sm:mb-10 max-w-5xl mx-auto">
             In an environment where students often feel underprepared for the rigors of legal practice, LexVanguard offers a structured, professional space where emerging legal minds are equipped with the skills, networks, and confidence to succeed. Our members engage in rigorous legal research, litigation training, moot court advocacy, legal writing, and client advisory — developing the full spectrum of skills demanded by the modern legal profession.
@@ -205,19 +205,24 @@ export default function HomePage() {
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4 text-white uppercase tracking-wider">What We Do</h2>
             <div className="h-1 w-12 sm:w-16 bg-yellow-500 mx-auto mb-4 sm:mb-6" />
             <p className="text-gray-400 max-w-3xl mx-auto text-xs sm:text-base leading-relaxed">
-              LexVanguard moves beyond the textbook to provide hands-on experience across the full spectrum of legal practice.
+              LexVanguard moves beyond the textbook to provide hands-on experience across our core pillars of legal excellence.
             </p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {[
-              { title: "Legal Research", desc: "Navigate complex statutes, case law, and international legal instruments with precision. Members build research skills that rival seasoned practitioners." },
-              { title: "Litigation Training", desc: "Hone your advocacy and argumentation skills through simulated trials and real case analysis. Step confidently into any courtroom." },
-              { title: "Moot Court & ADR", desc: "Master negotiation, mediation, and alternative dispute resolution. Justice is often served through strategic compromise and persuasive diplomacy." },
-              { title: "Legal Writing & Drafting", desc: "Craft airtight contracts, persuasive briefs, and clear legal opinions. A well-drafted document is the bedrock of effective advocacy." },
-              { title: "Client Advisory", desc: "Develop the interpersonal and analytical skills needed to counsel clients, understand their needs, and translate complex legal issues into actionable strategies." },
-              { title: "Competitions & Conferences", desc: "Represent Mounk Kenya University at national and international moot court competitions, symposia, and legal conferences." }
+              { title: "Research", desc: "Navigate complex statutes, case law, and legal instruments with AI grounding and eLegal integration.", mobileShow: true },
+              { title: "Mootcourts", desc: "Hone trial advocacy, oral argument, and court procedures through competitive simulated hearings.", mobileShow: true },
+              { title: "ICJ & Public Law", desc: "Analyze international court precedents, treaty obligations, and public international law frameworks.", mobileShow: true },
+              { title: "ADR", desc: "Master commercial arbitration, mediation, and dispute settlement strategy for complex disputes.", mobileShow: true },
+              { title: "Legal Writing & Drafting", desc: "Craft airtight contracts, persuasive appellate briefs, and authoritative legal opinions.", mobileShow: false },
+              { title: "Client Advisory & Corporate Strategy", desc: "Develop advisory protocols and strategic risk management solutions for corporate entities.", mobileShow: false }
             ].map((item, i) => (
-              <div key={i} className="border border-white/10 p-5 sm:p-8 hover:border-yellow-500 hover:bg-white/5 transition-all duration-300 rounded-sm">
+              <div
+                key={i}
+                className={`border border-white/10 p-5 sm:p-8 hover:border-yellow-500 hover:bg-white/5 transition-all duration-300 rounded-sm ${
+                  !item.mobileShow ? 'hidden md:block' : 'block'
+                }`}
+              >
                 <div className="w-6 sm:w-8 h-1 bg-yellow-500 mb-3 sm:mb-5" />
                 <h3 className="font-extrabold text-white uppercase tracking-wider text-xs sm:text-sm mb-2 sm:mb-3">{item.title}</h3>
                 <p className="text-gray-400 text-xs sm:text-sm leading-relaxed">{item.desc}</p>

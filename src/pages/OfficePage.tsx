@@ -309,27 +309,9 @@ export const OfficePage: React.FC = () => {
   };
 
   // Metrics computation from real dynamic state
-  const activeMattersCount = matters.filter(m => m.status !== "Closed").length || 12;
-  const pendingTasksCount = tasks.filter(t => t.status !== "Completed").length || 5;
-  const highPriorityTasksCount = tasks.filter(t => t.priority === "High" && t.status !== "Completed").length || 2;
-
-  // Render Matters & Tasks list
-  const displayMatters = matters.length > 0 ? matters : [
-    { id: "m1", title: "Kariuki v. AG (Appellate)", clientName: "Drafting final submissions", refNo: "URG", practiceArea: "Appellate" },
-    { id: "m2", title: "Vanguard Tech Acquisition", clientName: "M&A due diligence pending", refNo: "REV", practiceArea: "Corporate" },
-    { id: "m3", title: "TechCorp IP Discovery", clientName: "Reviewing patent documents", refNo: "ACT", practiceArea: "Intellectual Property" }
-  ];
-
-  const displayTasks = tasks.length > 0 ? tasks : [
-    { id: "t1", title: "Client Intake: Apex Holdings", notes: "Conflict check & retainer agreement", dueDate: "Tomorrow", priority: "High", status: "Pending" },
-    { id: "t2", title: "Review Discovery Materials", notes: "TechCorp patent dispute brief", dueDate: "Next Week", priority: "Medium", status: "Pending" }
-  ];
-
-  const displayLogs = auditLogs.length > 0 ? auditLogs : [
-    { id: "l1", action: "Payment Settled", details: "STK Push — KES 150,000 (Apex)", timestamp: "Just Now" },
-    { id: "l2", action: "Brief Uploaded", details: "High Court ruling added to case file", timestamp: "2 hrs ago" },
-    { id: "l3", action: "Matter Updated", details: "Kariuki v. AG trial date confirmed", timestamp: "Yesterday" }
-  ];
+  const activeMattersCount = matters.filter(m => m.status !== "Closed").length;
+  const pendingTasksCount = tasks.filter(t => t.status !== "Completed").length;
+  const highPriorityTasksCount = tasks.filter(t => t.priority === "High" && t.status !== "Completed").length;
 
   return (
     <div className="min-h-screen relative p-3 sm:p-5 lg:p-8 font-sans selection:bg-[#0071e3] selection:text-white bg-[#f5f5f7] text-[#1d1d1f] overflow-x-hidden">
@@ -469,26 +451,38 @@ export const OfficePage: React.FC = () => {
             </div>
 
             <div className="flex-1 overflow-y-auto p-2">
-              <div className="divide-y divide-black/5">
-                {displayMatters.map((m) => (
-                  <div 
-                    key={m.id} 
-                    onClick={() => setIsResearchModalOpen(true)}
-                    className="p-3 hover:bg-black/5 rounded-2xl transition-colors group cursor-pointer flex items-center justify-between gap-3"
+              {matters.length === 0 ? (
+                <div className="p-6 text-center text-xs text-[#86868b] space-y-2">
+                  <p className="font-semibold">No active legal matters registered.</p>
+                  <button 
+                    onClick={() => setIsNewMatterModalOpen(true)} 
+                    className="px-3 py-1.5 bg-[#1d1d1f] text-white text-[11px] font-bold rounded-lg hover:bg-black transition cursor-pointer"
                   >
-                    <div className="flex items-center gap-3 overflow-hidden">
-                      <div className="w-9 h-9 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0 text-blue-600 font-bold text-xs">
-                        {m.practiceArea ? m.practiceArea.substring(0, 2).toUpperCase() : 'LV'}
+                    + Open First Matter
+                  </button>
+                </div>
+              ) : (
+                <div className="divide-y divide-black/5">
+                  {matters.map((m) => (
+                    <div 
+                      key={m.id} 
+                      onClick={() => setIsResearchModalOpen(true)}
+                      className="p-3 hover:bg-black/5 rounded-2xl transition-colors group cursor-pointer flex items-center justify-between gap-3"
+                    >
+                      <div className="flex items-center gap-3 overflow-hidden">
+                        <div className="w-9 h-9 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0 text-blue-600 font-bold text-xs">
+                          {m.practiceArea ? m.practiceArea.substring(0, 2).toUpperCase() : 'LV'}
+                        </div>
+                        <div className="truncate">
+                          <h4 className="text-sm font-bold text-[#1d1d1f] group-hover:text-[#0071e3] transition-colors truncate">{m.title}</h4>
+                          <p className="text-xs font-medium text-[#86868b] truncate">{m.clientName || m.practiceArea || 'Active Legal Matter'}</p>
+                        </div>
                       </div>
-                      <div className="truncate">
-                        <h4 className="text-sm font-bold text-[#1d1d1f] group-hover:text-[#0071e3] transition-colors truncate">{m.title}</h4>
-                        <p className="text-xs font-medium text-[#86868b] truncate">{m.clientName || m.practiceArea || 'Active Legal Matter'}</p>
-                      </div>
+                      <ChevronRight className="w-4 h-4 text-[#86868b] shrink-0" />
                     </div>
-                    <ChevronRight className="w-4 h-4 text-[#86868b] shrink-0" />
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
@@ -510,36 +504,48 @@ export const OfficePage: React.FC = () => {
             </div>
 
             <div className="flex-1 p-3 overflow-y-auto space-y-2">
-              {displayTasks.map((t) => {
-                const isDone = t.status === "Completed";
-                return (
-                  <label 
-                    key={t.id}
-                    className="flex items-start gap-3 p-3 rounded-2xl bg-white/60 border border-white hover:bg-white transition-colors cursor-pointer group shadow-xs"
+              {tasks.length === 0 ? (
+                <div className="p-6 text-center text-xs text-[#86868b] space-y-2">
+                  <p className="font-semibold">No pending tasks in queue.</p>
+                  <button 
+                    onClick={() => setIsNewTaskModalOpen(true)}
+                    className="px-3 py-1.5 bg-[#1d1d1f] text-white text-[11px] font-bold rounded-lg hover:bg-black transition cursor-pointer"
                   >
-                    <div className="relative flex items-center justify-center w-5 h-5 mt-0.5 shrink-0">
-                      <input 
-                        type="checkbox"
-                        checked={isDone}
-                        onChange={() => handleToggleTask(t.id, t.status)}
-                        className="peer appearance-none w-5 h-5 border-2 border-zinc-300 rounded-full checked:bg-blue-600 checked:border-blue-600 transition-all cursor-pointer"
-                      />
-                      <Check className="w-3 h-3 text-white absolute opacity-0 peer-checked:opacity-100 pointer-events-none stroke-[3]" />
-                    </div>
-                    <div className="flex-1 overflow-hidden">
-                      <h4 className={`text-sm font-bold transition-colors leading-tight truncate ${isDone ? 'line-through text-zinc-400' : 'text-[#1d1d1f] group-hover:text-blue-600'}`}>
-                        {t.title}
-                      </h4>
-                      <p className="text-xs text-[#86868b] mt-0.5 truncate">{t.notes || t.assigneeName || 'Legal task'}</p>
-                      <span className={`inline-block mt-1.5 px-2 py-0.5 text-[9px] font-bold uppercase rounded-md border ${
-                        t.priority === 'High' ? 'bg-rose-50 text-rose-600 border-rose-200' : 'bg-zinc-100 text-zinc-600 border-zinc-200'
-                      }`}>
-                        {t.dueDate || 'Pending'}
-                      </span>
-                    </div>
-                  </label>
-                );
-              })}
+                    + Add First Task
+                  </button>
+                </div>
+              ) : (
+                tasks.map((t) => {
+                  const isDone = t.status === "Completed";
+                  return (
+                    <label 
+                      key={t.id}
+                      className="flex items-start gap-3 p-3 rounded-2xl bg-white/60 border border-white hover:bg-white transition-colors cursor-pointer group shadow-xs"
+                    >
+                      <div className="relative flex items-center justify-center w-5 h-5 mt-0.5 shrink-0">
+                        <input 
+                          type="checkbox"
+                          checked={isDone}
+                          onChange={() => handleToggleTask(t.id, t.status)}
+                          className="peer appearance-none w-5 h-5 border-2 border-zinc-300 rounded-full checked:bg-blue-600 checked:border-blue-600 transition-all cursor-pointer"
+                        />
+                        <Check className="w-3 h-3 text-white absolute opacity-0 peer-checked:opacity-100 pointer-events-none stroke-[3]" />
+                      </div>
+                      <div className="flex-1 overflow-hidden">
+                        <h4 className={`text-sm font-bold transition-colors leading-tight truncate ${isDone ? 'line-through text-zinc-400' : 'text-[#1d1d1f] group-hover:text-blue-600'}`}>
+                          {t.title}
+                        </h4>
+                        <p className="text-xs text-[#86868b] mt-0.5 truncate">{t.notes || t.assigneeName || 'Legal task'}</p>
+                        <span className={`inline-block mt-1.5 px-2 py-0.5 text-[9px] font-bold uppercase rounded-md border ${
+                          t.priority === 'High' ? 'bg-rose-50 text-rose-600 border-rose-200' : 'bg-zinc-100 text-zinc-600 border-zinc-200'
+                        }`}>
+                          {t.dueDate || 'Pending'}
+                        </span>
+                      </div>
+                    </label>
+                  );
+                })
+              )}
             </div>
           </div>
 
@@ -683,22 +689,30 @@ export const OfficePage: React.FC = () => {
             </div>
 
             <div className="flex-1 p-4 overflow-y-auto relative">
-              <div className="absolute left-6 top-6 bottom-6 w-[1.5px] bg-zinc-200"></div>
-              
-              <div className="space-y-5 relative">
-                {displayLogs.map((log) => (
-                  <div key={log.id} className="flex gap-3">
-                    <div className="w-4 h-4 rounded-full bg-emerald-100 border-2 border-white flex items-center justify-center shrink-0 relative z-10 mt-0.5">
-                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-600"></div>
-                    </div>
-                    <div className="overflow-hidden">
-                      <h4 className="text-xs font-bold text-[#1d1d1f] leading-tight truncate">{log.action}</h4>
-                      <p className="text-xs text-[#86868b] mt-0.5 truncate">{log.details || 'System activity logged'}</p>
-                      <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-wider mt-1">{log.timestamp?.seconds ? new Date(log.timestamp.seconds * 1000).toLocaleTimeString() : (log.timestamp || 'Just now')}</p>
-                    </div>
+              {auditLogs.length === 0 ? (
+                <div className="p-6 text-center text-xs text-[#86868b]">
+                  <p className="font-semibold">No audit logs recorded yet.</p>
+                  <p className="text-[11px] text-zinc-400 mt-1">System activity and user actions will log here dynamically in real time.</p>
+                </div>
+              ) : (
+                <>
+                  <div className="absolute left-6 top-6 bottom-6 w-[1.5px] bg-zinc-200"></div>
+                  <div className="space-y-5 relative">
+                    {auditLogs.map((log) => (
+                      <div key={log.id} className="flex gap-3">
+                        <div className="w-4 h-4 rounded-full bg-emerald-100 border-2 border-white flex items-center justify-center shrink-0 relative z-10 mt-0.5">
+                          <div className="w-1.5 h-1.5 rounded-full bg-emerald-600"></div>
+                        </div>
+                        <div className="overflow-hidden">
+                          <h4 className="text-xs font-bold text-[#1d1d1f] leading-tight truncate">{log.action}</h4>
+                          <p className="text-xs text-[#86868b] mt-0.5 truncate">{log.details || 'System activity logged'}</p>
+                          <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-wider mt-1">{log.timestamp?.seconds ? new Date(log.timestamp.seconds * 1000).toLocaleTimeString() : (log.timestamp || 'Just now')}</p>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
+                </>
+              )}
             </div>
           </div>
 

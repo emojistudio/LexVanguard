@@ -1,4 +1,4 @@
-import { collection, doc, setDoc, addDoc, onSnapshot, updateDoc, increment, serverTimestamp } from "firebase/firestore";
+import { collection, doc, setDoc, addDoc, deleteDoc, onSnapshot, updateDoc, increment, serverTimestamp } from "firebase/firestore";
 import { db } from "./firebase";
 
 export interface EventSpeaker {
@@ -61,7 +61,11 @@ function getLocalEvents(): FirmEvent[] {
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed)) {
-        return parsed;
+        const todayStr = new Date().toISOString().split("T")[0];
+        return parsed.map(evt => ({
+          ...evt,
+          status: (evt.date && evt.date < todayStr) ? "Past Event" : (evt.status || "Upcoming")
+        }));
       }
     }
   } catch {}
@@ -75,6 +79,8 @@ function saveLocalEvents(events: FirmEvent[]) {
 }
 
 export function subscribeEvents(callback: (events: FirmEvent[]) => void) {
+  const todayStr = new Date().toISOString().split("T")[0];
+
   try {
     const colRef = collection(db, "events");
     return onSnapshot(colRef, (snapshot) => {
@@ -86,16 +92,18 @@ export function subscribeEvents(callback: (events: FirmEvent[]) => void) {
         const id = docSnap.id || data.id;
         if (id && !seen.has(id)) {
           seen.add(id);
-          list.push({ ...data, id });
+          const computedStatus = (data.date && data.date < todayStr) ? "Past Event" : (data.status || "Upcoming");
+          list.push({ ...data, id, status: computedStatus });
         }
       });
 
-      // Merge with initial/local events if snapshot is empty or missing defaults
+      // Merge with local events if missing
       const local = getLocalEvents();
       local.forEach((evt) => {
         if (!seen.has(evt.id)) {
           seen.add(evt.id);
-          list.push(evt);
+          const computedStatus = (evt.date && evt.date < todayStr) ? "Past Event" : (evt.status || "Upcoming");
+          list.push({ ...evt, status: computedStatus });
         }
       });
 
@@ -116,6 +124,19 @@ export function subscribeEvents(callback: (events: FirmEvent[]) => void) {
     console.warn("Error subscribing to events, using local state fallback:", e);
     callback(getLocalEvents());
     return () => {};
+  }
+}
+
+export async function deleteFirmEvent(id: string): Promise<void> {
+  const current = getLocalEvents();
+  const updated = current.filter(e => e.id !== id);
+  saveLocalEvents(updated);
+
+  try {
+    const docRef = doc(db, "events", id);
+    await deleteDoc(docRef);
+  } catch (e) {
+    console.warn("Firestore delete event notice:", e);
   }
 }
 

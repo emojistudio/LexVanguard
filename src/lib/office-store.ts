@@ -120,245 +120,16 @@ export interface StkPushTransaction {
   initiatedBy: string;
 }
 
-// Initial default seed data for immediate display
-const INITIAL_TASKS: ChambersTask[] = [
-  {
-    id: "task_1",
-    officeId: "prince",
-    title: "Draft M&A Term Sheet — Vanguard Acquisition",
-    assignee: "Prince Micah",
-    due: "Tomorrow, 5:00 PM",
-    status: "In Progress",
-    priority: "High",
-    description: "Review due diligence report and finalize share purchase terms with target firm.",
-    createdAt: new Date().toISOString(),
-    createdBy: "Prince Micah"
-  },
-  {
-    id: "task_2",
-    officeId: "kelvin",
-    title: "Appellate Brief Filing — Kariuki v. AG",
-    assignee: "Kelvin Musya",
-    due: "Apr 2, 2026",
-    status: "In Progress",
-    priority: "High",
-    description: "Finalize constitutional appeal grounds and prepare core precedent authorities for Supreme Court.",
-    createdAt: new Date().toISOString(),
-    createdBy: "Kelvin Musya"
-  },
-  {
-    id: "task_3",
-    officeId: "counsel",
-    title: "Client Intake & Conflict Check — Apex Innovations",
-    assignee: "Counsel Chambers",
-    due: "Apr 5, 2026",
-    status: "Pending",
-    priority: "Medium",
-    description: "Perform IP registry cross-checks for Apex Innovations trademark filing.",
-    createdAt: new Date().toISOString(),
-    createdBy: "System"
-  }
-];
-
-const INITIAL_MATTERS: ChambersMatter[] = [
-  {
-    id: "matter_1",
-    officeId: "prince",
-    title: "Commercial Litigation — Phase I",
-    client: "Vanguard Tech Corp",
-    status: "Active",
-    urgency: "High",
-    description: "Pre-trial preparation, witness statement reviews, and electronic discovery disclosure.",
-    leadAttorney: "Prince Micah",
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: "matter_2",
-    officeId: "kelvin",
-    title: "Supreme Court Appeal Grounds",
-    client: "Crown Energy Ltd",
-    status: "In Review",
-    urgency: "Medium",
-    description: "Constitutional review of Energy Regulatory Board licensing decisions.",
-    leadAttorney: "Kelvin Musya",
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: "matter_3",
-    officeId: "counsel",
-    title: "Intellectual Property & Patent Protection",
-    client: "Apex Innovations",
-    status: "Active",
-    urgency: "Medium",
-    description: "International patent application filing under the African Regional Intellectual Property Organization.",
-    leadAttorney: "Counsel",
-    createdAt: new Date().toISOString()
-  }
-];
-
+// Initial default seed data (empty for dynamic database loading)
+const INITIAL_TASKS: ChambersTask[] = [];
+const INITIAL_MATTERS: ChambersMatter[] = [];
 const INITIAL_LOGS: ActivityLog[] = [];
-
-const INITIAL_DOCS: ChambersDocument[] = [
-  {
-    id: "doc_1",
-    officeId: "prince",
-    title: "M&A Share Purchase Agreement — Draft v2.pdf",
-    type: "Contract",
-    uploadedBy: "Prince Micah",
-    uploadedAt: "2026-07-28",
-    size: "2.4 MB"
-  },
-  {
-    id: "doc_2",
-    officeId: "kelvin",
-    title: "Supreme Court Petition of Appeal — Final.pdf",
-    type: "Brief",
-    uploadedBy: "Kelvin Musya",
-    uploadedAt: "2026-07-27",
-    size: "4.1 MB"
-  }
-];
-
-const INITIAL_RESEARCH: ChambersResearchItem[] = [
-  {
-    id: "res_1",
-    officeId: "kelvin",
-    matterId: "matter_2",
-    matterTitle: "Supreme Court Appeal Grounds",
-    query: "Constitutional grounds for appealing administrative decisions of energy regulatory authorities under Article 47 of Constitution of Kenya 2010",
-    summary: "Article 47 guarantees fair administrative action. Under the Fair Administrative Action Act 2015 and Supreme Court rulings in Judicial Service Commission v. Mbalu Mutava, regulatory tribunals must afford natural justice before license revoking.",
-    sources: [
-      { title: "Kenya Law Reports — Supreme Court Jurisprudence", uri: "http://kenyalaw.org/caselaw/" },
-      { title: "Constitution of Kenya 2010 — Article 47", uri: "http://kenyalaw.org/kl/index.php?id=398" }
-    ],
-    notes: "Key precedent to cite in paragraph 14 of the petition.",
-    createdByName: "Kelvin Musya",
-    createdAt: new Date().toISOString().split("T")[0]
-  },
-  {
-    id: "res_2",
-    officeId: "prince",
-    matterId: "matter_1",
-    matterTitle: "Commercial Litigation — Phase I",
-    query: "Threshold for granting interlocutory mandatory injunctions in commercial contract breaches under Civil Procedure Rules",
-    summary: "As articulated by the Court of Appeal in Giella v. Cassman Brown & Co. Ltd [1973], the applicant must demonstrate a prima facie case with a probability of success, irreparable injury that damages cannot remedy, and balance of convenience.",
-    sources: [
-      { title: "Giella v. Cassman Brown & Co. Ltd [1973] EA 358", uri: "http://kenyalaw.org/caselaw/" }
-    ],
-    notes: "Attached to motion for interim protection.",
-    createdByName: "Prince Micah",
-    createdAt: new Date().toISOString().split("T")[0]
-  }
-];
-
-const INITIAL_SUBMISSIONS: ChambersSubmission[] = [
-  {
-    id: "sub_1",
-    officeId: "kelvin",
-    matterId: "matter_2",
-    matterTitle: "Supreme Court Appeal Grounds",
-    submissionType: "Appellate Brief",
-    courtForum: "Supreme Court of Kenya",
-    title: "Petition of Appeal on Fair Administrative Action",
-    content: "IN THE SUPREME COURT OF KENYA AT NAIROBI\nPETITION NO. 14 OF 2026\n\nBETWEEN:\nCROWN ENERGY LIMITED — APPELLANT\nAND\nENERGY & PETROLEUM REGULATORY AUTHORITY — RESPONDENT\n\nPETITION OF APPEAL\n\nTAKE NOTICE that the Appellant, being dissatisfied with the decision of the Court of Appeal, appeals to the Supreme Court on the following grounds:\n\n1. The learned Appellate Judges erred in law in holding that natural justice principles under Article 47 do not apply to summary licensing suspensions.\n2. The Court failed to apply Section 4 of the Fair Administrative Action Act 2015.\n\nPRAYER FOR RELIEF:\na) That this Appeal be allowed with costs.\nb) An order quashing the revocation notice issued by the Respondent.",
-    createdByName: "Kelvin Musya",
-    createdAt: new Date().toISOString().split("T")[0],
-    status: "Draft"
-  }
-];
-
-const INITIAL_MESSAGES: DirectMessage[] = [
-  {
-    id: "msg_1",
-    senderUid: "n6NKoyAIuVSXYEaIbRVN9drINNy1",
-    senderName: "Prince Micah",
-    recipientUid: "SSbNEJrVyhM6b8LbWYsyunPGk6l2",
-    recipientName: "Kelvin Musya",
-    content: "Kelvin, please review the draft share purchase agreement for Vanguard Tech Corp before tomorrow's filing.",
-    timestamp: new Date(Date.now() - 7200000).toISOString(),
-    timeFormatted: "2 hours ago",
-    matterId: "matter_1",
-    matterTitle: "Commercial Litigation — Phase I",
-    resourceTitle: "M&A Share Purchase Agreement — Draft v2.pdf"
-  },
-  {
-    id: "msg_2",
-    senderUid: "SSbNEJrVyhM6b8LbWYsyunPGk6l2",
-    senderName: "Kelvin Musya",
-    recipientUid: "n6NKoyAIuVSXYEaIbRVN9drINNy1",
-    recipientName: "Prince Micah",
-    content: "Reviewed. The indemnification clause looks solid. I have added a cross-reference to Article 47 constitutional safeguards.",
-    timestamp: new Date(Date.now() - 3600000).toISOString(),
-    timeFormatted: "1 hour ago",
-    matterId: "matter_1",
-    matterTitle: "Commercial Litigation — Phase I"
-  },
-  {
-    id: "msg_3",
-    senderUid: "linet_njeri_uid",
-    senderName: "Linet Njeri",
-    recipientUid: "all",
-    recipientName: "All Counsel",
-    content: "Reminder: All court fee disbursement receipts for Q2 must be submitted to the Finance office by Friday.",
-    timestamp: new Date(Date.now() - 1800000).toISOString(),
-    timeFormatted: "30 mins ago"
-  }
-];
-
-const INITIAL_INVOICES: ChambersInvoice[] = [
-  {
-    id: "inv_1001",
-    invoiceNumber: "LV-2026-089",
-    clientName: "Crown Energy Ltd",
-    matterTitle: "Supreme Court Appeal Grounds",
-    officeId: "kelvin",
-    amount: 450000,
-    vatAmount: 72000,
-    totalAmount: 522000,
-    issueDate: "2026-07-15",
-    dueDate: "2026-08-15",
-    status: "Issued",
-    items: [
-      { description: "Appellate Brief Drafting & Research (Senior Counsel)", hoursOrQty: 12, rate: 25000, total: 300000 },
-      { description: "Court Registry Filing & Document Service Disbursements", hoursOrQty: 1, rate: 150000, total: 150000 }
-    ],
-    notes: "Retainer invoice for Supreme Court Appeal."
-  },
-  {
-    id: "inv_1002",
-    invoiceNumber: "LV-2026-090",
-    clientName: "Vanguard Tech Corp",
-    matterTitle: "Commercial Litigation — Phase I",
-    officeId: "prince",
-    amount: 800000,
-    vatAmount: 128000,
-    totalAmount: 928000,
-    issueDate: "2026-07-20",
-    dueDate: "2026-08-20",
-    status: "Paid",
-    paidAt: "2026-07-25",
-    items: [
-      { description: "M&A Due Diligence & Contract Execution", hoursOrQty: 20, rate: 30000, total: 600000 },
-      { description: "Interlocutory Injunction Representation", hoursOrQty: 8, rate: 25000, total: 200000 }
-    ],
-    notes: "Paid via Direct Bank Transfer."
-  }
-];
-
-const INITIAL_TRANSACTIONS: StkPushTransaction[] = [
-  {
-    id: "stk_1",
-    phoneNumber: "254712345678",
-    amount: 150000,
-    clientName: "Apex Innovations",
-    matterTitle: "Intellectual Property & Patent Protection",
-    referenceDoc: "LV-2026-091",
-    status: "Success",
-    mpesaReceiptNumber: "MPESA-WSX98212",
-    timestamp: "2026-07-28 14:20",
-    initiatedBy: "Linet Njeri (Finance)"
-  }
-];
+const INITIAL_DOCS: ChambersDocument[] = [];
+const INITIAL_RESEARCH: ChambersResearchItem[] = [];
+const INITIAL_SUBMISSIONS: ChambersSubmission[] = [];
+const INITIAL_MESSAGES: DirectMessage[] = [];
+const INITIAL_INVOICES: ChambersInvoice[] = [];
+const INITIAL_TRANSACTIONS: StkPushTransaction[] = [];
 
 // LocalStorage helpers
 function loadLocal<T>(key: string, defaultVal: T): T {
@@ -460,48 +231,40 @@ function setupFirestoreSync() {
 
   try {
     // Sync Tasks
-    const tasksRef = collection(db, "chambers_tasks");
+    const tasksRef = collection(db, "office_tasks");
     onSnapshot(tasksRef, (snap) => {
-      if (!snap.empty) {
-        const remoteTasks: ChambersTask[] = [];
-        snap.forEach(d => remoteTasks.push(d.data() as ChambersTask));
-        currentTasks = remoteTasks;
-        notifyTasks();
-      }
+      const remoteTasks: ChambersTask[] = [];
+      snap.forEach(d => remoteTasks.push({ id: d.id, ...d.data() } as ChambersTask));
+      currentTasks = remoteTasks;
+      notifyTasks();
     }, (err) => console.warn("Firestore tasks snapshot fallback to local:", err.message));
 
     // Sync Matters
-    const mattersRef = collection(db, "chambers_matters");
+    const mattersRef = collection(db, "matters");
     onSnapshot(mattersRef, (snap) => {
-      if (!snap.empty) {
-        const remoteMatters: ChambersMatter[] = [];
-        snap.forEach(d => remoteMatters.push(d.data() as ChambersMatter));
-        currentMatters = remoteMatters;
-        notifyMatters();
-      }
+      const remoteMatters: ChambersMatter[] = [];
+      snap.forEach(d => remoteMatters.push({ id: d.id, ...d.data() } as ChambersMatter));
+      currentMatters = remoteMatters;
+      notifyMatters();
     }, (err) => console.warn("Firestore matters snapshot fallback to local:", err.message));
 
-    // Sync Logs
-    const logsRef = collection(db, "chambers_logs");
+    // Sync Audit Logs
+    const logsRef = collection(db, "audit_logs");
     onSnapshot(logsRef, (snap) => {
-      if (!snap.empty) {
-        const remoteLogs: ActivityLog[] = [];
-        snap.forEach(d => remoteLogs.push(d.data() as ActivityLog));
-        remoteLogs.sort((a, b) => b.timestamp - a.timestamp);
-        currentLogs = remoteLogs;
-        notifyLogs();
-      }
+      const remoteLogs: ActivityLog[] = [];
+      snap.forEach(d => remoteLogs.push({ id: d.id, ...d.data() } as ActivityLog));
+      remoteLogs.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+      currentLogs = remoteLogs;
+      notifyLogs();
     }, (err) => console.warn("Firestore logs snapshot fallback to local:", err.message));
 
     // Sync Documents
-    const docsRef = collection(db, "chambers_docs");
+    const docsRef = collection(db, "office_documents");
     onSnapshot(docsRef, (snap) => {
-      if (!snap.empty) {
-        const remoteDocs: ChambersDocument[] = [];
-        snap.forEach(d => remoteDocs.push(d.data() as ChambersDocument));
-        currentDocs = remoteDocs;
-        notifyDocs();
-      }
+      const remoteDocs: ChambersDocument[] = [];
+      snap.forEach(d => remoteDocs.push({ id: d.id, ...d.data() } as ChambersDocument));
+      currentDocs = remoteDocs;
+      notifyDocs();
     }, (err) => console.warn("Firestore docs snapshot fallback to local:", err.message));
 
     // Sync Research Items

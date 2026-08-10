@@ -12,6 +12,8 @@ import HistoryPage from "@/pages/HistoryPage";
 import EventsPage from "@/pages/EventsPage";
 import PracticeAreasPage from "@/pages/PracticeAreasPage";
 import ResearchCoHelperPage from "@/pages/ResearchCoHelperPage";
+import CareersPage from "@/pages/CareersPage";
+import ContactPage from "@/pages/ContactPage";
 import UnderConstruction from "@/pages/UnderConstruction";
 import NotFound from "@/pages/not-found";
 
@@ -92,8 +94,8 @@ function Router() {
         <Route path="/news" component={EventsPage} />
         <Route path="/services" component={PracticeAreasPage} />
         <Route path="/practice-areas" component={PracticeAreasPage} />
-        <Route path="/careers"><UnderConstruction title="Careers" /></Route>
-        <Route path="/contact"><UnderConstruction title="Contact" /></Route>
+        <Route path="/careers" component={CareersPage} />
+        <Route path="/contact" component={ContactPage} />
         <Route component={NotFound} />
       </Switch>
     </>

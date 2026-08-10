@@ -1,4 +1,4 @@
-export const DEFAULT_FALLBACK_AVATAR = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT8Ko1YCURBO1IUZuN6dyMpxrshbMtwhjQr0noR0_0XDg&s=10";
+export const DEFAULT_FALLBACK_AVATAR = "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=400&q=80";
 
 export const NAME_TO_PROFILE_IMAGE: Record<string, string> = {
   "prince": "/images/profiles/prince.jpeg",
@@ -10,8 +10,8 @@ export const NAME_TO_PROFILE_IMAGE: Record<string, string> = {
   "donel aganyo": "/images/profiles/don.jpeg",
   "linet": "/images/profiles/linet.jpeg",
   "linet njeri": "/images/profiles/linet.jpeg",
-  "sharon mwariri": "/images/profiles/sharon mwariri.jpeg",
-  "sharon kioko": "/images/profiles/sharon kioko.png",
+  "sharon mwariri": "/images/profiles/sharon%20mwariri.jpeg",
+  "sharon kioko": "/images/profiles/sharon%20kioko.png",
   "samuel": "/images/profiles/samuel.jpeg",
   "sherifa": "/images/profiles/sherifa.jpeg",
   "sherifa abdilatif": "/images/profiles/sherifa.jpeg",
@@ -19,8 +19,8 @@ export const NAME_TO_PROFILE_IMAGE: Record<string, string> = {
   "kimathi winner": "/images/profiles/kirui.jpeg",
   "kimathi": "/images/profiles/kirui.jpeg",
   "evaton": "/images/profiles/evaton.jpeg",
-  "esther": "/images/profiles/esther karira.jpeg",
-  "esther karira": "/images/profiles/esther karira.jpeg",
+  "esther": "/images/profiles/esther%20karira.jpeg",
+  "esther karira": "/images/profiles/esther%20karira.jpeg",
   "estelle": "/images/profiles/estelle.jpeg",
 };
 
@@ -38,7 +38,7 @@ export function resolveProfileImage(name?: string, currentImg?: string): string 
     const isGenericPlaceholder = trimmed.includes("placeholder");
 
     if (!isUnsplashFake && !is37Signals && !isGenericPlaceholder) {
-      return trimmed;
+      return encodeURI(trimmed);
     }
   }
 
@@ -48,7 +48,7 @@ export function resolveProfileImage(name?: string, currentImg?: string): string 
 
   // 1. Direct key match
   if (NAME_TO_PROFILE_IMAGE[cleanName]) {
-    return NAME_TO_PROFILE_IMAGE[cleanName];
+    return encodeURI(NAME_TO_PROFILE_IMAGE[cleanName]);
   }
 
   // 2. Substring matching
@@ -56,15 +56,16 @@ export function resolveProfileImage(name?: string, currentImg?: string): string 
   if (cleanName.includes("kelvin")) return "/images/profiles/kelvin.jpeg";
   if (cleanName.includes("donel") || cleanName.includes("don ")) return "/images/profiles/don.jpeg";
   if (cleanName.includes("linet")) return "/images/profiles/linet.jpeg";
-  if (cleanName.includes("sharon mwariri")) return "/images/profiles/sharon mwariri.jpeg";
-  if (cleanName.includes("sharon kioko") || cleanName.includes("kioko")) return "/images/profiles/sharon kioko.png";
-  if (cleanName.includes("sharon")) return "/images/profiles/sharon mwariri.jpeg";
+  if (cleanName.includes("sharon mwariri")) return "/images/profiles/sharon%20mwariri.jpeg";
+  if (cleanName.includes("sharon kioko") || cleanName.includes("kioko")) return "/images/profiles/sharon%20kioko.png";
+  if (cleanName.includes("sharon")) return "/images/profiles/sharon%20mwariri.jpeg";
   if (cleanName.includes("samuel")) return "/images/profiles/samuel.jpeg";
   if (cleanName.includes("sherifa")) return "/images/profiles/sherifa.jpeg";
   if (cleanName.includes("kirui") || cleanName.includes("kimathi")) return "/images/profiles/kirui.jpeg";
   if (cleanName.includes("evaton")) return "/images/profiles/evaton.jpeg";
-  if (cleanName.includes("esther")) return "/images/profiles/esther karira.jpeg";
+  if (cleanName.includes("esther")) return "/images/profiles/esther%20karira.jpeg";
   if (cleanName.includes("estelle")) return "/images/profiles/estelle.jpeg";
 
   return DEFAULT_FALLBACK_AVATAR;
 }
+

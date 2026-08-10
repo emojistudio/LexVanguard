@@ -297,7 +297,7 @@ export function getAllProfiles(): Record<string, AttorneyProfile> {
 
 export function handleProfileImageError(e: React.SyntheticEvent<HTMLImageElement, Event>, name?: string): void {
   const imgEl = e.target as HTMLImageElement;
-  const currentSrc = imgEl.src;
+  const currentSrc = imgEl.src || "";
 
   // Try fixing ibb.co viewer links to direct i.ibb.co URL
   if (currentSrc && currentSrc.includes("ibb.co/") && !currentSrc.includes("i.ibb.co/")) {
@@ -309,10 +309,14 @@ export function handleProfileImageError(e: React.SyntheticEvent<HTMLImageElement
     }
   }
 
-  const fallback = resolveProfileImage(name);
+  const resolved = resolveProfileImage(name);
   
-  if (imgEl.src !== fallback) {
-    imgEl.src = fallback;
+  if (currentSrc !== resolved && !imgEl.dataset.failedOnce) {
+    imgEl.dataset.failedOnce = "true";
+    imgEl.src = resolved;
+  } else {
+    // Ultimate fallback if local image is missing
+    imgEl.src = "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=400&q=80";
   }
 }
 

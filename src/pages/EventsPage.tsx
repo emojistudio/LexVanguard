@@ -1,14 +1,14 @@
 import { useState, useEffect } from "react";
 import { 
   Calendar, Clock, MapPin, Heart, Search, Plus, 
-  Download, X, Image as ImageIcon 
+  Download, X, Image as ImageIcon, Trash2 
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 import { SITE_KEYWORDS } from "@/lib/seo-data";
 import { useAuth } from "@/lib/auth-context";
-import { subscribeEvents, generateIcsCalendar, type FirmEvent } from "@/lib/events-store";
+import { subscribeEvents, deleteFirmEvent, generateIcsCalendar, type FirmEvent } from "@/lib/events-store";
 import { RsvpModal } from "@/components/RsvpModal";
 import { HostEventModal } from "@/components/HostEventModal";
 import { EventGalleryModal } from "@/components/EventGalleryModal";
@@ -404,24 +404,43 @@ export default function EventsPage() {
                       </span>
                     )}
 
-                    {/* Floating Heart Button */}
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        toggleLike(evt.id);
-                      }}
-                      className="absolute top-3 right-3 bg-white/90 hover:bg-white text-black p-2 rounded-full border border-neutral-200 shadow-sm transition-transform active:scale-95 cursor-pointer z-10"
-                      title={isLiked ? "Remove bookmark" : "Bookmark event"}
-                    >
-                      <Heart
-                        className={`w-3.5 h-3.5 transition-colors ${
-                          isLiked
-                            ? "fill-black text-black"
-                            : "text-neutral-600 hover:text-black"
-                        }`}
-                      />
-                    </button>
+                    {/* Floating Actions: Bookmark & Delete */}
+                    <div className="absolute top-3 right-3 flex items-center gap-1.5 z-10">
+                      {firmUser && (
+                        <button
+                          type="button"
+                          onClick={async (e) => {
+                            e.stopPropagation();
+                            if (confirm(`Delete event "${evt.title}"?`)) {
+                              await deleteFirmEvent(evt.id);
+                              setEvents(prev => prev.filter(x => x.id !== evt.id));
+                            }
+                          }}
+                          className="bg-red-600/90 hover:bg-red-600 text-white p-2 rounded-full border border-red-700 shadow-sm transition-transform active:scale-95 cursor-pointer"
+                          title="Delete Event"
+                        >
+                          <Trash2 className="w-3.5 h-3.5 text-white" />
+                        </button>
+                      )}
+
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleLike(evt.id);
+                        }}
+                        className="bg-white/90 hover:bg-white text-black p-2 rounded-full border border-neutral-200 shadow-sm transition-transform active:scale-95 cursor-pointer"
+                        title={isLiked ? "Remove bookmark" : "Bookmark event"}
+                      >
+                        <Heart
+                          className={`w-3.5 h-3.5 transition-colors ${
+                            isLiked
+                              ? "fill-black text-black"
+                              : "text-neutral-600 hover:text-black"
+                          }`}
+                        />
+                      </button>
+                    </div>
                   </div>
 
                   {/* Body Details */}

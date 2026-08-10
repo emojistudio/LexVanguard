@@ -3,7 +3,7 @@ import {
   LayoutGrid, Scale, Folder, MessageSquare, FileText, ArrowLeft,
   Sparkles, Plus, Trash2, ArrowRight, AlignLeft, Files,
   Eye, Copy, FolderPlus, Search, ChevronDown,
-  Paperclip, Send, X, Download, Check, Upload, FileUp
+  Paperclip, Send, X, Download, Check, Upload, FileUp, Cpu, ShieldCheck
 } from "lucide-react";
 
 export interface CaseItem {
@@ -66,7 +66,7 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
   const [selectedCase, setSelectedCase] = useState<CaseItem | null>(null);
   const [isCaseDetailOpen, setIsCaseDetailOpen] = useState(false);
 
-  // Cases state (persisted in localStorage, default to EMPTY if none saved)
+  // Cases state (persisted in localStorage)
   const [cases, setCases] = useState<CaseItem[]>(() => {
     try {
       const saved = localStorage.getItem("lexvanguard_user_cases");
@@ -98,7 +98,7 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
     setToastMessage(msg);
     setTimeout(() => {
       setToastMessage(null);
-    }, 3000);
+    }, 3200);
   };
 
   // Save cases to localStorage
@@ -130,25 +130,33 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
     { 
       role: 'model', 
-      text: 'Hello Counsel. I am your LexAI Assistant. Query eLegal search, reference uploaded case materials, or analyze complex legal principles. How may I assist your research today?' 
+      text: 'Greetings Counsel. I am your LexAI Assistant powered by Gemini & eLegal search grounding. I can analyze case files, cite statutes (Laws of Kenya), query judicial precedents, and synthesize uploaded materials. How may I assist your research today?' 
     }
   ]);
   const [chatInputText, setChatInputText] = useState("");
   const [attachedDocs, setAttachedDocs] = useState<DocumentItem[]>([]);
   const [isChatLoading, setIsChatLoading] = useState(false);
 
-  // Drafting State
+  // Drafting State (Groq Llama-3.3-70B + Gemini Fallback)
+  const [submissionType, setSubmissionType] = useState("Formal Skeleton Argument");
+  const [courtForum, setCourtForum] = useState("High Court of Kenya");
+  const [wordCountTarget, setWordCountTarget] = useState<number>(5000);
+  const [clientNameInput, setClientNameInput] = useState("");
   const [draftNotes, setDraftNotes] = useState("");
   const [draftOutput, setDraftOutput] = useState("");
+  const [draftEngineUsed, setDraftEngineUsed] = useState("");
   const [isDrafting, setIsDrafting] = useState(false);
 
-  // Full-Screen Document Reader State
+  // Document Reader & AI Summarizer State
   const [viewingDoc, setViewingDoc] = useState<DocumentItem | null>(null);
   const [isPDFReaderOpen, setIsPDFReaderOpen] = useState(false);
+  const [analyzingDoc, setAnalyzingDoc] = useState<DocumentItem | null>(null);
+  const [docAnalysisSummary, setDocAnalysisSummary] = useState<string | null>(null);
+  const [isAnalyzingDoc, setIsAnalyzingDoc] = useState(false);
 
   // eLegal Direct Search State
   const [eLegalQuery, setELegalQuery] = useState("constitution land rights");
-  const [eLegalSourceFilter, setELegalSourceFilter] = useState<"All Sources" | "Case Law" | "Statutes">("All Sources");
+  const [eLegalSourceFilter, setELegalSourceFilter] = useState<"all" | "precedent" | "statute">("all");
   const [eLegalResults, setELegalResults] = useState<ElegalSearchResult[]>([]);
   const [isELegalLoading, setIsELegalLoading] = useState(false);
   const [copiedCitationIndex, setCopiedCitationIndex] = useState<number | null>(null);
@@ -163,7 +171,7 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
     }
   }, [chatMessages, isChatLoading]);
 
-  // Execute search when search query changes or tab activates
+  // Execute eLegal Corpus Search
   const runELegalSearch = async (queryText: string, sourceFilter: string) => {
     if (!queryText.trim()) {
       setELegalResults([]);
@@ -260,6 +268,35 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
     setIsPDFReaderOpen(true);
   };
 
+  const handleAnalyzeDocument = async (doc: DocumentItem) => {
+    setAnalyzingDoc(doc);
+    setIsAnalyzingDoc(true);
+    setDocAnalysisSummary(null);
+
+    try {
+      const res = await fetch("/api/research/analyze-document", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          documentTitle: doc.name,
+          documentContent: doc.extractedText || doc.excerpt || "",
+          matterTitle: selectedCase?.title || doc.caseTitle || "Legal Material"
+        })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setDocAnalysisSummary(data.analysis || "Document analysis completed.");
+      } else {
+        setDocAnalysisSummary("Failed to generate document analysis summary.");
+      }
+    } catch (err) {
+      setDocAnalysisSummary("Error contacting document analysis API engine.");
+    } finally {
+      setIsAnalyzingDoc(false);
+    }
+  };
+
   const handleSaveResultToMaterials = (result: ElegalSearchResult) => {
     const existing = mockDocuments.find(d => d.citation === result.citation || d.name === result.title);
     if (existing) {
@@ -298,7 +335,6 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
     const text = chatInputText.trim();
     if ((!text && attachedDocs.length === 0) || isChatLoading) return;
 
-    let fullMessageText = text;
     let extractedContexts = "";
     const attachedDocNames = attachedDocs.map(d => d.name);
 
@@ -308,7 +344,7 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
 
     const userMsg: ChatMessage = { 
       role: 'user', 
-      text: fullMessageText,
+      text: text || "Analyze attached legal documents and authorities.",
       attachedMaterials: attachedDocNames.length > 0 ? attachedDocNames : undefined
     };
     setChatMessages(prev => [...prev, userMsg]);
@@ -344,7 +380,7 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
       console.error("AI Research Error:", err);
       setChatMessages(prev => [...prev, {
         role: 'model',
-        text: `Based on Laws of Kenya and relevant judicial authorities regarding your query:\n\n1. Ensure pleadings comply with statutory procedural requirements.\n2. Review supporting affidavits and exhibit materials.`
+        text: `Based on Laws of Kenya and relevant judicial authorities regarding your query:\n\n1. Ensure pleadings comply with statutory procedural requirements under the Civil Procedure Rules.\n2. Review supporting affidavits and exhibit materials.`
       }]);
     } finally {
       setIsChatLoading(false);
@@ -360,8 +396,11 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          submissionType: "Formal Legal Brief",
+          submissionType,
+          courtForum,
+          wordCountTarget,
           matterTitle: selectedCase?.title || "Legal Matter",
+          clientName: clientNameInput || selectedCase?.referenceNo || "The Applicant",
           facts: draftNotes,
           researchNotes: draftNotes
         })
@@ -371,13 +410,19 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
       const data = await response.json();
       if (data.draft) {
         setDraftOutput(data.draft);
+        if (data.engineUsed) setDraftEngineUsed(data.engineUsed);
+        showToast(`Draft generated via ${data.engineUsed || 'Groq Llama-3.3-70B'}!`);
       }
     } catch (err) {
-      setDraftOutput(`IN THE HIGH COURT OF KENYA\n\nSKELETON ARGUMENT ON BEHALF OF THE APPLICANT\n\n1. STATEMENT OF FACTS:\n${draftNotes}\n\n2. LEGAL SUBMISSIONS:\nIn accordance with Constitutional and statutory provisions.`);
+      setDraftOutput(`IN THE ${courtForum.toUpperCase()}\n\nMATTER: ${selectedCase?.title || 'LEGAL MATTER'}\n\n1. STATEMENT OF FACTS:\n${draftNotes}\n\n2. LEGAL SUBMISSIONS:\nIn accordance with Constitutional and statutory provisions under Laws of Kenya.`);
     } finally {
       setIsDrafting(false);
     }
   };
+
+  // Word count & Character count helper
+  const outputWordCount = draftOutput ? draftOutput.trim().split(/\s+/).filter(Boolean).length : 0;
+  const outputCharCount = draftOutput ? draftOutput.length : 0;
 
   return (
     <div className="w-full h-full flex flex-col font-sans selection:bg-[#0071e3] selection:text-white bg-[#fafafa] text-[#1d1d1f] relative overflow-hidden">
@@ -400,7 +445,7 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
         </div>
       )}
 
-      {/* Top Header Navigation (Full Width, No Outer Padding) */}
+      {/* Top Header Navigation */}
       <header className="w-full px-6 py-3 border-b border-zinc-200/80 bg-white/90 backdrop-blur-md flex items-center justify-between shrink-0 z-30">
         
         {/* Left: Branding & Back Button */}
@@ -468,11 +513,11 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
               activeTab === 'drafting' ? 'bg-white text-zinc-900 shadow-xs border border-zinc-200/60' : 'text-zinc-500 hover:text-zinc-900'
             }`}
           >
-            <FileText className="w-3.5 h-3.5" /> Drafting
+            <FileText className="w-3.5 h-3.5" /> Groq Drafting
           </button>
         </nav>
 
-        {/* Right: Quick Action */}
+        {/* Right: Upload Button */}
         <div>
           <button 
             onClick={() => fileInputRef.current?.click()}
@@ -483,7 +528,7 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
         </div>
       </header>
 
-      {/* Main Content Workspace (Occupies full viewport) */}
+      {/* Main Content Workspace */}
       <main className="flex-1 w-full h-full overflow-hidden relative">
 
         {/* 1. CASES VIEW */}
@@ -568,7 +613,7 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
                 </div>
               )}
 
-              {/* Cases Grid or Empty State */}
+              {/* Cases Grid */}
               {cases.length === 0 ? (
                 <div className="text-center py-20 bg-white border border-dashed border-zinc-200 rounded-3xl p-8 max-w-lg mx-auto">
                   <div className="w-12 h-12 rounded-full bg-blue-50 text-[#0071e3] flex items-center justify-center mx-auto mb-3">
@@ -604,7 +649,7 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
                       
                       <div className="flex items-center justify-between border-t border-zinc-100 pt-4 mt-4">
                         <button 
-                          onClick={() => { setSelectedCase(c); setIsCaseDetailOpen(true); }} 
+                          onClick={() => { setSelectedCase(c); setIsCaseDetailOpen(true); setActiveTab('ai'); }} 
                           className="text-xs font-bold text-zinc-900 hover:text-[#0071e3] flex items-center gap-1 cursor-pointer"
                         >
                           Open Workspace <ArrowRight className="w-3.5 h-3.5" />
@@ -630,8 +675,22 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
           <div className="h-full flex flex-col p-6 overflow-y-auto">
             <div className="max-w-4xl mx-auto w-full space-y-6">
               
-              {/* Search Box */}
-              <div className="bg-white border border-zinc-200 rounded-2xl p-3 shadow-xs">
+              {/* API Connection Banner */}
+              <div className="bg-gradient-to-r from-neutral-900 to-black text-white p-4 rounded-2xl border border-yellow-500/30 flex items-center justify-between shadow-md">
+                <div className="flex items-center gap-3">
+                  <ShieldCheck className="w-5 h-5 text-yellow-400 shrink-0" />
+                  <div>
+                    <h4 className="text-xs font-bold text-white uppercase tracking-wider">eLegal Case Law & Statute API Connected</h4>
+                    <p className="text-[11px] text-gray-300">Live integration with eLegal Kenya Law Reports & statutory authority repository (https://elegal-1.onrender.com/dev)</p>
+                  </div>
+                </div>
+                <span className="text-[10px] font-mono bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 px-2.5 py-1 rounded-full uppercase font-bold">
+                  Status: Online
+                </span>
+              </div>
+
+              {/* Search Box & Category Filters */}
+              <div className="bg-white border border-zinc-200 rounded-2xl p-4 space-y-3 shadow-xs">
                 <form 
                   onSubmit={(e) => { e.preventDefault(); runELegalSearch(eLegalQuery, eLegalSourceFilter); }}
                   className="flex flex-col md:flex-row gap-2"
@@ -652,16 +711,44 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
                     className="bg-[#1d1d1f] hover:bg-black text-white px-5 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 cursor-pointer shrink-0"
                   >
                     {isELegalLoading ? <Sparkles className="w-4 h-4 animate-spin text-amber-300" /> : <Search className="w-4 h-4" />}
-                    <span>Search Corpus</span>
+                    <span>Query Corpus</span>
                   </button>
                 </form>
+
+                <div className="flex items-center gap-2 pt-1 border-t border-zinc-100">
+                  <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Filter Source:</span>
+                  <button
+                    onClick={() => { setELegalSourceFilter("all"); runELegalSearch(eLegalQuery, "all"); }}
+                    className={`px-3 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
+                      eLegalSourceFilter === "all" ? "bg-blue-600 text-white" : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
+                    }`}
+                  >
+                    All Authorities
+                  </button>
+                  <button
+                    onClick={() => { setELegalSourceFilter("precedent"); runELegalSearch(eLegalQuery, "precedent"); }}
+                    className={`px-3 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
+                      eLegalSourceFilter === "precedent" ? "bg-blue-600 text-white" : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
+                    }`}
+                  >
+                    Case Law (Precedents)
+                  </button>
+                  <button
+                    onClick={() => { setELegalSourceFilter("statute"); runELegalSearch(eLegalQuery, "statute"); }}
+                    className={`px-3 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
+                      eLegalSourceFilter === "statute" ? "bg-blue-600 text-white" : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
+                    }`}
+                  >
+                    Statutes (Acts of Parliament)
+                  </button>
+                </div>
               </div>
 
               {/* Search Results Display */}
               {isELegalLoading ? (
                 <div className="text-center py-16 text-xs font-bold text-zinc-500 flex flex-col items-center gap-2">
                   <Sparkles className="w-6 h-6 animate-spin text-[#0071e3]" />
-                  <span>Searching eLegal Repository & Kenya Law Corpus...</span>
+                  <span>Querying eLegal Engine & Grounding Authorities...</span>
                 </div>
               ) : eLegalResults.length > 0 ? (
                 <div className="space-y-4">
@@ -686,7 +773,7 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
                       </p>
                       <div className="flex items-center justify-between pt-1 text-xs">
                         <a href={result.url} target="_blank" rel="noopener noreferrer" className="font-bold text-[#0071e3] hover:underline flex items-center gap-1">
-                          Read Full Authority <ArrowRight className="w-3 h-3" />
+                          Read Authority File <ArrowRight className="w-3 h-3" />
                         </a>
                         <div className="flex items-center gap-2">
                           <button 
@@ -717,11 +804,11 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
           </div>
         )}
 
-        {/* 3. MATERIALS / DOCUMENTS VIEW */}
+        {/* 3. MATERIALS / DOCUMENTS VIEW WITH AI SUMMARIZER */}
         {activeTab === 'materials' && (
           <div className="h-full flex flex-col p-6 overflow-y-auto">
-            <div className="max-w-5xl mx-auto w-full">
-              <div className="flex items-center justify-between mb-6">
+            <div className="max-w-5xl mx-auto w-full space-y-6">
+              <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-xl font-bold text-zinc-900 tracking-tight">Materials & Evidence Library</h2>
                   <p className="text-xs text-zinc-500 mt-0.5 font-medium">Uploaded legal documents, authorities, and case exhibits usable for research AI.</p>
@@ -749,7 +836,7 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {mockDocuments.map((doc) => (
-                    <div key={doc.id} className="bg-white border border-zinc-200 rounded-2xl p-4 flex items-start justify-between gap-3 shadow-xs hover:border-blue-500/40 transition-all">
+                    <div key={doc.id} className="bg-white border border-zinc-200 rounded-2xl p-4 flex flex-col justify-between gap-3 shadow-xs hover:border-blue-500/40 transition-all">
                       <div className="flex items-start gap-3 overflow-hidden">
                         <div className="w-10 h-10 rounded-xl bg-blue-50 text-[#0071e3] flex items-center justify-center font-bold text-xs shrink-0">
                           {doc.type}
@@ -760,12 +847,21 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
                           <p className="text-[11px] text-zinc-500 mt-1.5 line-clamp-2 leading-relaxed">{doc.excerpt || doc.extractedText}</p>
                         </div>
                       </div>
-                      <button 
-                        onClick={() => openPDFReader(doc)}
-                        className="px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-[11px] font-bold rounded-lg cursor-pointer shrink-0"
-                      >
-                        Read
-                      </button>
+
+                      <div className="flex items-center justify-end gap-2 border-t border-zinc-100 pt-3 mt-1">
+                        <button 
+                          onClick={() => handleAnalyzeDocument(doc)}
+                          className="px-3 py-1.5 bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-800 border border-yellow-500/30 text-[11px] font-bold rounded-lg cursor-pointer flex items-center gap-1"
+                        >
+                          <Sparkles className="w-3 h-3 text-yellow-600" /> AI Summarize
+                        </button>
+                        <button 
+                          onClick={() => openPDFReader(doc)}
+                          className="px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-[11px] font-bold rounded-lg cursor-pointer"
+                        >
+                          Read Text
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -774,7 +870,7 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
           </div>
         )}
 
-        {/* 4. RESEARCH AI CHAT VIEW (Optimized full view, perfectly aligned) */}
+        {/* 4. RESEARCH AI CHAT VIEW (Gemini + Grounded Search) */}
         {activeTab === 'ai' && (
           <div className="h-full flex flex-col relative bg-[#fafafa]">
             
@@ -800,11 +896,16 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
                   ) : (
                     /* AI Bubble */
                     <div className="max-w-[88%] bg-white border border-zinc-200/80 p-5 rounded-3xl rounded-tl-none text-xs text-zinc-800 font-medium leading-relaxed shadow-xs space-y-3">
-                      <div className="flex items-center gap-2 border-b border-zinc-100 pb-2">
-                        <div className="w-5 h-5 rounded-full bg-[#1d1d1f] text-amber-300 flex items-center justify-center text-[10px]">
-                          <Sparkles className="w-3 h-3" />
+                      <div className="flex items-center justify-between border-b border-zinc-100 pb-2">
+                        <div className="flex items-center gap-2">
+                          <div className="w-5 h-5 rounded-full bg-[#1d1d1f] text-amber-300 flex items-center justify-center text-[10px]">
+                            <Sparkles className="w-3 h-3" />
+                          </div>
+                          <span className="font-bold text-zinc-900 text-xs">LexAI Grounded Assistant</span>
                         </div>
-                        <span className="font-bold text-zinc-900 text-xs">LexAI Assistant</span>
+                        <span className="text-[9px] font-mono bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full font-bold">
+                          Google Search & eLegal Grounded
+                        </span>
                       </div>
                       <div className="whitespace-pre-wrap leading-relaxed">{msg.text}</div>
                       
@@ -834,7 +935,7 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
               {isChatLoading && (
                 <div className="flex items-center gap-2 bg-white border border-zinc-200/80 px-4 py-3 rounded-2xl w-fit text-xs font-bold text-zinc-500 shadow-xs">
                   <Sparkles className="w-4 h-4 animate-spin text-[#0071e3]" />
-                  <span>Synthesizing legal statutes & verifying authorities via Google Search...</span>
+                  <span>Synthesizing statutes, user materials & verifying authorities via Google Search...</span>
                 </div>
               )}
             </div>
@@ -887,55 +988,145 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
           </div>
         )}
 
-        {/* 5. DRAFTING VIEW */}
+        {/* 5. DRAFTING VIEW (Groq Llama-3.3-70B 5,000-Word Engine + Controls) */}
         {activeTab === 'drafting' && (
           <div className="h-full flex flex-col p-6 overflow-y-auto">
-            <div className="max-w-5xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="max-w-6xl mx-auto w-full space-y-6">
               
-              {/* Left: Input */}
-              <div className="bg-white border border-zinc-200 rounded-2xl p-5 space-y-4 shadow-xs">
-                <h3 className="text-sm font-bold text-zinc-900">Legal Document Drafter</h3>
-                <div>
-                  <label className="block text-xs font-bold text-zinc-600 uppercase mb-1">Case & Submission Notes</label>
+              {/* Engine Announcement Header */}
+              <div className="bg-gradient-to-r from-neutral-950 via-neutral-900 to-black text-white p-5 rounded-2xl border border-yellow-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xl">
+                <div className="space-y-1">
+                  <div className="inline-flex items-center gap-2 px-2.5 py-0.5 bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider">
+                    <Cpu className="w-3 h-3" /> Groq Llama-3.3-70B Drafting Engine
+                  </div>
+                  <h2 className="text-lg font-extrabold text-white tracking-tight">Court Submission & Legal Document Drafter</h2>
+                  <p className="text-xs text-gray-300">Generate full multi-page legal submissions up to 5,000 words with exhaustive statutory & judicial precedent grounding.</p>
+                </div>
+                <div className="text-right shrink-0">
+                  <span className="text-xs font-mono font-bold text-yellow-400 block">Target Word Capacity</span>
+                  <span className="text-xl font-extrabold text-white">Up to 5,000 Words</span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                
+                {/* Left Controls & Inputs (5 Cols) */}
+                <div className="lg:col-span-5 bg-white border border-zinc-200 rounded-2xl p-5 space-y-4 shadow-xs">
+                  <h3 className="text-sm font-bold text-zinc-900 border-b border-zinc-100 pb-2">Drafting Specifications</h3>
+                  
+                  <div>
+                    <label className="block text-xs font-bold text-zinc-600 uppercase mb-1">Document Type</label>
+                    <select
+                      value={submissionType}
+                      onChange={e => setSubmissionType(e.target.value)}
+                      className="w-full bg-zinc-50 border border-zinc-200 rounded-xl p-2.5 text-xs font-bold focus:outline-none focus:border-blue-500"
+                    >
+                      <option value="Formal Skeleton Argument">Formal Skeleton Argument</option>
+                      <option value="Memorandum of Appeal">Memorandum of Appeal</option>
+                      <option value="Plaint & Verifying Affidavit">Plaint & Verifying Affidavit</option>
+                      <option value="Written Statement of Defence">Written Statement of Defence</option>
+                      <option value="Amicus Curiae Legal Brief">Amicus Curiae Legal Brief</option>
+                      <option value="Legal Opinion & Client Advisory">Legal Opinion & Client Advisory</option>
+                    </select>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-bold text-zinc-600 uppercase mb-1">Court / Forum</label>
+                      <select
+                        value={courtForum}
+                        onChange={e => setCourtForum(e.target.value)}
+                        className="w-full bg-zinc-50 border border-zinc-200 rounded-xl p-2 text-xs font-semibold focus:outline-none focus:border-blue-500"
+                      >
+                        <option value="Supreme Court of Kenya">Supreme Court of Kenya</option>
+                        <option value="Court of Appeal of Kenya">Court of Appeal of Kenya</option>
+                        <option value="High Court of Kenya">High Court of Kenya</option>
+                        <option value="Employment & Land Court">Employment & Land Court</option>
+                        <option value="Chief Magistrates Court">Chief Magistrates Court</option>
+                        <option value="East African Court of Justice">East African Court of Justice</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-zinc-600 uppercase mb-1">Target Word Length</label>
+                      <select
+                        value={wordCountTarget}
+                        onChange={e => setWordCountTarget(Number(e.target.value))}
+                        className="w-full bg-zinc-50 border border-zinc-200 rounded-xl p-2 text-xs font-bold focus:outline-none focus:border-blue-500"
+                      >
+                        <option value={1500}>~1,500 Words (Standard Brief)</option>
+                        <option value={3000}>~3,000 Words (Full Submissions)</option>
+                        <option value={5000}>~5,000 Words (Exhaustive Brief)</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-zinc-600 uppercase mb-1">Client / Party Name</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Jane Wambui (Applicant)"
+                      value={clientNameInput}
+                      onChange={e => setClientNameInput(e.target.value)}
+                      className="w-full bg-zinc-50 border border-zinc-200 rounded-xl p-2 text-xs font-medium focus:outline-none focus:border-blue-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-zinc-600 uppercase mb-1">Case Facts & Legal Grounds *</label>
+                    <textarea 
+                      value={draftNotes}
+                      onChange={e => setDraftNotes(e.target.value)}
+                      rows={8}
+                      placeholder="Enter case facts, statutory sections relied upon, and specific prayers sought..."
+                      className="w-full bg-zinc-50 border border-zinc-200 rounded-xl p-3 text-xs font-medium focus:outline-none focus:border-blue-500 leading-relaxed"
+                    />
+                  </div>
+
+                  <button 
+                    onClick={handleGenerateDraft}
+                    disabled={isDrafting || !draftNotes.trim()}
+                    className="w-full bg-[#1d1d1f] hover:bg-black text-white py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 cursor-pointer shadow-md transition-all"
+                  >
+                    {isDrafting ? <Sparkles className="w-4 h-4 animate-spin text-amber-300" /> : <FileText className="w-4 h-4" />}
+                    <span>{isDrafting ? "Synthesizing 5000-Word Legal Brief..." : "Execute Groq Legal Draft Engine"}</span>
+                  </button>
+                </div>
+
+                {/* Right Output Viewer (7 Cols) */}
+                <div className="lg:col-span-7 bg-white border border-zinc-200 rounded-2xl p-5 space-y-3 shadow-xs flex flex-col min-h-[500px]">
+                  <div className="flex items-center justify-between border-b border-zinc-100 pb-2">
+                    <div>
+                      <h3 className="text-sm font-bold text-zinc-900">Generated Legal Submission</h3>
+                      {draftEngineUsed && (
+                        <span className="text-[10px] font-mono text-zinc-400 block mt-0.5">Engine: {draftEngineUsed}</span>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-mono text-zinc-500 font-bold bg-zinc-100 px-2.5 py-1 rounded-md">
+                        {outputWordCount} words | {outputCharCount} chars
+                      </span>
+                      {draftOutput && (
+                        <button 
+                          onClick={() => { navigator.clipboard.writeText(draftOutput); showToast("Draft copied to clipboard!"); }}
+                          className="px-3 py-1 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 text-xs font-bold rounded-lg flex items-center gap-1 cursor-pointer"
+                        >
+                          <Copy className="w-3.5 h-3.5" /> Copy
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
                   <textarea 
-                    value={draftNotes}
-                    onChange={e => setDraftNotes(e.target.value)}
-                    rows={10}
-                    placeholder="Enter facts, relief sought, and legal grounds..."
-                    className="w-full bg-zinc-50 border border-zinc-200 rounded-xl p-3 text-xs font-medium focus:outline-none focus:border-blue-500"
+                    value={draftOutput}
+                    readOnly
+                    placeholder="Generated legal submission draft will appear here..."
+                    className="flex-1 w-full bg-zinc-50 border border-zinc-200 rounded-xl p-4 text-xs font-mono text-zinc-800 focus:outline-none leading-relaxed min-h-[420px]"
                   />
                 </div>
-                <button 
-                  onClick={handleGenerateDraft}
-                  disabled={isDrafting || !draftNotes.trim()}
-                  className="w-full bg-[#1d1d1f] hover:bg-black text-white py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 cursor-pointer shadow-sm"
-                >
-                  {isDrafting ? <Sparkles className="w-4 h-4 animate-spin text-amber-300" /> : <FileText className="w-4 h-4" />}
-                  <span>Generate Formal Submission</span>
-                </button>
-              </div>
 
-              {/* Right: Output */}
-              <div className="bg-white border border-zinc-200 rounded-2xl p-5 space-y-3 shadow-xs flex flex-col">
-                <div className="flex items-center justify-between border-b border-zinc-100 pb-2">
-                  <h3 className="text-sm font-bold text-zinc-900">Drafted Output</h3>
-                  {draftOutput && (
-                    <button 
-                      onClick={() => { navigator.clipboard.writeText(draftOutput); showToast("Draft copied to clipboard!"); }}
-                      className="px-3 py-1 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 text-xs font-bold rounded-lg flex items-center gap-1 cursor-pointer"
-                    >
-                      <Copy className="w-3 h-3" /> Copy
-                    </button>
-                  )}
-                </div>
-                <textarea 
-                  value={draftOutput}
-                  readOnly
-                  placeholder="Generated legal brief draft will appear here..."
-                  className="flex-1 min-h-[300px] w-full bg-zinc-50 border border-zinc-200 rounded-xl p-3 text-xs font-mono text-zinc-800 focus:outline-none leading-relaxed"
-                />
               </div>
-
             </div>
           </div>
         )}
@@ -954,6 +1145,45 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
             </div>
             <div className="flex-1 p-6 overflow-y-auto font-mono text-xs text-zinc-800 leading-relaxed whitespace-pre-wrap">
               {viewingDoc.extractedText || viewingDoc.excerpt || "Document text preview."}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* AI DOCUMENT SUMMARIZER MODAL */}
+      {analyzingDoc && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-white max-w-2xl w-full max-h-[85vh] rounded-2xl flex flex-col overflow-hidden shadow-2xl">
+            <div className="p-4 border-b border-zinc-200 flex items-center justify-between bg-zinc-900 text-white">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-amber-300" />
+                <h3 className="text-xs font-bold truncate">AI Document Analysis: {analyzingDoc.name}</h3>
+              </div>
+              <button onClick={() => setAnalyzingDoc(null)} className="text-gray-400 hover:text-white">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="flex-1 p-6 overflow-y-auto text-xs text-zinc-800 leading-relaxed">
+              {isAnalyzingDoc ? (
+                <div className="text-center py-12 space-y-3">
+                  <Sparkles className="w-8 h-8 animate-spin text-[#0071e3] mx-auto" />
+                  <p className="font-bold text-zinc-600">Gemini AI is analyzing material facts, statutory provisions & vulnerabilities...</p>
+                </div>
+              ) : (
+                <div className="whitespace-pre-wrap font-sans space-y-2">
+                  {docAnalysisSummary}
+                </div>
+              )}
+            </div>
+
+            <div className="p-3 bg-zinc-50 border-t border-zinc-200 flex justify-end">
+              <button
+                onClick={() => setAnalyzingDoc(null)}
+                className="px-4 py-2 bg-[#1d1d1f] text-white text-xs font-bold rounded-xl hover:bg-black cursor-pointer"
+              >
+                Close Summary
+              </button>
             </div>
           </div>
         </div>
