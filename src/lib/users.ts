@@ -101,6 +101,30 @@ export async function fetchFirmUser(uid: string, email?: string): Promise<FirmUs
   return null;
 }
 
+export async function updateUserOfficeRole(targetUid: string, newOfficeId: string): Promise<boolean> {
+  if (!db || !targetUid) return false;
+  try {
+    const userRef = doc(db, "users", targetUid);
+    let roleName = "Counsel";
+    let roleLevel = 50;
+
+    if (newOfficeId === "admin") { roleName = "Admin"; roleLevel = 10; }
+    else if (newOfficeId === "finance") { roleName = "Finance Manager"; roleLevel = 5; }
+    else if (newOfficeId === "managing_partner") { roleName = "Managing Partner"; roleLevel = 100; }
+
+    await updateDoc(userRef, {
+      officeId: newOfficeId,
+      roleName: roleName,
+      roleLevel: roleLevel,
+      updatedAt: new Date().toISOString()
+    });
+    return true;
+  } catch (err) {
+    console.error("Error updating user office role:", err);
+    return false;
+  }
+}
+
 /**
  * Cleanup job: Verifies documents in `/users` and purges legacy `/userProfiles`.
  * Removes non-UID keys (legacy email/name keys) so that only valid authenticated 

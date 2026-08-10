@@ -3,7 +3,8 @@ import { useLocation } from "wouter";
 import { 
   Briefcase, Plus, Calendar, Sparkles, CheckCircle2, AlertCircle, Files,
   ChevronRight, ChevronLeft, Phone, Send, Search, Scale, Check, LogOut,
-  User, RefreshCw, Image as ImageIcon, Trash2, MapPin, Clock, X, Mail, Home
+  User, RefreshCw, Image as ImageIcon, Trash2, MapPin, Clock, X, Mail, Home,
+  Shield, Users, UserCheck, DollarSign, Lock
 } from "lucide-react";
 import { 
   collection, query, where, onSnapshot, addDoc, serverTimestamp, 
@@ -12,12 +13,13 @@ import {
 import { db } from "../lib/firebase";
 import { useAuth } from "../lib/auth-context";
 import { resolveProfileImage } from "../lib/profile-images";
-import { DEFAULT_ATTORNEY_LIST } from "../lib/users";
+import { subscribeFirestoreMembers, updateUserOfficeRole, type FirestoreMember } from "../lib/users";
 import { ResearchCoHelper } from "../components/ResearchCoHelper";
 import { HostEventModal } from "../components/HostEventModal";
 import { EventGalleryModal } from "../components/EventGalleryModal";
 import { NewsletterAdminModal } from "../components/NewsletterAdminModal";
 import { EditProfileModal } from "../components/EditProfileModal";
+import { InviteModal } from "../components/InviteModal";
 import { subscribeEvents, deleteFirmEvent, type FirmEvent } from "../lib/events-store";
 
 export interface OfficeData {
@@ -68,6 +70,119 @@ export interface ChatMessageItem {
   isMe?: boolean;
 }
 
+function UserManagementModal({ onClose }: { onClose: () => void }) {
+  const [members, setMembers] = useState<FirestoreMember[]>([]);
+  const [updatingUid, setUpdatingUid] = useState<string | null>(null);
+  const [successMsg, setSuccessMsg] = useState("");
+
+  useEffect(() => {
+    const unsub = subscribeFirestoreMembers((updated) => setMembers(updated));
+    return () => unsub();
+  }, []);
+
+  const handleRoleChange = async (targetUid: string, newOfficeId: string) => {
+    setUpdatingUid(targetUid);
+    setSuccessMsg("");
+    const ok = await updateUserOfficeRole(targetUid, newOfficeId);
+    setUpdatingUid(null);
+    if (ok) {
+      setSuccessMsg("Office role updated successfully in Firestore!");
+      setTimeout(() => setSuccessMsg(""), 3000);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl max-w-3xl w-full p-6 shadow-2xl border border-gray-200 max-h-[90vh] flex flex-col">
+        <div className="flex items-center justify-between border-b pb-4 mb-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 bg-amber-500 text-black rounded-xl">
+              <Users className="w-5 h-5" />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-gray-900">User Management & Office Roles</h2>
+              <p className="text-xs text-gray-500">Reassign Admin, Finance, or Counsel office status to firm members</p>
+            </div>
+          </div>
+          <button onClick={onClose} className="p-2 text-gray-400 hover:text-gray-600 rounded-lg">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {successMsg && (
+          <div className="mb-4 p-3 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-xl text-xs font-semibold flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+            <span>{successMsg}</span>
+          </div>
+        )}
+
+        <div className="overflow-y-auto flex-1 pr-1">
+          {members.length === 0 ? (
+            <div className="text-center py-10 text-gray-400 text-sm">No registered members found in Firestore.</div>
+          ) : (
+            <table className="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr className="border-b bg-gray-50 text-gray-600 font-bold uppercase tracking-wider">
+                  <th className="p-3">Member</th>
+                  <th className="p-3">Email</th>
+                  <th className="p-3">Current Office</th>
+                  <th className="p-3">Reassign Office Role</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {members.map((m) => {
+                  const currentOffice = (m.officeId || "counsel").toLowerCase();
+                  return (
+                    <tr key={m.uid} className="hover:bg-gray-50/80 transition-colors">
+                      <td className="p-3 font-semibold text-gray-900 flex items-center gap-2">
+                        <img src={m.profilePhoto || m.image || `https://api.dicebear.com/7.x/avataaars/svg?seed=${m.name}`} className="w-7 h-7 rounded-full object-cover border" />
+                        <div>
+                          <div>{m.name}</div>
+                          <div className="text-[10px] text-gray-500 font-normal">{m.title || "Counsel"}</div>
+                        </div>
+                      </td>
+                      <td className="p-3 text-gray-600 font-mono text-[11px]">{m.email}</td>
+                      <td className="p-3">
+                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider ${
+                          currentOffice === "admin" ? "bg-amber-100 text-amber-800 border border-amber-300" :
+                          currentOffice === "finance" ? "bg-emerald-100 text-emerald-800 border border-emerald-300" :
+                          currentOffice === "managing_partner" ? "bg-purple-100 text-purple-800 border border-purple-300" :
+                          "bg-blue-100 text-blue-800 border border-blue-200"
+                        }`}>
+                          {currentOffice}
+                        </span>
+                      </td>
+                      <td className="p-3">
+                        <select
+                          disabled={updatingUid === m.uid}
+                          value={currentOffice}
+                          onChange={(e) => handleRoleChange(m.uid, e.target.value)}
+                          className="bg-gray-100 border border-gray-300 rounded-lg px-2 py-1 text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-amber-500 cursor-pointer"
+                        >
+                          <option value="counsel">Counsel Office</option>
+                          <option value="admin">Admin Office</option>
+                          <option value="finance">Finance Office</option>
+                          <option value="managing_partner">Managing Partner</option>
+                        </select>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          )}
+        </div>
+
+        <div className="mt-4 pt-3 border-t flex justify-end">
+          <button onClick={onClose} className="px-5 py-2 bg-black text-white text-xs font-bold uppercase tracking-wider rounded-xl hover:bg-gray-800">
+            Done
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export const OfficePage: React.FC = () => {
   const [, setLocation] = useLocation();
   const { firmUser, firebaseUser, logout } = useAuth();
@@ -77,6 +192,10 @@ export const OfficePage: React.FC = () => {
   const currentUserTitle = firmUser?.title || firmUser?.role?.name || "Counsel";
   const currentUserPractice = firmUser?.practice || "Commercial Litigation & Legal Advisory";
   const currentUserAvatar = resolveProfileImage(currentUserName);
+
+  const rawOfficeId = (firmUser?.officeId || "counsel").toLowerCase();
+  const isAdmin = rawOfficeId === "admin" || rawOfficeId === "managing_partner" || (firmUser?.role?.level ?? 50) <= 10;
+  const isFinance = rawOfficeId === "finance";
 
   // State Management
   const [offices, setOffices] = useState<OfficeData[]>([]);
@@ -93,6 +212,8 @@ export const OfficePage: React.FC = () => {
   const [isHostModalOpen, setIsHostModalOpen] = useState(false);
   const [isNewsletterModalOpen, setIsNewsletterModalOpen] = useState(false);
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+  const [isUserManagementOpen, setIsUserManagementOpen] = useState(false);
   const [galleryEvent, setGalleryEvent] = useState<FirmEvent | null>(null);
 
   // Events State
@@ -347,9 +468,19 @@ export const OfficePage: React.FC = () => {
                   >
                     {currentUserName}
                   </h1>
-                  <span className="px-2.5 py-0.5 bg-[#1d1d1f] text-white text-[10px] font-bold uppercase tracking-wider rounded-full">
-                    {currentUserTitle}
-                  </span>
+                  {isAdmin ? (
+                    <span className="px-2.5 py-0.5 bg-amber-500 text-black text-[10px] font-extrabold uppercase tracking-wider rounded-full flex items-center gap-1 shadow-xs border border-amber-400">
+                      <Shield className="w-3 h-3 text-black" /> Admin Office
+                    </span>
+                  ) : isFinance ? (
+                    <span className="px-2.5 py-0.5 bg-emerald-600 text-white text-[10px] font-extrabold uppercase tracking-wider rounded-full flex items-center gap-1 shadow-xs">
+                      <DollarSign className="w-3 h-3 text-white" /> Finance Office
+                    </span>
+                  ) : (
+                    <span className="px-2.5 py-0.5 bg-blue-600 text-white text-[10px] font-extrabold uppercase tracking-wider rounded-full flex items-center gap-1 shadow-xs">
+                      <Briefcase className="w-3 h-3 text-white" /> Counsel Office
+                    </span>
+                  )}
                   <button
                     onClick={() => setIsEditProfileOpen(true)}
                     className="px-2 py-0.5 bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-300 rounded-md text-[10px] font-bold cursor-pointer transition-all"
@@ -372,30 +503,47 @@ export const OfficePage: React.FC = () => {
               >
                 <Home className="w-4 h-4" /> Home
               </button>
+
+              {isAdmin && (
+                <>
+                  <button 
+                    onClick={() => setIsInviteModalOpen(true)}
+                    title="Send Email Invitation via Resend API"
+                    className="flex-1 sm:flex-none px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-full transition-all flex items-center justify-center gap-2 shadow-md cursor-pointer active:scale-95 border border-purple-400"
+                  >
+                    <Users className="w-4 h-4" /> Invite Member
+                  </button>
+                  <button 
+                    onClick={() => setIsUserManagementOpen(true)}
+                    title="Manage Firm Users & Reassign Office Roles"
+                    className="flex-1 sm:flex-none px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-full transition-all flex items-center justify-center gap-2 shadow-md cursor-pointer active:scale-95 border border-emerald-400"
+                  >
+                    <UserCheck className="w-4 h-4" /> Manage Roles
+                  </button>
+                </>
+              )}
+
               <button 
                 onClick={() => setIsNewMatterModalOpen(true)}
                 className="flex-1 sm:flex-none px-4 py-2.5 bg-[#1d1d1f] hover:bg-black text-white font-bold text-xs rounded-full transition-all flex items-center justify-center gap-2 shadow-md cursor-pointer active:scale-95"
               >
                 <Plus className="w-4 h-4 stroke-[3]" /> New Matter
               </button>
+              
               <button 
                 onClick={() => setIsEventsManagerOpen(true)}
                 className="flex-1 sm:flex-none px-4 py-2.5 bg-amber-500 hover:bg-amber-600 text-black font-bold text-xs rounded-full transition-all flex items-center justify-center gap-2 shadow-md cursor-pointer active:scale-95 border border-amber-400"
               >
                 <Calendar className="w-4 h-4" /> Manage Events
               </button>
+
               <button 
                 onClick={() => setIsNewsletterModalOpen(true)}
                 className="flex-1 sm:flex-none px-4 py-2.5 bg-zinc-800 hover:bg-black text-amber-400 border border-amber-500/30 font-bold text-xs rounded-full transition-all flex items-center justify-center gap-2 shadow-md cursor-pointer active:scale-95"
               >
                 <Mail className="w-4 h-4 text-amber-400" /> Gazette Newsletter
               </button>
-              <button 
-                onClick={() => setLocation("/events")}
-                className="flex-1 sm:flex-none px-4 py-2.5 bg-white hover:bg-zinc-100 text-[#1d1d1f] border border-black/15 font-bold text-xs rounded-full transition-all flex items-center justify-center gap-2 shadow-xs cursor-pointer active:scale-95"
-              >
-                View Public Calendar
-              </button>
+
               <button 
                 onClick={logout}
                 title="Sign Out"
@@ -463,8 +611,111 @@ export const OfficePage: React.FC = () => {
               <p className="text-xs font-semibold text-[#86868b] mt-1">Filed Documents</p>
             </div>
           </div>
+        </div>
 
-          {/* 7. Personal Docket */}
+        {/* ADMIN OPERATIONS & GOVERNANCE SUITE */}
+        {isAdmin && (
+          <div className="mt-6 mb-2 bg-gradient-to-r from-amber-500/10 via-amber-400/5 to-zinc-900/10 border-2 border-amber-500/40 rounded-3xl p-5 sm:p-6 shadow-xl backdrop-blur-md">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-amber-500/20 mb-5">
+              <div className="flex items-center gap-3">
+                <div className="p-3 bg-amber-500 text-black rounded-2xl shadow-md">
+                  <Shield className="w-6 h-6 stroke-[2.5]" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-lg font-black tracking-wide text-zinc-900 uppercase">Administrative Command Center</h2>
+                    <span className="px-2 py-0.5 bg-amber-500 text-black text-[9px] font-black uppercase tracking-widest rounded-full">Root Authority</span>
+                  </div>
+                  <p className="text-xs text-zinc-600 font-medium">Firm-wide user invitations, role assignments, events control, and gazette publishing</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* 1. Invite Members */}
+              <div 
+                onClick={() => setIsInviteModalOpen(true)}
+                className="bg-white/90 border border-purple-200 hover:border-purple-500 p-4 rounded-2xl transition-all cursor-pointer shadow-xs hover:shadow-md group flex flex-col justify-between"
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <div className="p-2.5 bg-purple-100 text-purple-700 rounded-xl group-hover:scale-110 transition-transform">
+                    <Users className="w-5 h-5" />
+                  </div>
+                  <span className="text-[10px] font-bold uppercase text-purple-600 bg-purple-50 px-2 py-0.5 rounded-full border border-purple-200">Resend API</span>
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-zinc-900 group-hover:text-purple-700 transition-colors">Invite Team Member</h3>
+                  <p className="text-xs text-zinc-500 mt-1">Dispatch email registration tokens and whitelist new counsel</p>
+                </div>
+                <div className="mt-4 pt-2 border-t border-purple-100 flex items-center justify-between text-xs font-bold text-purple-700">
+                  <span>Send Invite »</span>
+                </div>
+              </div>
+
+              {/* 2. User & Office Role Manager */}
+              <div 
+                onClick={() => setIsUserManagementOpen(true)}
+                className="bg-white/90 border border-emerald-200 hover:border-emerald-500 p-4 rounded-2xl transition-all cursor-pointer shadow-xs hover:shadow-md group flex flex-col justify-between"
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <div className="p-2.5 bg-emerald-100 text-emerald-700 rounded-xl group-hover:scale-110 transition-transform">
+                    <UserCheck className="w-5 h-5" />
+                  </div>
+                  <span className="text-[10px] font-bold uppercase text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">Firestore Rules</span>
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-zinc-900 group-hover:text-emerald-700 transition-colors">Manage Roles & Offices</h3>
+                  <p className="text-xs text-zinc-500 mt-1">Reassign users to Admin, Finance, or Counsel office status</p>
+                </div>
+                <div className="mt-4 pt-2 border-t border-emerald-100 flex items-center justify-between text-xs font-bold text-emerald-700">
+                  <span>Manage Users »</span>
+                </div>
+              </div>
+
+              {/* 3. Gazette Newsletter */}
+              <div 
+                onClick={() => setIsNewsletterModalOpen(true)}
+                className="bg-white/90 border border-amber-200 hover:border-amber-500 p-4 rounded-2xl transition-all cursor-pointer shadow-xs hover:shadow-md group flex flex-col justify-between"
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <div className="p-2.5 bg-amber-100 text-amber-800 rounded-xl group-hover:scale-110 transition-transform">
+                    <Mail className="w-5 h-5 text-amber-700" />
+                  </div>
+                  <span className="text-[10px] font-bold uppercase text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">Publishing</span>
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-zinc-900 group-hover:text-amber-800 transition-colors">Gazette Newsletter</h3>
+                  <p className="text-xs text-zinc-500 mt-1">Create legal updates & broadcast to firm subscribers</p>
+                </div>
+                <div className="mt-4 pt-2 border-t border-amber-100 flex items-center justify-between text-xs font-bold text-amber-800">
+                  <span>Open Gazette »</span>
+                </div>
+              </div>
+
+              {/* 4. Events & Past Gallery */}
+              <div 
+                onClick={() => setIsEventsManagerOpen(true)}
+                className="bg-white/90 border border-zinc-200 hover:border-black p-4 rounded-2xl transition-all cursor-pointer shadow-xs hover:shadow-md group flex flex-col justify-between"
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <div className="p-2.5 bg-zinc-100 text-zinc-800 rounded-xl group-hover:scale-110 transition-transform">
+                    <Calendar className="w-5 h-5 text-zinc-900" />
+                  </div>
+                  <span className="text-[10px] font-bold uppercase text-zinc-700 bg-zinc-100 px-2 py-0.5 rounded-full border border-zinc-200">Symposia</span>
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-zinc-900 group-hover:text-black transition-colors">Events & Photo Gallery</h3>
+                  <p className="text-xs text-zinc-500 mt-1">Schedule events & upload past event photo galleries</p>
+                </div>
+                <div className="mt-4 pt-2 border-t border-zinc-100 flex items-center justify-between text-xs font-bold text-zinc-900">
+                  <span>Manage Events »</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-5 mt-4">
           <div className="glass-card col-span-1 md:col-span-2 flex flex-col max-h-[460px]">
             <div className="p-4 border-b border-black/5 flex items-center justify-between bg-white/30 rounded-t-[24px]">
               <div className="flex items-center gap-2.5">
@@ -986,6 +1237,20 @@ export const OfficePage: React.FC = () => {
           onSaved={() => {
             setIsEditProfileOpen(false);
           }}
+        />
+      )}
+
+      {/* INVITE MEMBER MODAL */}
+      {isInviteModalOpen && (
+        <InviteModal
+          onClose={() => setIsInviteModalOpen(false)}
+        />
+      )}
+
+      {/* USER MANAGEMENT MODAL */}
+      {isUserManagementOpen && (
+        <UserManagementModal
+          onClose={() => setIsUserManagementOpen(false)}
         />
       )}
 
