@@ -21,69 +21,14 @@ export interface AttorneyProfile {
 const DEFAULT_PROFILES: Record<string, AttorneyProfile> = {
   "Prince Micah": {
     name: "Prince Micah",
-    title: "Founding Partner & Co-Owner | Managing Partner",
+    title: "Managing Partner & Firm Administrator",
     practice: "Corporate & Tech Law, Mergers & Acquisitions",
-    bio: "Co-Owner & Founding Partner leading LexVanguard's strategic corporate, technological, and firm operations.",
+    bio: "Managing Partner directing firm strategy, corporate legal operations, and technology.",
     phone: "+254 116 171 396",
     email: "prince@lexvanguard.xyz",
     education: "LLB, Mount Kenya University",
-    achievements: "Founding Partner & Co-Owner, Head of Firm",
+    achievements: "Founding Partner & Head of Firm",
     image: resolveProfileImage("Prince Micah")
-  },
-  "Kelvin Musya": {
-    name: "Kelvin Musya",
-    title: "Founding Partner & Co-Owner | Senior Partner",
-    practice: "Appellate Advocacy, Supreme Court Litigation",
-    bio: "Co-Owner & Founding Partner directing Supreme Court litigation, constitutional law, and senior appellate strategy.",
-    phone: "+254 708 948 809",
-    email: "kelvin@lexvanguard.xyz",
-    education: "LLB, Mount Kenya University",
-    achievements: "Founding Partner & Co-Owner, Head of Firm",
-    image: resolveProfileImage("Kelvin Musya")
-  },
-  "Donel Aganyo": {
-    name: "Donel Aganyo",
-    title: "Founding Partner & Co-Owner | Head of IP Practice",
-    practice: "Intellectual Property, Patent Litigation",
-    bio: "Co-Owner & Founding Partner heading Intellectual Property protection, patent litigation, and technology disputes.",
-    phone: "+254 707 865 597",
-    email: "donel@lexvanguard.xyz",
-    education: "LLB, Mount Kenya University",
-    achievements: "Founding Partner & Co-Owner, Head of Firm",
-    image: resolveProfileImage("Donel Aganyo")
-  },
-  "Linet Njeri": {
-    name: "Linet Njeri",
-    title: "Finance Manager",
-    practice: "Commercial Litigation, Dispute Resolution",
-    bio: "Finance & Commercial Strategy Lead overseeing firm fiscal planning and commercial client representation.",
-    phone: "+254 116 171 396",
-    email: "linet@lexvanguard.xyz",
-    education: "LLB, Mount Kenya University",
-    achievements: "Finance & Commercial Strategy Lead",
-    image: resolveProfileImage("Linet Njeri")
-  },
-  "Sharon Mwariri": {
-    name: "Sharon Mwariri",
-    title: "Lead Legal Researcher",
-    practice: "Policy Analysis, Legislative Drafting",
-    bio: "Published Legal Scholar heading research, policy advisory, and legislative analysis at LexVanguard.",
-    phone: "+254 116 171 396",
-    email: "sharon@lexvanguard.xyz",
-    education: "LLB, Mount Kenya University",
-    achievements: "Published Legal Scholar",
-    image: resolveProfileImage("Sharon Mwariri")
-  },
-  "Kimathi Winner": {
-    name: "Kimathi Winner",
-    title: "Associate",
-    practice: "Pro Bono Initiative, Civil Rights",
-    bio: "Pro Bono Advocate driving community legal aid, civil rights advocacy, and youth legal empowerment.",
-    phone: "+254 116 171 396",
-    email: "kimathi@lexvanguard.xyz",
-    education: "LLB, Mount Kenya University",
-    achievements: "Pro Bono Advocate of the Year",
-    image: resolveProfileImage("Kimathi Winner")
   }
 };
 

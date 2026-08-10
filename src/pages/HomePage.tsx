@@ -55,12 +55,7 @@ const PHILOSOPHY = [
 export default function HomePage() {
   const [slide, setSlide] = useState(0);
   const [expanded, setExpanded] = useState<number | null>(null);
-  const [profiles, setProfiles] = useState(() => ({
-    prince: loadProfile("Prince Micah"),
-    kelvin: loadProfile("Kelvin Musya"),
-    donel: loadProfile("Donel Aganyo"),
-    linet: loadProfile("Linet Njeri")
-  }));
+  const [members, setMembers] = useState<FirestoreMember[]>([]);
 
   useEffect(() => {
     const timer = setInterval(() => setSlide(s => (s + 1) % SLIDES.length), 6000);
@@ -68,24 +63,10 @@ export default function HomePage() {
   }, []);
 
   useEffect(() => {
-    const handleUpdate = () => {
-      setProfiles({
-        prince: loadProfile("Prince Micah"),
-        kelvin: loadProfile("Kelvin Musya"),
-        donel: loadProfile("Donel Aganyo"),
-        linet: loadProfile("Linet Njeri")
-      });
-    };
-
-    const unsubscribe = subscribeFirestoreMembers(() => {
-      handleUpdate();
+    const unsubscribe = subscribeFirestoreMembers((updated) => {
+      setMembers(updated);
     });
-
-    window.addEventListener("lexvanguard_profile_updated", handleUpdate);
-    return () => {
-      unsubscribe();
-      window.removeEventListener("lexvanguard_profile_updated", handleUpdate);
-    };
+    return () => unsubscribe();
   }, []);
 
   const prev = () => setSlide(s => s === 0 ? SLIDES.length - 1 : s - 1);
@@ -247,17 +228,17 @@ export default function HomePage() {
           </div>
           <div className="w-full md:w-1/3">
             <div className="grid grid-cols-2 gap-2.5 sm:gap-3.5 w-full max-w-xs sm:max-w-none mx-auto">
-              {[profiles.prince, profiles.kelvin, profiles.donel, profiles.linet].map((p, i) => (
+              {members.slice(0, 4).map((p, i) => (
                 <div key={i} className="relative group overflow-hidden border-2 border-yellow-500 shadow-sm rounded-xs">
                   <img
-                    src={p.image}
+                    src={p.profilePhoto || p.image || "https://api.dicebear.com/7.x/avataaars/svg?seed=" + p.name}
                     alt={p.name}
                     onError={(e) => handleProfileImageError(e, p.name)}
                     className="w-full h-28 sm:h-32 md:h-36 object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                   <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/70 to-transparent p-1.5 sm:p-2 text-white">
                     <p className="font-extrabold text-[10px] sm:text-xs uppercase tracking-wider text-yellow-500 truncate">{p.name}</p>
-                    <p className="text-[9px] sm:text-[10px] text-gray-300 truncate">{p.title}</p>
+                    <p className="text-[9px] sm:text-[10px] text-gray-300 truncate">{p.title || "Counsel"}</p>
                   </div>
                 </div>
               ))}

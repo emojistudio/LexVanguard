@@ -166,29 +166,20 @@ export interface FirestoreMember {
   achievements?: string;
 }
 
-export const DEFAULT_ATTORNEY_LIST: FirestoreMember[] = [
-  { uid: "n6NKoyAIuVSXYEaIbRVN9drINNy1", name: "Prince Micah", title: "Founding Partner & Co-Owner", practice: "Corporate & Tech Law, Mergers & Acquisitions", email: "prince@lexvanguard.xyz", image: resolveProfileImage("Prince Micah"), profilePhoto: resolveProfileImage("Prince Micah") },
-  { uid: "SSbNEJrVyhM6b8LbWYsyunPGk6l2", name: "Kelvin Musya", title: "Founding Partner & Co-Owner", practice: "Appellate Advocacy, Supreme Court Litigation", email: "kelvin@lexvanguard.xyz", image: resolveProfileImage("Kelvin Musya"), profilePhoto: resolveProfileImage("Kelvin Musya") },
-  { uid: "donel_aganyo_uid", name: "Donel Aganyo", title: "Founding Partner & Co-Owner", practice: "Intellectual Property, Patent Litigation", email: "donel@lexvanguard.xyz", image: resolveProfileImage("Donel Aganyo"), profilePhoto: resolveProfileImage("Donel Aganyo") },
-  { uid: "linet_njeri_uid", name: "Linet Njeri", title: "Finance Manager", practice: "Commercial Litigation, Dispute Resolution", email: "linet@lexvanguard.xyz", image: resolveProfileImage("Linet Njeri"), profilePhoto: resolveProfileImage("Linet Njeri") },
-  { uid: "sharon_mwariri_uid", name: "Sharon Mwariri", title: "Lead Legal Researcher", practice: "Policy Analysis, Legislative Drafting", email: "sharon@lexvanguard.xyz", image: resolveProfileImage("Sharon Mwariri"), profilePhoto: resolveProfileImage("Sharon Mwariri") },
-  { uid: "kimathi_winner_uid", name: "Kimathi Winner", title: "Associate", practice: "Pro Bono Initiative, Civil Rights", email: "kimathi@lexvanguard.xyz", image: resolveProfileImage("Kimathi Winner"), profilePhoto: resolveProfileImage("Kimathi Winner") }
-];
+export const DEFAULT_ATTORNEY_LIST: FirestoreMember[] = [];
 
 export function getMemberRank(m: FirestoreMember): number {
   const title = (m.title || "").toLowerCase();
   const office = (m.officeId || "").toLowerCase();
   const name = (m.name || "").toLowerCase();
 
-  if (name.includes("prince micah") || office === "prince") return 100;
-  if (name.includes("kelvin musya") || office === "kelvin") return 98;
-  if (name.includes("donel aganyo") || office === "donel") return 96;
+  if (name.includes("prince micah") || office === "admin" || office === "prince") return 100;
   if (title.includes("founding") && title.includes("partner")) return 95;
   if (title.includes("partner")) return 80;
-  if (title.includes("finance") || title.includes("commercial") || office === "linet") return 70;
-  if (title.includes("research") || title.includes("scholar") || office === "sharon") return 60;
+  if (title.includes("finance") || title.includes("commercial")) return 70;
+  if (title.includes("research") || title.includes("scholar")) return 60;
   if (title.includes("counsel") || office === "counsel") return 50;
-  if (title.includes("associate") || office === "kimathi") return 40;
+  if (title.includes("associate")) return 40;
   if (title.includes("member")) return 30;
   return 20;
 }
@@ -197,9 +188,7 @@ export function getOfficeBadge(m: FirestoreMember): string {
   const rank = getMemberRank(m);
   const name = (m.name || "").toLowerCase();
 
-  if (name.includes("prince micah") || rank === 100) return "Founding Partner & Co-Owner • Head of Firm";
-  if (name.includes("kelvin musya") || rank === 98) return "Founding Partner & Co-Owner • Head of Firm";
-  if (name.includes("donel aganyo") || rank === 96) return "Founding Partner & Co-Owner • Head of Firm";
+  if (name.includes("prince micah") || rank === 100) return "Managing Partner & Firm Administrator";
   if (rank >= 80) return "Partnership Office";
   if (rank >= 70) return "Commercial & Finance Office";
   if (rank >= 60) return "Research & Policy Office";
@@ -216,42 +205,16 @@ export function getCanonicalKey(name: string, email?: string, uid?: string): str
   const n = (name || "").toLowerCase().trim();
   const e = (email || "").toLowerCase().trim();
   const u = (uid || "").toLowerCase().trim();
-
-  if (n.includes("donel") || e.includes("donel") || u.includes("donel")) return "donel_aganyo";
-  if (n.includes("prince") || e.includes("prince") || u.includes("prince")) return "prince_micah";
-  if (n.includes("kelvin") || e.includes("kelvin") || u.includes("kelvin")) return "kelvin_musya";
-  if (n.includes("linet") || e.includes("linet") || u.includes("linet")) return "linet_njeri";
-  if (n.includes("sharon") || e.includes("sharon") || u.includes("sharon")) return "sharon_mwariri";
-  if (n.includes("kimathi") || e.includes("kimathi") || u.includes("kimathi")) return "kimathi_winner";
-  if (n.includes("sherifa") || e.includes("sherifa") || u.includes("sherifa")) return "sherifa_abdilatif";
-
   const clean = n.replace(/[^a-z0-9]/g, "");
   return u || clean || e;
 }
 
 export function subscribeFirestoreMembers(callback: (members: FirestoreMember[]) => void) {
-  // Trigger background auto-sync of local profiles and auto-cleanup of legacy non-UID user docs
-  try {
-    syncLocalProfilesToFirestore();
-    cleanupOrphanUserDocs();
-  } catch {}
-
   try {
     const combinedMap = new Map<string, FirestoreMember>();
 
     const emitMerged = () => {
       const list = Array.from(combinedMap.values());
-      const seenKeys = new Set(list.map(m => getCanonicalKey(m.name, m.email, m.uid)));
-
-      // Ensure default attorneys are included if not yet present
-      DEFAULT_ATTORNEY_LIST.forEach((def) => {
-        const key = getCanonicalKey(def.name, def.email, def.uid);
-        if (!seenKeys.has(key)) {
-          seenKeys.add(key);
-          list.push(def);
-        }
-      });
-
       callback(sortMembersByHierarchy(list));
     };
 
@@ -308,25 +271,14 @@ export function subscribeFirestoreMembers(callback: (members: FirestoreMember[])
       unsubUsers();
     };
   } catch (e) {
-    console.warn("Error setting up Firestore listener, using local default attorney list:", e);
-    callback(sortMembersByHierarchy(DEFAULT_ATTORNEY_LIST));
+    console.warn("Error setting up Firestore listener:", e);
+    callback([]);
     return () => {};
   }
 }
 
-export const ATTORNEY_NAMES = [
-  "Prince Micah",
-  "Kelvin Musya",
-  "Donel Aganyo",
-  "Linet Njeri",
-  "Sharon Mwariri",
-  "Kimathi Winner"
-];
-
-export const ATTORNEY_UID_MAP: Record<string, string> = {
-  "Prince Micah": "n6NKoyAIuVSXYEaIbRVN9drINNy1",
-  "Kelvin Musya": "SSbNEJrVyhM6b8LbWYsyunPGk6l2"
-};
+export const ATTORNEY_NAMES: string[] = [];
+export const ATTORNEY_UID_MAP: Record<string, string> = {};
 
 export const TASKS = [
   { id: 1, title: 'Draft Appellate Brief', status: 'In Progress', priority: 'High', assignee: 'Sharon Mwariri', due: 'Apr 2, 2026', description: 'Prepare the full appellate brief for submission to the Court of Appeal. Include all supporting case law and statutory references.' },
