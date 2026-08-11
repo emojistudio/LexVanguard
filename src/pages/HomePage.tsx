@@ -250,37 +250,8 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Practice Areas */}
-      <PracticeAreasSection />
-
-      {/* Core Philosophy */}
-      <div className="bg-gray-50 py-12 sm:py-20 w-full max-w-full overflow-x-hidden">
-        <div className="w-full max-w-7xl mx-auto px-4 sm:px-10 lg:px-16">
-          <div className="text-center mb-10 sm:mb-16">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4 text-black uppercase tracking-wider">Our Core Philosophy</h2>
-            <div className="h-1 w-12 sm:w-16 bg-yellow-500 mx-auto" />
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
-            {PHILOSOPHY.map((box, i) => (
-              <div key={i} className="bg-white border-t-4 border-black p-6 sm:p-10 text-center hover:shadow-lg transition-all duration-300 text-gray-800 flex flex-col rounded-sm">
-                {box.icon}
-                <h3 className="uppercase text-base sm:text-lg font-extrabold mt-4 sm:mt-5 mb-3 sm:mb-4 text-black tracking-wide">{box.title}</h3>
-                <p className="text-xs sm:text-sm text-gray-600 mb-4 sm:mb-5 leading-relaxed flex-1">
-                  {expanded === i ? box.full : box.short}
-                </p>
-                <button
-                  onClick={() => setExpanded(expanded === i ? null : i)}
-                  className="text-black font-bold uppercase text-[11px] sm:text-xs tracking-widest hover:text-yellow-500 transition-colors bg-transparent border-b-2 border-black hover:border-yellow-500 pb-1 cursor-pointer self-center">
-                  {expanded === i ? 'Show Less «' : 'Learn More »'}
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Attorneys / Members Teaser */}
-      <div className="py-12 sm:py-20 bg-white w-full max-w-full overflow-x-hidden">
+      {/* Attorneys / Members Teaser (Moved between Welcome & Core Philosophy) */}
+      <div className="py-12 sm:py-20 bg-white w-full max-w-full overflow-x-hidden border-t border-gray-100">
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-10 lg:px-16 flex flex-col md:flex-row items-center justify-between gap-8">
           <div className="w-full md:w-2/3 pr-0 md:pr-8 text-center md:text-left">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-black mb-2 uppercase tracking-wider">Our Members</h2>
@@ -309,6 +280,61 @@ export default function HomePage() {
                 </div>
               ))}
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Core Philosophy */}
+      <div className="bg-gray-50 py-12 sm:py-20 w-full max-w-full overflow-x-hidden">
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-10 lg:px-16">
+          <div className="text-center mb-10 sm:mb-16">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4 text-black uppercase tracking-wider">Our Core Philosophy</h2>
+            <div className="h-1 w-12 sm:w-16 bg-yellow-500 mx-auto" />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+            {PHILOSOPHY.map((box, i) => (
+              <div key={i} className="bg-white border-t-4 border-black p-6 sm:p-10 text-center hover:shadow-lg transition-all duration-300 text-gray-800 flex flex-col rounded-sm">
+                {box.icon}
+                <h3 className="uppercase text-base sm:text-lg font-extrabold mt-4 sm:mt-5 mb-3 sm:mb-4 text-black tracking-wide">{box.title}</h3>
+                <p className="text-xs sm:text-sm text-gray-600 mb-4 sm:mb-5 leading-relaxed flex-1">
+                  {expanded === i ? box.full : box.short}
+                </p>
+                <button
+                  onClick={() => setExpanded(expanded === i ? null : i)}
+                  className="text-black font-bold uppercase text-[11px] sm:text-xs tracking-widest hover:text-yellow-500 transition-colors bg-transparent border-b-2 border-black hover:border-yellow-500 pb-1 cursor-pointer self-center">
+                  {expanded === i ? 'Show Less «' : 'Learn More »'}
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Minimalist Practice Areas Section — White Background, Black Text, No Borders, No Icons, One Golden Button */}
+      <div className="py-16 sm:py-24 bg-white w-full max-w-full overflow-x-hidden">
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-10 lg:px-16 text-center">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 text-black uppercase tracking-wider">Practice Areas</h2>
+          <div className="h-1 w-12 sm:w-16 bg-[#ffc107] mx-auto mb-10 sm:mb-14" />
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 sm:gap-10 mb-12 sm:mb-16 text-left">
+            {[
+              { title: "Appellate & Dispute Resolution", desc: "Supreme Court litigation, appellate briefs, and constitutional advocacy." },
+              { title: "Corporate & Commercial Law", desc: "Transaction advisory, statutory compliance, and fintech governance." },
+              { title: "Property & Family Practice", desc: "Real estate conveyancing, asset trusts, and family law resolution." },
+              { title: "Constitutional & Administrative Law", desc: "Judicial review petitions, fundamental rights, and public law." },
+              { title: "IP & Emerging Technology Law", desc: "Trademark registration, digital privacy, AI policy, and IP enforcement." }
+            ].map((area, i) => (
+              <div key={i} className="space-y-2">
+                <h3 className="text-sm sm:text-base font-extrabold text-black uppercase tracking-wide">{area.title}</h3>
+                <p className="text-xs sm:text-sm text-gray-600 leading-relaxed font-normal">{area.desc}</p>
+              </div>
+            ))}
+          </div>
+
+          <div>
+            <Link href="/practice-areas" className="bg-[#ffc107] text-black px-8 py-3.5 font-extrabold text-xs sm:text-sm uppercase tracking-widest hover:bg-yellow-400 transition-colors inline-block shadow-xs">
+              EXPLORE ALL PRACTICE AREAS
+            </Link>
           </div>
         </div>
       </div>

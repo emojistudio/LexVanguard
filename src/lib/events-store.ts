@@ -61,15 +61,17 @@ function getLocalEvents(): FirmEvent[] {
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed)) {
+        // Filter out legacy generic demo events
+        const userEvents = parsed.filter(evt => !evt.id?.startsWith("evt-summit-") && !evt.id?.startsWith("evt-moot-court-"));
         const todayStr = new Date().toISOString().split("T")[0];
-        return parsed.map(evt => ({
+        return userEvents.map(evt => ({
           ...evt,
           status: (evt.date && evt.date < todayStr) ? "Past Event" : (evt.status || "Upcoming")
         }));
       }
     }
   } catch {}
-  return INITIAL_EVENTS;
+  return [];
 }
 
 function saveLocalEvents(events: FirmEvent[]) {
