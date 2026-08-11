@@ -1,110 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
-  <!-- Core Firm Portal Pages -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://www.lexvanguard.xyz/</loc>
     <lastmod>2026-08-11</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>1.00</priority>
-    <image:image>
-      <image:loc>https://www.lexvanguard.xyz/brand-logo.svg</image:loc>
-      <image:title>LexVanguard Advocates LLP - Premier Law Firm Portal</image:title>
-      <image:caption>Mount Kenya University Parklands Law Campus Premier Student Law Firm</image:caption>
-    </image:image>
   </url>
   <url>
     <loc>https://www.lexvanguard.xyz/attorneys</loc>
     <lastmod>2026-08-11</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.95</priority>
-    <image:image>
-      <image:loc>https://www.lexvanguard.xyz/images/profiles/prince.jpeg</image:loc>
-      <image:title>LexVanguard Advocates LLP Founding Partners &amp; Leadership</image:title>
-    </image:image>
   </url>
-
-  <!-- Founding Partners & Executive Profiles -->
   <url>
     <loc>https://www.lexvanguard.xyz/attorneys/prince-micah</loc>
     <lastmod>2026-08-11</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.98</priority>
-    <image:image>
-      <image:loc>https://www.lexvanguard.xyz/images/profiles/prince.jpeg</image:loc>
-      <image:title>Prince Micah - Founding Partner &amp; Managing Partner</image:title>
-      <image:caption>Managing Partner, Corporate Law &amp; Legal Tech Pioneer at LexVanguard Advocates LLP</image:caption>
-    </image:image>
   </url>
   <url>
     <loc>https://www.lexvanguard.xyz/attorneys/kelvin-musya</loc>
     <lastmod>2026-08-11</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.98</priority>
-    <image:image>
-      <image:loc>https://www.lexvanguard.xyz/images/profiles/kelvin.jpeg</image:loc>
-      <image:title>Kelvin Musya - Founding Partner &amp; Senior Litigation Partner</image:title>
-      <image:caption>Senior Litigation Partner, Supreme Court Briefs &amp; Appellate Advocacy Lead</image:caption>
-    </image:image>
   </url>
   <url>
     <loc>https://www.lexvanguard.xyz/attorneys/donel-aganyo</loc>
     <lastmod>2026-08-11</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.98</priority>
-    <image:image>
-      <image:loc>https://www.lexvanguard.xyz/images/profiles/don.jpeg</image:loc>
-      <image:title>Donel Aganyo - Founding Partner &amp; Head of Intellectual Property</image:title>
-      <image:caption>Head of IP &amp; Tech Law, Patent Litigation &amp; Cyber Policy Strategist</image:caption>
-    </image:image>
   </url>
   <url>
     <loc>https://www.lexvanguard.xyz/attorneys/linet-njeri</loc>
     <lastmod>2026-08-11</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.88</priority>
-    <image:image>
-      <image:loc>https://www.lexvanguard.xyz/images/profiles/linet.jpeg</image:loc>
-      <image:title>Linet Njeri - Senior Finance Secretary</image:title>
-      <image:caption>Head of Accounts &amp; Financial Compliance at LexVanguard Advocates LLP</image:caption>
-    </image:image>
   </url>
-
-  <!-- Core Practice & Portal Sections -->
   <url>
     <loc>https://www.lexvanguard.xyz/services</loc>
     <lastmod>2026-08-11</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.90</priority>
   </url>
   <url>
     <loc>https://www.lexvanguard.xyz/research</loc>
     <lastmod>2026-08-11</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.98</priority>
   </url>
   <url>
     <loc>https://www.lexvanguard.xyz/events</loc>
     <lastmod>2026-08-11</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.90</priority>
   </url>
   <url>
     <loc>https://www.lexvanguard.xyz/history</loc>
     <lastmod>2026-08-11</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.85</priority>
   </url>
   <url>
     <loc>https://www.lexvanguard.xyz/careers</loc>
     <lastmod>2026-08-11</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.75</priority>
   </url>
   <url>
     <loc>https://www.lexvanguard.xyz/contact</loc>
     <lastmod>2026-08-11</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.80</priority>
   </url>
 </urlset>

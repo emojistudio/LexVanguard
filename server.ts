@@ -33,108 +33,30 @@ async function startServer() {
     const baseUrl = `${protocol}://${host}`;
     const nowISO = new Date().toISOString().split("T")[0];
 
-    const pages: Array<{
-      path: string;
-      priority: string;
-      changefreq: string;
-      image?: { loc: string; title: string; caption?: string };
-    }> = [
-      // Core Firm Portal Pages
-      {
-        path: "",
-        priority: "1.00",
-        changefreq: "daily",
-        image: {
-          loc: `${baseUrl}/brand-logo.svg`,
-          title: "LexVanguard Advocates LLP - Premier Law Firm Portal",
-          caption: "Mount Kenya University Parklands Law Campus Premier Student Law Firm"
-        }
-      },
-      {
-        path: "/attorneys",
-        priority: "0.95",
-        changefreq: "daily",
-        image: {
-          loc: `${baseUrl}/images/profiles/prince.jpeg`,
-          title: "LexVanguard Advocates LLP Founding Partners & Leadership"
-        }
-      },
-      // Founding Partners & Executive Profiles
-      {
-        path: "/attorneys/prince-micah",
-        priority: "0.98",
-        changefreq: "daily",
-        image: {
-          loc: `${baseUrl}/images/profiles/prince.jpeg`,
-          title: "Prince Micah - Founding Partner & Managing Partner",
-          caption: "Managing Partner, Corporate Law & Legal Tech Pioneer at LexVanguard Advocates LLP"
-        }
-      },
-      {
-        path: "/attorneys/kelvin-musya",
-        priority: "0.98",
-        changefreq: "daily",
-        image: {
-          loc: `${baseUrl}/images/profiles/kelvin.jpeg`,
-          title: "Kelvin Musya - Founding Partner & Senior Litigation Partner",
-          caption: "Senior Litigation Partner, Supreme Court Briefs & Appellate Advocacy Lead"
-        }
-      },
-      {
-        path: "/attorneys/donel-aganyo",
-        priority: "0.98",
-        changefreq: "daily",
-        image: {
-          loc: `${baseUrl}/images/profiles/don.jpeg`,
-          title: "Donel Aganyo - Founding Partner & Head of Intellectual Property",
-          caption: "Head of IP & Tech Law, Patent Litigation & Cyber Policy Strategist"
-        }
-      },
-      {
-        path: "/attorneys/linet-njeri",
-        priority: "0.88",
-        changefreq: "weekly",
-        image: {
-          loc: `${baseUrl}/images/profiles/linet.jpeg`,
-          title: "Linet Njeri - Senior Finance Secretary",
-          caption: "Head of Accounts & Financial Compliance at LexVanguard Advocates LLP"
-        }
-      },
-      // Core Practice & Portal Sections
-      { path: "/services", priority: "0.90", changefreq: "weekly" },
-      { path: "/research", priority: "0.98", changefreq: "daily" },
-      { path: "/events", priority: "0.90", changefreq: "daily" },
-      { path: "/history", priority: "0.85", changefreq: "monthly" },
-      { path: "/careers", priority: "0.75", changefreq: "monthly" },
-      { path: "/contact", priority: "0.80", changefreq: "monthly" }
+    const pages = [
+      "",
+      "/attorneys",
+      "/attorneys/prince-micah",
+      "/attorneys/kelvin-musya",
+      "/attorneys/donel-aganyo",
+      "/attorneys/linet-njeri",
+      "/services",
+      "/research",
+      "/events",
+      "/history",
+      "/careers",
+      "/contact"
     ];
 
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${pages
-  .map((p) => {
-    let item = `  <url>
-    <loc>${baseUrl}${p.path}</loc>
+  .map(
+    (p) => `  <url>
+    <loc>${baseUrl}${p}</loc>
     <lastmod>${nowISO}</lastmod>
-    <changefreq>${p.changefreq}</changefreq>
-    <priority>${p.priority}</priority>`;
-    if (p.image) {
-      item += `
-    <image:image>
-      <image:loc>${p.image.loc}</image:loc>
-      <image:title>${p.image.title}</image:title>`;
-      if (p.image.caption) {
-        item += `
-      <image:caption>${p.image.caption}</image:caption>`;
-      }
-      item += `
-    </image:image>`;
-    }
-    item += `
-  </url>`;
-    return item;
-  })
+  </url>`
+  )
   .join("\n")}
 </urlset>`;
 
