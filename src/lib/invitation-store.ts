@@ -1,6 +1,5 @@
 import { collection, doc, setDoc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
 import { db } from "./firebase";
-import { renderInvitationEmailHtml } from "./email-templates";
 
 export interface TeamInvitation {
   id: string;
@@ -67,15 +66,12 @@ export async function sendTeamMemberInvite({
     // Silent catch for Firestore permission restrictions
   }
 
-  // 2. Dispatch email via /api/send-invite (Express / Vercel Serverless Route)
-  let emailDispatched = false;
-  let resendNotice = "";
-
+  // 2. Dispatch email via /api/send-invite (Serverless Backend Route)
   const payload = {
     email: cleanEmail,
     name: name?.trim() || "Counsel",
-    invitedBy: invitedBy || "Kelvin Musya",
-    invitedByEmail: invitedByEmail || "kelvin@lexvanguard.xyz",
+    invitedBy: invitedBy || "Executive Leadership",
+    invitedByEmail: invitedByEmail || "info@lexvanguard.xyz",
     inviteUrl
   };
 
@@ -88,127 +84,22 @@ export async function sendTeamMemberInvite({
 
     const data = await apiRes.json().catch(() => ({}));
     if (apiRes.ok && data.success) {
-      emailDispatched = data.emailDispatched !== false;
-      if (data.message) resendNotice = data.message;
-    } else {
-      resendNotice = data.error || `HTTP ${apiRes.status}`;
-    }
-  } catch (err: any) {
-    resendNotice = err.message || "Network issue contacting invitation server.";
-  }
-
-  if (emailDispatched) {
-    return {
-      success: true,
-      inviteUrl,
-      message: `Invitation email successfully dispatched via Resend to ${cleanEmail}!`
-    };
-  }
-
-  // 3. Fallback: If backend server notification notice, safely attempt direct dispatch or return link
-  try {
-    const directSuccess = await sendEmailViaResendDirectly({
-      email: cleanEmail,
-      name: name?.trim() || "Counsel",
-      invitedBy: invitedBy || "Executive Leadership",
-      invitedByEmail: invitedByEmail || "info@lexvanguard.xyz",
-      inviteUrl
-    });
-
-    if (directSuccess) {
       return {
         success: true,
-        inviteUrl,
-        message: `Invitation email successfully sent to ${cleanEmail}!`
+        inviteUrl: data.inviteUrl || inviteUrl,
+        message: data.message || `Invitation email successfully dispatched to ${cleanEmail}!`
       };
     }
-  } catch {}
+  } catch (err: any) {
+    console.warn("Invitation server dispatch notice:", err);
+  }
 
+  // 3. Fallback: Return generated link cleanly without client-side CORS errors
   return {
     success: true,
     inviteUrl,
     message: `Invitation generated for ${cleanEmail}! Activation URL is ready.`
   };
-}
-
-async function sendEmailViaResendDirectly({
-  email,
-  name,
-  invitedBy,
-  invitedByEmail,
-  inviteUrl
-}: {
-  email: string;
-  name: string;
-  invitedBy: string;
-  invitedByEmail: string;
-  inviteUrl: string;
-}): Promise<boolean> {
-  const apiKey = (import.meta.env.VITE_RESEND_API_KEY as string) || "";
-  if (!apiKey) return false;
-
-  const htmlContent = renderInvitationEmailHtml({
-    recipientName: name,
-    role: "Counsel",
-    invitedBy,
-    inviteUrl
-  });
-
-  const senders = [
-    "LexVanguard LLP <onboarding@lexvanguard.xyz>",
-    "LexVanguard LLP <info@lexvanguard.xyz>",
-    "LexVanguard LLP <chambers@lexvanguard.xyz>",
-    "LexVanguard LLP <onboarding@resend.dev>"
-  ];
-
-  for (const sender of senders) {
-    try {
-      const response = await fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${apiKey}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          from: sender,
-          to: [email],
-          subject: "Official Appointment & Invitation to Join LexVanguard LLP",
-          html: htmlContent
-        })
-      });
-
-      const resData = await response.json();
-      if (response.ok && resData.id) {
-        console.log(`✅ Direct Resend fetch email sent to ${email} via ${sender}. ID: ${resData.id}`);
-        return true;
-      }
-    } catch (e) {
-      console.warn(`Direct Resend attempt with ${sender} error:`, e);
-    }
-  }
-
-  // Fallback copy to admin
-  try {
-    const response = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${apiKey}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        from: "LexVanguard LLP <onboarding@resend.dev>",
-        to: ["emojistudio254@gmail.com", "infolexvanguardfirm@gmail.com"],
-        subject: `[INVITATION FOR ${email}] Official Counsel Onboarding`,
-        html: `Notice: Invitation requested for ${email}. Delivered to admin inbox.<br>${htmlContent}`
-      })
-    });
-    const resData = await response.json();
-    if (response.ok && resData.id) return true;
-  } catch (e) {
-    console.error("Direct Resend fallback error:", e);
-  }
-
-  return false;
 }
 
 export async function verifyInvitation(token: string, email?: string): Promise<TeamInvitation | null> {
