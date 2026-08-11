@@ -10,4 +10,3 @@ Allow: /sitemap
 Disallow: /office/
 
 Sitemap: https://www.lexvanguard.xyz/sitemap.xml
-Sitemap: https://lexvanguard.xyz/sitemap.xml
