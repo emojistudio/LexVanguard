@@ -4,7 +4,7 @@
   <!-- Core Firm Portal Pages -->
   <url>
     <loc>https://www.lexvanguard.xyz/</loc>
-    <lastmod>2026-08-09</lastmod>
+    <lastmod>2026-08-11</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.00</priority>
     <image:image>
@@ -14,64 +14,8 @@
     </image:image>
   </url>
   <url>
-    <loc>https://www.lexvanguard.xyz/sitemap</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.80</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/history</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/services</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.90</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/careers</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.75</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/contact</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.80</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/login</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.60</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/register</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.60</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/user/profile</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.70</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/user/settings</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.50</priority>
-  </url>
-
-  <!-- Founding Partners & Executive Leadership Directory -->
-  <url>
     <loc>https://www.lexvanguard.xyz/attorneys</loc>
-    <lastmod>2026-08-09</lastmod>
+    <lastmod>2026-08-11</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.95</priority>
     <image:image>
@@ -80,10 +24,10 @@
     </image:image>
   </url>
 
-  <!-- Prince Micah: Founding Partner & Managing Partner -->
+  <!-- Founding Partners & Executive Profiles -->
   <url>
     <loc>https://www.lexvanguard.xyz/attorneys/prince-micah</loc>
-    <lastmod>2026-08-09</lastmod>
+    <lastmod>2026-08-11</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.98</priority>
     <image:image>
@@ -93,58 +37,8 @@
     </image:image>
   </url>
   <url>
-    <loc>https://www.lexvanguard.xyz/attorneys/prince-micah/bio</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.90</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/attorneys/prince-micah/practice-areas</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.90</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/attorneys/prince-micah/corporate-m-and-a</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.90</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/attorneys/prince-micah/legal-tech-strategy</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.95</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/attorneys/prince-micah/publications</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.88</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/attorneys/prince-micah/cases</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.88</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/attorneys/prince-micah/media-interviews</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/attorneys/prince-micah/contact</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-  </url>
-
-  <!-- Kelvin Musya: Founding Partner & Senior Litigation Partner -->
-  <url>
     <loc>https://www.lexvanguard.xyz/attorneys/kelvin-musya</loc>
-    <lastmod>2026-08-09</lastmod>
+    <lastmod>2026-08-11</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.98</priority>
     <image:image>
@@ -154,58 +48,8 @@
     </image:image>
   </url>
   <url>
-    <loc>https://www.lexvanguard.xyz/attorneys/kelvin-musya/bio</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.90</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/attorneys/kelvin-musya/practice-areas</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.90</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/attorneys/kelvin-musya/appellate-advocacy</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.95</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/attorneys/kelvin-musya/constitutional-law</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.92</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/attorneys/kelvin-musya/supreme-court-briefs</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.92</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/attorneys/kelvin-musya/publications</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.88</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/attorneys/kelvin-musya/court-rulings</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/attorneys/kelvin-musya/contact</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-  </url>
-
-  <!-- Donel Aganyo: Founding Partner & Head of Intellectual Property -->
-  <url>
     <loc>https://www.lexvanguard.xyz/attorneys/donel-aganyo</loc>
-    <lastmod>2026-08-09</lastmod>
+    <lastmod>2026-08-11</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.98</priority>
     <image:image>
@@ -215,58 +59,8 @@
     </image:image>
   </url>
   <url>
-    <loc>https://www.lexvanguard.xyz/attorneys/donel-aganyo/bio</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.90</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/attorneys/donel-aganyo/practice-areas</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.90</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/attorneys/donel-aganyo/intellectual-property</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.95</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/attorneys/donel-aganyo/patent-litigation</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.92</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/attorneys/donel-aganyo/cyber-law</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.92</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/attorneys/donel-aganyo/publications</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.88</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/attorneys/donel-aganyo/ip-registered-patents</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/attorneys/donel-aganyo/contact</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-  </url>
-
-  <!-- Linet Njeri: Senior Finance Secretary & Head of Accounts -->
-  <url>
     <loc>https://www.lexvanguard.xyz/attorneys/linet-njeri</loc>
-    <lastmod>2026-08-09</lastmod>
+    <lastmod>2026-08-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.88</priority>
     <image:image>
@@ -275,290 +69,42 @@
       <image:caption>Head of Accounts &amp; Financial Compliance at LexVanguard Advocates LLP</image:caption>
     </image:image>
   </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/attorneys/linet-njeri/bio</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.80</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/attorneys/linet-njeri/contact</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.75</priority>
-  </url>
 
-  <!-- AI Legal Research Tools & LexAI Technology Suite -->
+  <!-- Core Practice & Portal Sections -->
+  <url>
+    <loc>https://www.lexvanguard.xyz/services</loc>
+    <lastmod>2026-08-11</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.90</priority>
+  </url>
   <url>
     <loc>https://www.lexvanguard.xyz/research</loc>
-    <lastmod>2026-08-09</lastmod>
+    <lastmod>2026-08-11</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.98</priority>
   </url>
   <url>
-    <loc>https://www.lexvanguard.xyz/research/ai-assistant</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.99</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/research/ai-case-analyzer</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.95</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/research/ai-contract-reviewer</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.95</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/research/ai-brief-generator</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.96</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/research/ai-statute-search</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.94</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/research/ai-precedent-finder</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.95</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/research/ai-due-diligence</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.92</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/research/ai-compliance-checker</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.92</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/research/ai-jurisprudence</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.90</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/research/ai-citation-generator</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.90</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/research/ai-legal-translator</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.88</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/research/ai-due-diligence-checklist</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.88</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/research/ai-contract-clause-library</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.88</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/research/ai-judicial-analytics</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.90</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/research/moot-court-prep</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.93</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/research/law-library</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.92</priority>
-  </url>
-
-  <!-- Legal Practice Services & Specialized Departments -->
-  <url>
-    <loc>https://www.lexvanguard.xyz/services/corporate-m-and-a</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.88</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/services/constitutional-litigation</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.88</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/services/intellectual-property</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.88</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/services/tech-and-data-protection</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.88</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/services/commercial-dispute-resolution</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/services/banking-and-fintech-law</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/services/taxation-and-revenue-law</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.82</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/services/employment-and-labor-relations</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.82</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/services/environment-and-land-court</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.80</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/services/appellate-advocacy-mkuplc</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.90</priority>
-  </url>
-
-  <!-- Mount Kenya University Parklands Law Campus (MKUPLC) Chapters -->
-  <url>
-    <loc>https://www.lexvanguard.xyz/mkuplc/mooting-society</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.88</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/mkuplc/human-rights-center</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/mkuplc/youth-in-law-council</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.88</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/mkuplc/legal-aid-chambers</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-  </url>
-
-  <!-- Events, Moot Court Competitions & Campus Conferences -->
-  <url>
     <loc>https://www.lexvanguard.xyz/events</loc>
-    <lastmod>2026-08-09</lastmod>
+    <lastmod>2026-08-11</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.90</priority>
   </url>
   <url>
-    <loc>https://www.lexvanguard.xyz/events/national-moot-court-2026</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.92</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/events/mkuplc-law-symposium</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.88</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/events/african-human-rights-moot</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.88</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/events/legal-tech-innovation-summit</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.90</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/events/youth-in-law-webinar</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/events/legal-aid-clinic-parklands</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.82</priority>
-  </url>
-
-  <!-- History, Heritage & Research Publications -->
-  <url>
-    <loc>https://www.lexvanguard.xyz/history/founding-story</loc>
-    <lastmod>2026-08-09</lastmod>
+    <loc>https://www.lexvanguard.xyz/history</loc>
+    <lastmod>2026-08-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://www.lexvanguard.xyz/history/mkuplc-legacy</loc>
-    <lastmod>2026-08-09</lastmod>
+    <loc>https://www.lexvanguard.xyz/careers</loc>
+    <lastmod>2026-08-11</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.85</priority>
+    <priority>0.75</priority>
   </url>
   <url>
-    <loc>https://www.lexvanguard.xyz/research/publications/kenyan-constitution-review-2026</loc>
-    <lastmod>2026-08-09</lastmod>
+    <loc>https://www.lexvanguard.xyz/contact</loc>
+    <lastmod>2026-08-11</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/research/publications/ai-in-african-jurisprudence</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.88</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/research/publications/ip-protection-for-tech-startups-nairobi</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://www.lexvanguard.xyz/research/publications/moot-court-appellate-winning-tactics</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.88</priority>
+    <priority>0.80</priority>
   </url>
 </urlset>

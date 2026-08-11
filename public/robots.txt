@@ -1,12 +1,9 @@
 User-agent: *
 Allow: /
-Allow: /attorneys
-Allow: /attorneys/*
-Allow: /events
-Allow: /history
-Allow: /research
-Allow: /services
-Allow: /sitemap
 Disallow: /office/
+Disallow: /login
+Disallow: /register
+Disallow: /onboard
+Disallow: /user/
 
 Sitemap: https://www.lexvanguard.xyz/sitemap.xml

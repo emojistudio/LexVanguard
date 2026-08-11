@@ -50,17 +50,6 @@ async function startServer() {
           caption: "Mount Kenya University Parklands Law Campus Premier Student Law Firm"
         }
       },
-      { path: "/sitemap", priority: "0.80", changefreq: "daily" },
-      { path: "/history", priority: "0.85", changefreq: "monthly" },
-      { path: "/services", priority: "0.90", changefreq: "weekly" },
-      { path: "/careers", priority: "0.75", changefreq: "monthly" },
-      { path: "/contact", priority: "0.80", changefreq: "monthly" },
-      { path: "/login", priority: "0.60", changefreq: "monthly" },
-      { path: "/register", priority: "0.60", changefreq: "monthly" },
-      { path: "/user/profile", priority: "0.70", changefreq: "daily" },
-      { path: "/user/settings", priority: "0.50", changefreq: "monthly" },
-
-      // Founding Partners & Executive Leadership Directory
       {
         path: "/attorneys",
         priority: "0.95",
@@ -70,8 +59,7 @@ async function startServer() {
           title: "LexVanguard Advocates LLP Founding Partners & Leadership"
         }
       },
-
-      // Prince Micah: Founding Partner & Managing Partner
+      // Founding Partners & Executive Profiles
       {
         path: "/attorneys/prince-micah",
         priority: "0.98",
@@ -82,16 +70,6 @@ async function startServer() {
           caption: "Managing Partner, Corporate Law & Legal Tech Pioneer at LexVanguard Advocates LLP"
         }
       },
-      { path: "/attorneys/prince-micah/bio", priority: "0.90", changefreq: "weekly" },
-      { path: "/attorneys/prince-micah/practice-areas", priority: "0.90", changefreq: "weekly" },
-      { path: "/attorneys/prince-micah/corporate-m-and-a", priority: "0.90", changefreq: "weekly" },
-      { path: "/attorneys/prince-micah/legal-tech-strategy", priority: "0.95", changefreq: "weekly" },
-      { path: "/attorneys/prince-micah/publications", priority: "0.88", changefreq: "weekly" },
-      { path: "/attorneys/prince-micah/cases", priority: "0.88", changefreq: "weekly" },
-      { path: "/attorneys/prince-micah/media-interviews", priority: "0.85", changefreq: "monthly" },
-      { path: "/attorneys/prince-micah/contact", priority: "0.85", changefreq: "weekly" },
-
-      // Kelvin Musya: Founding Partner & Senior Litigation Partner
       {
         path: "/attorneys/kelvin-musya",
         priority: "0.98",
@@ -102,16 +80,6 @@ async function startServer() {
           caption: "Senior Litigation Partner, Supreme Court Briefs & Appellate Advocacy Lead"
         }
       },
-      { path: "/attorneys/kelvin-musya/bio", priority: "0.90", changefreq: "weekly" },
-      { path: "/attorneys/kelvin-musya/practice-areas", priority: "0.90", changefreq: "weekly" },
-      { path: "/attorneys/kelvin-musya/appellate-advocacy", priority: "0.95", changefreq: "weekly" },
-      { path: "/attorneys/kelvin-musya/constitutional-law", priority: "0.92", changefreq: "weekly" },
-      { path: "/attorneys/kelvin-musya/supreme-court-briefs", priority: "0.92", changefreq: "weekly" },
-      { path: "/attorneys/kelvin-musya/publications", priority: "0.88", changefreq: "weekly" },
-      { path: "/attorneys/kelvin-musya/court-rulings", priority: "0.85", changefreq: "monthly" },
-      { path: "/attorneys/kelvin-musya/contact", priority: "0.85", changefreq: "weekly" },
-
-      // Donel Aganyo: Founding Partner & Head of Intellectual Property
       {
         path: "/attorneys/donel-aganyo",
         priority: "0.98",
@@ -122,16 +90,6 @@ async function startServer() {
           caption: "Head of IP & Tech Law, Patent Litigation & Cyber Policy Strategist"
         }
       },
-      { path: "/attorneys/donel-aganyo/bio", priority: "0.90", changefreq: "weekly" },
-      { path: "/attorneys/donel-aganyo/practice-areas", priority: "0.90", changefreq: "weekly" },
-      { path: "/attorneys/donel-aganyo/intellectual-property", priority: "0.95", changefreq: "weekly" },
-      { path: "/attorneys/donel-aganyo/patent-litigation", priority: "0.92", changefreq: "weekly" },
-      { path: "/attorneys/donel-aganyo/cyber-law", priority: "0.92", changefreq: "weekly" },
-      { path: "/attorneys/donel-aganyo/publications", priority: "0.88", changefreq: "weekly" },
-      { path: "/attorneys/donel-aganyo/ip-registered-patents", priority: "0.85", changefreq: "monthly" },
-      { path: "/attorneys/donel-aganyo/contact", priority: "0.85", changefreq: "weekly" },
-
-      // Linet Njeri: Senior Finance Secretary
       {
         path: "/attorneys/linet-njeri",
         priority: "0.88",
@@ -142,62 +100,13 @@ async function startServer() {
           caption: "Head of Accounts & Financial Compliance at LexVanguard Advocates LLP"
         }
       },
-      { path: "/attorneys/linet-njeri/bio", priority: "0.80", changefreq: "monthly" },
-      { path: "/attorneys/linet-njeri/contact", priority: "0.75", changefreq: "monthly" },
-
-      // AI Legal Research Tools & LexAI Technology Suite
+      // Core Practice & Portal Sections
+      { path: "/services", priority: "0.90", changefreq: "weekly" },
       { path: "/research", priority: "0.98", changefreq: "daily" },
-      { path: "/research/ai-assistant", priority: "0.99", changefreq: "daily" },
-      { path: "/research/ai-case-analyzer", priority: "0.95", changefreq: "daily" },
-      { path: "/research/ai-contract-reviewer", priority: "0.95", changefreq: "daily" },
-      { path: "/research/ai-brief-generator", priority: "0.96", changefreq: "daily" },
-      { path: "/research/ai-statute-search", priority: "0.94", changefreq: "daily" },
-      { path: "/research/ai-precedent-finder", priority: "0.95", changefreq: "daily" },
-      { path: "/research/ai-due-diligence", priority: "0.92", changefreq: "daily" },
-      { path: "/research/ai-compliance-checker", priority: "0.92", changefreq: "daily" },
-      { path: "/research/ai-jurisprudence", priority: "0.90", changefreq: "weekly" },
-      { path: "/research/ai-citation-generator", priority: "0.90", changefreq: "weekly" },
-      { path: "/research/ai-legal-translator", priority: "0.88", changefreq: "weekly" },
-      { path: "/research/ai-due-diligence-checklist", priority: "0.88", changefreq: "weekly" },
-      { path: "/research/ai-contract-clause-library", priority: "0.88", changefreq: "weekly" },
-      { path: "/research/ai-judicial-analytics", priority: "0.90", changefreq: "weekly" },
-      { path: "/research/moot-court-prep", priority: "0.93", changefreq: "weekly" },
-      { path: "/research/law-library", priority: "0.92", changefreq: "daily" },
-
-      // Legal Practice Services & Specialized Departments
-      { path: "/services/corporate-m-and-a", priority: "0.88", changefreq: "weekly" },
-      { path: "/services/constitutional-litigation", priority: "0.88", changefreq: "weekly" },
-      { path: "/services/intellectual-property", priority: "0.88", changefreq: "weekly" },
-      { path: "/services/tech-and-data-protection", priority: "0.88", changefreq: "weekly" },
-      { path: "/services/commercial-dispute-resolution", priority: "0.85", changefreq: "weekly" },
-      { path: "/services/banking-and-fintech-law", priority: "0.85", changefreq: "weekly" },
-      { path: "/services/taxation-and-revenue-law", priority: "0.82", changefreq: "weekly" },
-      { path: "/services/employment-and-labor-relations", priority: "0.82", changefreq: "weekly" },
-      { path: "/services/environment-and-land-court", priority: "0.80", changefreq: "weekly" },
-      { path: "/services/appellate-advocacy-mkuplc", priority: "0.90", changefreq: "weekly" },
-
-      // Mount Kenya University Parklands Law Campus (MKUPLC) Chapters
-      { path: "/mkuplc/mooting-society", priority: "0.88", changefreq: "weekly" },
-      { path: "/mkuplc/human-rights-center", priority: "0.85", changefreq: "weekly" },
-      { path: "/mkuplc/youth-in-law-council", priority: "0.88", changefreq: "weekly" },
-      { path: "/mkuplc/legal-aid-chambers", priority: "0.85", changefreq: "weekly" },
-
-      // Events, Moot Court Competitions & Campus Conferences
       { path: "/events", priority: "0.90", changefreq: "daily" },
-      { path: "/events/national-moot-court-2026", priority: "0.92", changefreq: "daily" },
-      { path: "/events/mkuplc-law-symposium", priority: "0.88", changefreq: "weekly" },
-      { path: "/events/african-human-rights-moot", priority: "0.88", changefreq: "weekly" },
-      { path: "/events/legal-tech-innovation-summit", priority: "0.90", changefreq: "weekly" },
-      { path: "/events/youth-in-law-webinar", priority: "0.85", changefreq: "weekly" },
-      { path: "/events/legal-aid-clinic-parklands", priority: "0.82", changefreq: "weekly" },
-
-      // History, Heritage & Research Publications
-      { path: "/history/founding-story", priority: "0.85", changefreq: "monthly" },
-      { path: "/history/mkuplc-legacy", priority: "0.85", changefreq: "monthly" },
-      { path: "/research/publications/kenyan-constitution-review-2026", priority: "0.85", changefreq: "monthly" },
-      { path: "/research/publications/ai-in-african-jurisprudence", priority: "0.88", changefreq: "monthly" },
-      { path: "/research/publications/ip-protection-for-tech-startups-nairobi", priority: "0.85", changefreq: "monthly" },
-      { path: "/research/publications/moot-court-appellate-winning-tactics", priority: "0.88", changefreq: "monthly" }
+      { path: "/history", priority: "0.85", changefreq: "monthly" },
+      { path: "/careers", priority: "0.75", changefreq: "monthly" },
+      { path: "/contact", priority: "0.80", changefreq: "monthly" }
     ];
 
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
