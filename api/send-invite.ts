@@ -70,7 +70,7 @@ Website: https://lexvanguard.xyz
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
           <tr>
             <td align="center">
-              <img src="https://www.lexvanguard.xyz/brand-logo.svg" width=200>
+              <img src="https://lexvanguard.xyz/assets/logo.png" width="48" height="48" alt="LexVanguard Advocates LLP Logo" style="display: block; width: 48px; height: 48px; border: 0; outline: none; border-radius: 4px; margin: 0 auto 12px auto;" />
               <span style="font-family: 'Times New Roman', Times, serif; font-size: 26px; font-weight: 400; letter-spacing: 3px; color: #111827; text-transform: uppercase; display: block;">
                 LEXVANGUARD <span style="color: #6b7280; font-weight: 300;">LLP</span>
               </span>
