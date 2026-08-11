@@ -47,17 +47,17 @@ export default function PracticeAreasSection({ initialCategoryId, initialPractic
   const getCategoryIcon = (iconName: string) => {
     switch (iconName) {
       case "Scale":
-        return <Scale className="w-5 h-5 text-[#9A7B2C]" />;
+        return <Scale className="w-6 h-6 text-yellow-500" />;
       case "Briefcase":
-        return <Briefcase className="w-5 h-5 text-[#9A7B2C]" />;
+        return <Briefcase className="w-6 h-6 text-yellow-500" />;
       case "Home":
-        return <HomeIcon className="w-5 h-5 text-[#9A7B2C]" />;
+        return <HomeIcon className="w-6 h-6 text-yellow-500" />;
       case "ShieldCheck":
-        return <ShieldCheck className="w-5 h-5 text-[#9A7B2C]" />;
+        return <ShieldCheck className="w-6 h-6 text-yellow-500" />;
       case "Compass":
-        return <Compass className="w-5 h-5 text-[#9A7B2C]" />;
+        return <Compass className="w-6 h-6 text-yellow-500" />;
       default:
-        return <Scale className="w-5 h-5 text-[#9A7B2C]" />;
+        return <Scale className="w-6 h-6 text-yellow-500" />;
     }
   };
 
@@ -80,257 +80,202 @@ export default function PracticeAreasSection({ initialCategoryId, initialPractic
   };
 
   return (
-    <section className="w-full bg-[#FAF9F6] text-slate-900 py-16 sm:py-24 px-4 sm:px-6 lg:px-12 relative overflow-hidden font-sans border-t border-b border-neutral-200/80">
-      {/* Subtle Ambient Background Glows */}
-      <div className="absolute top-0 right-1/4 w-96 h-96 bg-amber-500/5 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl pointer-events-none" />
-
-      <div className="max-w-7xl mx-auto relative z-10 space-y-16">
-        {/* 2. SECTION HERO */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 border-b border-neutral-200 pb-12">
-          <div className="max-w-3xl space-y-4">
-            <span className="text-[11px] sm:text-xs font-mono font-bold tracking-[0.25em] text-[#9A7B2C] uppercase block">
-              PRACTICE AREAS
-            </span>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-semibold text-slate-900 font-serif tracking-tight leading-tight">
-              Legal expertise for complex matters.
-            </h2>
-            <p className="text-slate-600 text-sm sm:text-base leading-relaxed font-normal pt-2">
-              LexVanguard provides strategic legal advice, courtroom representation, commercial dispute resolution, and advocacy across core legal disciplines.
-            </p>
-          </div>
-
-          <div className="shrink-0">
-            <button
-              onClick={() => handleRequestConsultation("General Practice Consultation")}
-              className="inline-flex items-center gap-3 px-6 py-3.5 bg-[#0A192F] hover:bg-slate-800 text-white font-semibold text-xs sm:text-sm tracking-wider uppercase rounded-sm transition-all duration-300 shadow-md cursor-pointer group focus:outline-none focus:ring-2 focus:ring-[#9A7B2C]"
-            >
-              <span>Discuss Your Matter</span>
-              <ArrowRight className="w-4 h-4 text-[#9A7B2C] group-hover:translate-x-1 transition-transform" />
-            </button>
-          </div>
+    <section className="py-12 sm:py-20 bg-white w-full max-w-full overflow-x-hidden font-sans border-t border-gray-200">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-10 lg:px-16">
+        
+        {/* Section Heading matching Home style */}
+        <div className="text-center mb-10 sm:mb-14">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4 text-black uppercase tracking-wider">
+            Practice Areas
+          </h2>
+          <div className="h-1 w-12 sm:w-16 bg-yellow-500 mx-auto mb-6" />
+          <p className="text-gray-700 leading-relaxed text-sm sm:text-base md:text-lg max-w-4xl mx-auto">
+            LexVanguard Advocates LLP provides strategic legal counsel, courtroom advocacy, commercial dispute resolution, and scholarly legal research across five core divisions.
+          </p>
         </div>
 
-        {/* 3. PRIMARY INTERFACE — 5 CATEGORY GRID */}
-        <div className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 lg:gap-5">
-            {PRACTICE_GROUPS.map((group) => {
-              const isExpanded = expandedCategoryId === group.id;
-              return (
-                <div
-                  key={group.id}
-                  className={`relative flex flex-col justify-between p-6 rounded-xs transition-all duration-300 border cursor-pointer group ${
-                    isExpanded
-                      ? "bg-white border-[#9A7B2C] shadow-xl shadow-slate-200/80 ring-1 ring-[#9A7B2C]/40"
-                      : "bg-white hover:bg-[#FFFDF9] border-neutral-200 hover:border-[#9A7B2C]/70 shadow-xs hover:shadow-md"
-                  }`}
-                  onClick={() => handleCategoryClick(group.id)}
-                  tabIndex={0}
-                  role="button"
-                  aria-expanded={isExpanded}
-                  aria-controls={`panel-${group.id}`}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      handleCategoryClick(group.id);
-                    }
-                  }}
-                >
-                  <div className="space-y-4">
-                    {/* Header bar: Number & Icon */}
-                    <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
-                      <span className="font-mono text-xs font-bold text-[#9A7B2C] tracking-wider">
-                        {group.number}
-                      </span>
-                      <div className="p-2 rounded-xs bg-amber-500/10 group-hover:bg-amber-500/20 transition-colors">
-                        {getCategoryIcon(group.iconName)}
-                      </div>
-                    </div>
-
-                    {/* Title */}
-                    <h3 className="text-lg font-semibold text-slate-900 font-serif leading-snug group-hover:text-[#9A7B2C] transition-colors">
-                      {group.title}
-                    </h3>
-
-                    {/* Short Description */}
-                    <p className="text-slate-600 text-xs leading-relaxed line-clamp-3 font-sans">
-                      {group.description}
-                    </p>
-                  </div>
-
-                  {/* Footer Info & Action */}
-                  <div className="pt-6 mt-4 border-t border-neutral-100 flex items-center justify-between text-xs">
-                    <span className="text-slate-500 font-mono text-[11px] font-medium">
-                      {group.practices.length} practice areas
-                    </span>
-                    <span className="inline-flex items-center gap-1 text-[#9A7B2C] font-bold tracking-wider uppercase text-[11px] group-hover:translate-x-1 transition-transform">
-                      {isExpanded ? "Collapse ▲" : "Explore →"}
-                    </span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* 4. INTERACTIVE EXPANSION PANELS */}
-          <AnimatePresence mode="wait">
-            {expandedCategoryId && (
-              <motion.div
-                key={expandedCategoryId}
-                id={`panel-${expandedCategoryId}`}
-                role="region"
-                aria-label="Practice Areas Detail"
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.3, ease: "easeOut" }}
-                className="overflow-hidden bg-[#F4F1EA] border border-[#9A7B2C]/30 rounded-xs p-6 sm:p-8 mt-4 shadow-lg"
+        {/* 5 CATEGORY GRID */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+          {PRACTICE_GROUPS.map((group) => {
+            const isExpanded = expandedCategoryId === group.id;
+            return (
+              <div
+                key={group.id}
+                onClick={() => handleCategoryClick(group.id)}
+                className={`bg-white border-t-4 ${
+                  isExpanded ? "border-yellow-500 shadow-xl ring-2 ring-yellow-500/30" : "border-black hover:border-yellow-500 shadow-sm hover:shadow-md"
+                } p-6 transition-all duration-300 flex flex-col justify-between rounded-sm cursor-pointer group`}
               >
-                {(() => {
-                  const currentGroup = PRACTICE_GROUPS.find((g) => g.id === expandedCategoryId);
-                  if (!currentGroup) return null;
-
-                  return (
-                    <div className="space-y-6">
-                      <div className="flex items-center justify-between border-b border-neutral-300/80 pb-4">
-                        <div className="flex items-center gap-3">
-                          <span className="font-mono text-sm font-bold text-[#9A7B2C]">
-                            {currentGroup.number}
-                          </span>
-                          <h4 className="text-xl sm:text-2xl font-semibold text-slate-900 font-serif">
-                            {currentGroup.title}
-                          </h4>
-                        </div>
-                        <button
-                          onClick={() => setExpandedCategoryId(null)}
-                          className="text-slate-500 hover:text-slate-900 p-1 transition-colors text-xs font-mono"
-                          title="Close Panel"
-                        >
-                          [Close Panel ✕]
-                        </button>
-                      </div>
-
-                      <p className="text-slate-700 text-sm max-w-4xl leading-relaxed">
-                        {currentGroup.description} Select an individual practice area below to view specialized legal services and client coverage:
-                      </p>
-
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
-                        {currentGroup.practices.map((practice) => (
-                          <div
-                            key={practice.id}
-                            onClick={() => handleOpenPracticeDetail(practice, currentGroup.id)}
-                            tabIndex={0}
-                            role="button"
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter" || e.key === " ") {
-                                e.preventDefault();
-                                handleOpenPracticeDetail(practice, currentGroup.id);
-                              }
-                            }}
-                            className="bg-white hover:bg-slate-50 border border-neutral-200/90 hover:border-[#9A7B2C]/60 p-5 rounded-xs transition-all duration-200 cursor-pointer group flex flex-col justify-between shadow-xs hover:shadow-md"
-                          >
-                            <div className="space-y-2">
-                              <h5 className="text-sm font-semibold text-slate-900 group-hover:text-[#9A7B2C] transition-colors leading-snug font-serif">
-                                {practice.title}
-                              </h5>
-                              <p className="text-slate-600 text-xs line-clamp-2 leading-relaxed">
-                                {practice.shortOverview}
-                              </p>
-                            </div>
-
-                            <div className="pt-4 mt-3 flex items-center justify-between text-[11px] text-[#9A7B2C] font-semibold border-t border-neutral-100">
-                              <span>View Services & Coverage</span>
-                              <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-                            </div>
-                          </div>
-                        ))}
-                      </div>
+                <div>
+                  <div className="flex items-center justify-between mb-3 border-b border-gray-100 pb-2">
+                    <span className="font-mono text-xs font-bold text-gray-400">{group.number}</span>
+                    <div className="p-1.5 bg-yellow-500/10 rounded-sm">
+                      {getCategoryIcon(group.iconName)}
                     </div>
-                  );
-                })()}
-              </motion.div>
-            )}
-          </AnimatePresence>
+                  </div>
+
+                  <h3 className="uppercase text-base font-extrabold text-black tracking-wide group-hover:text-yellow-600 transition-colors mb-2 leading-snug">
+                    {group.title}
+                  </h3>
+
+                  <span className="text-[10px] font-bold text-yellow-600 uppercase tracking-wider block mb-3">
+                    {group.practices.length} Specializations
+                  </span>
+
+                  <p className="text-xs text-gray-600 leading-relaxed line-clamp-3 mb-4">
+                    {group.description}
+                  </p>
+                </div>
+
+                <div className="pt-4 border-t border-gray-100 flex items-center justify-between">
+                  <span className="text-black font-extrabold uppercase text-[11px] tracking-widest group-hover:text-yellow-600 transition-colors border-b-2 border-black group-hover:border-yellow-500 pb-0.5">
+                    {isExpanded ? "Hide Details ▲" : "Explore Category »"}
+                  </span>
+                </div>
+              </div>
+            );
+          })}
         </div>
 
-        {/* 5. PRACTICE AREA DETAIL MODAL */}
+        {/* EXPANSION PANEL */}
+        <AnimatePresence mode="wait">
+          {expandedCategoryId && (
+            <motion.div
+              key={expandedCategoryId}
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
+              className="overflow-hidden bg-gray-50 border-2 border-yellow-500 rounded-sm p-6 sm:p-8 mt-8 shadow-md"
+            >
+              {(() => {
+                const currentGroup = PRACTICE_GROUPS.find((g) => g.id === expandedCategoryId);
+                if (!currentGroup) return null;
+
+                return (
+                  <div className="space-y-6">
+                    <div className="flex items-center justify-between border-b border-gray-200 pb-4">
+                      <div className="flex items-center gap-3">
+                        <span className="font-mono text-sm font-bold text-yellow-600">
+                          {currentGroup.number}
+                        </span>
+                        <h4 className="text-xl sm:text-2xl font-extrabold text-black uppercase tracking-wide">
+                          {currentGroup.title}
+                        </h4>
+                      </div>
+                      <button
+                        onClick={() => setExpandedCategoryId(null)}
+                        className="text-gray-500 hover:text-black text-xs font-bold uppercase tracking-wider cursor-pointer"
+                      >
+                        ✕ Close Panel
+                      </button>
+                    </div>
+
+                    <p className="text-gray-700 text-xs sm:text-sm max-w-4xl leading-relaxed">
+                      {currentGroup.description} Select an individual practice area below to view specialized legal services and client coverage:
+                    </p>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
+                      {currentGroup.practices.map((practice) => (
+                        <div
+                          key={practice.id}
+                          onClick={() => handleOpenPracticeDetail(practice, currentGroup.id)}
+                          className="bg-white hover:bg-yellow-50/50 border border-gray-200 hover:border-yellow-500 p-5 rounded-sm transition-all duration-200 cursor-pointer group flex flex-col justify-between shadow-xs hover:shadow-sm"
+                        >
+                          <div className="space-y-2">
+                            <h5 className="text-sm font-bold text-black uppercase tracking-wide group-hover:text-yellow-600 transition-colors">
+                              {practice.title}
+                            </h5>
+                            <p className="text-gray-600 text-xs line-clamp-2 leading-relaxed">
+                              {practice.shortOverview}
+                            </p>
+                          </div>
+
+                          <div className="pt-3 mt-3 flex items-center justify-between text-[11px] text-yellow-600 font-extrabold uppercase tracking-wider border-t border-gray-100">
+                            <span>View Services</span>
+                            <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* PRACTICE DETAIL MODAL */}
         <AnimatePresence>
           {activePractice && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-900/40 backdrop-blur-md">
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
               <motion.div
                 initial={{ opacity: 0, scale: 0.96 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.96 }}
                 transition={{ duration: 0.2 }}
-                className="bg-white border border-neutral-200 max-w-3xl w-full max-h-[90vh] overflow-y-auto rounded-xs p-6 sm:p-8 shadow-2xl text-slate-900 space-y-6 relative"
+                className="bg-white border-2 border-yellow-500 max-w-3xl w-full max-h-[90vh] overflow-y-auto rounded-sm p-6 sm:p-8 shadow-2xl text-black space-y-6 relative"
               >
-                {/* Close Button */}
                 <button
                   onClick={() => setActivePractice(null)}
-                  className="absolute top-4 right-4 text-slate-400 hover:text-slate-800 p-2 transition-colors focus:outline-none"
-                  aria-label="Close practice detail"
+                  className="absolute top-4 right-4 text-gray-500 hover:text-black p-1 cursor-pointer"
                 >
-                  <X className="w-5 h-5" />
+                  <X className="w-6 h-6" />
                 </button>
 
-                {/* Header */}
-                <div className="space-y-2 border-b border-neutral-200 pb-4">
-                  <span className="text-[11px] font-mono font-bold text-[#9A7B2C] uppercase tracking-widest">
-                    PRACTICE AREA DETAIL
+                <div className="space-y-1 border-b border-gray-200 pb-4">
+                  <span className="text-[10px] font-bold text-yellow-600 uppercase tracking-widest">
+                    Practice Area Specialization
                   </span>
-                  <h3 className="text-2xl sm:text-3xl font-semibold text-slate-900 font-serif">
+                  <h3 className="text-2xl sm:text-3xl font-extrabold text-black uppercase tracking-wide">
                     {activePractice.title}
                   </h3>
                 </div>
 
-                {/* Overview */}
                 <div className="space-y-2">
-                  <h4 className="text-xs font-mono font-bold text-slate-400 uppercase tracking-wider">
-                    OVERVIEW
+                  <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+                    Overview
                   </h4>
-                  <p className="text-slate-700 text-sm sm:text-base leading-relaxed">
+                  <p className="text-gray-700 text-sm sm:text-base leading-relaxed">
                     {activePractice.shortOverview}
                   </p>
                 </div>
 
-                {/* Services */}
                 <div className="space-y-3">
-                  <h4 className="text-xs font-mono font-bold text-slate-400 uppercase tracking-wider">
-                    CORE LEGAL SERVICES
+                  <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+                    Core Legal Services
                   </h4>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                     {activePractice.services.map((service, idx) => (
-                      <div key={idx} className="flex items-start gap-2 text-xs sm:text-sm text-slate-800">
-                        <CheckCircle2 className="w-4 h-4 text-[#9A7B2C] shrink-0 mt-0.5" />
+                      <div key={idx} className="flex items-start gap-2 text-xs sm:text-sm text-gray-800">
+                        <CheckCircle2 className="w-4 h-4 text-yellow-500 shrink-0 mt-0.5" />
                         <span>{service}</span>
                       </div>
                     ))}
                   </div>
                 </div>
 
-                {/* Who We Help */}
                 <div className="space-y-3 pt-2">
-                  <h4 className="text-xs font-mono font-bold text-slate-400 uppercase tracking-wider">
-                    WHO WE HELP
+                  <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+                    Who We Represent & Advise
                   </h4>
                   <div className="flex flex-wrap gap-2">
                     {activePractice.whoWeHelp.map((client, idx) => (
                       <span
                         key={idx}
-                        className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-100 border border-slate-200 text-slate-700 text-xs rounded-xs font-medium"
+                        className="inline-flex items-center gap-1.5 px-3 py-1 bg-gray-100 border border-gray-200 text-gray-800 text-xs rounded-xs font-bold uppercase tracking-wider"
                       >
-                        <UserCheck className="w-3 h-3 text-[#9A7B2C]" />
+                        <UserCheck className="w-3.5 h-3.5 text-yellow-500" />
                         <span>{client}</span>
                       </span>
                     ))}
                   </div>
                 </div>
 
-                {/* Modal Footer Actions */}
-                <div className="pt-6 border-t border-neutral-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="pt-6 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-4">
                   <button
                     onClick={() => setActivePractice(null)}
-                    className="text-slate-500 hover:text-slate-800 text-xs font-mono uppercase tracking-wider cursor-pointer"
+                    className="text-gray-600 hover:text-black text-xs font-bold uppercase tracking-wider cursor-pointer"
                   >
                     ← Return to Categories
                   </button>
@@ -341,9 +286,9 @@ export default function PracticeAreasSection({ initialCategoryId, initialPractic
                       setActivePractice(null);
                       handleRequestConsultation(title);
                     }}
-                    className="w-full sm:w-auto px-6 py-3 bg-[#0A192F] hover:bg-slate-800 text-white font-bold text-xs uppercase tracking-wider rounded-sm transition-all inline-flex items-center justify-center gap-2 cursor-pointer shadow-md"
+                    className="w-full sm:w-auto px-6 py-3 bg-yellow-500 hover:bg-yellow-600 text-black font-extrabold text-xs uppercase tracking-widest transition-all inline-flex items-center justify-center gap-2 cursor-pointer shadow-sm"
                   >
-                    <PhoneCall className="w-4 h-4 text-[#9A7B2C]" /> Discuss Your Matter →
+                    <PhoneCall className="w-4 h-4 text-black" /> Request Consultation →
                   </button>
                 </div>
               </motion.div>
@@ -351,107 +296,83 @@ export default function PracticeAreasSection({ initialCategoryId, initialPractic
           )}
         </AnimatePresence>
 
-        {/* 14. FINAL SECTION CTA */}
-        <div className="bg-white border border-neutral-200 p-8 sm:p-12 rounded-xs text-center max-w-4xl mx-auto space-y-6 shadow-lg">
-          <h3 className="text-2xl sm:text-3xl font-semibold text-slate-900 font-serif">
-            Have a legal matter that requires attention?
-          </h3>
-          <p className="text-slate-600 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
-            Tell us about your matter. We'll help you understand your options and determine the appropriate next step.
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
-            <button
-              onClick={() => handleRequestConsultation("Firm Legal Evaluation")}
-              className="w-full sm:w-auto px-8 py-3.5 bg-[#0A192F] hover:bg-slate-800 text-white font-bold text-xs sm:text-sm tracking-wider uppercase rounded-sm transition-all shadow-md cursor-pointer"
-            >
-              Discuss Your Matter →
-            </button>
-            <Link
-              href="/contact"
-              className="w-full sm:w-auto px-8 py-3.5 border border-neutral-300 hover:border-slate-800 text-slate-800 hover:text-black font-semibold text-xs sm:text-sm tracking-wider uppercase rounded-sm transition-all cursor-pointer bg-slate-50 hover:bg-slate-100"
-            >
-              Contact the Firm
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      {/* CONSULTATION REQUEST MODAL */}
-      {showConsultModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md">
-          <div className="bg-white border border-neutral-200 max-w-lg w-full p-6 sm:p-8 rounded-xs shadow-2xl relative text-slate-900 space-y-4">
-            <button
-              onClick={() => setShowConsultModal(false)}
-              className="absolute top-4 right-4 text-slate-400 hover:text-slate-800 p-1"
-            >
-              <X className="w-5 h-5" />
-            </button>
-            <h3 className="text-xl font-semibold text-slate-900 font-serif">
-              Request Legal Evaluation
-            </h3>
-            {consultationSubject && (
-              <p className="text-xs text-[#9A7B2C] font-mono uppercase tracking-wider">
-                Area: {consultationSubject}
+        {/* CONSULTATION REQUEST MODAL */}
+        {showConsultModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+            <div className="bg-white border-2 border-yellow-500 max-w-lg w-full p-6 sm:p-8 rounded-sm shadow-2xl relative text-black space-y-4">
+              <button
+                onClick={() => setShowConsultModal(false)}
+                className="absolute top-4 right-4 text-gray-500 hover:text-black p-1 cursor-pointer"
+              >
+                <X className="w-6 h-6" />
+              </button>
+              <h3 className="text-xl font-extrabold text-black uppercase tracking-wide">
+                Request Case Evaluation
+              </h3>
+              {consultationSubject && (
+                <p className="text-xs text-yellow-600 font-bold uppercase tracking-wider">
+                  Subject: {consultationSubject}
+                </p>
+              )}
+              <p className="text-gray-600 text-xs sm:text-sm leading-relaxed">
+                Connect directly with our senior managing partners and counsel team for confidential legal guidance.
               </p>
-            )}
-            <p className="text-slate-600 text-xs sm:text-sm leading-relaxed">
-              Connect directly with our senior managing partners and counsel team for confidential preliminary guidance.
-            </p>
 
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                alert(`Thank you. Your consultation request regarding "${consultationSubject || "General Legal Matter"}" has been transmitted to LexVanguard Chambers.`);
-                setShowConsultModal(false);
-              }}
-              className="space-y-4 pt-2"
-            >
-              <div>
-                <label className="block text-xs font-mono text-slate-500 mb-1">Full Name</label>
-                <input
-                  required
-                  type="text"
-                  placeholder="e.g. Jane Doe"
-                  className="w-full bg-slate-50 border border-neutral-200 focus:border-[#9A7B2C] px-3.5 py-2.5 text-xs text-slate-900 rounded-xs focus:outline-none"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-mono text-slate-500 mb-1">Email / Phone</label>
-                <input
-                  required
-                  type="text"
-                  placeholder="e.g. client@domain.com or +254..."
-                  className="w-full bg-slate-50 border border-neutral-200 focus:border-[#9A7B2C] px-3.5 py-2.5 text-xs text-slate-900 rounded-xs focus:outline-none"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-mono text-slate-500 mb-1">Brief Description of Matter</label>
-                <textarea
-                  required
-                  rows={3}
-                  placeholder="Provide a concise summary of your legal inquiry..."
-                  className="w-full bg-slate-50 border border-neutral-200 focus:border-[#9A7B2C] px-3.5 py-2.5 text-xs text-slate-900 rounded-xs focus:outline-none"
-                />
-              </div>
-              <div className="pt-2 flex justify-end gap-3">
-                <button
-                  type="button"
-                  onClick={() => setShowConsultModal(false)}
-                  className="px-4 py-2 text-xs font-mono text-slate-500 hover:text-slate-900"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-6 py-2.5 bg-[#0A192F] text-white font-bold text-xs uppercase tracking-wider hover:bg-slate-800 rounded-xs"
-                >
-                  Submit Inquiry →
-                </button>
-              </div>
-            </form>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  alert(`Thank you. Your inquiry regarding "${consultationSubject || "General Legal Matter"}" has been transmitted to LexVanguard Chambers.`);
+                  setShowConsultModal(false);
+                }}
+                className="space-y-4 pt-2"
+              >
+                <div>
+                  <label className="block text-xs font-bold text-black uppercase tracking-wider mb-1">Full Name</label>
+                  <input
+                    required
+                    type="text"
+                    placeholder="e.g. Adv. Jane Doe"
+                    className="w-full bg-gray-50 border border-gray-300 focus:border-black px-3.5 py-2.5 text-xs text-black rounded-xs focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-black uppercase tracking-wider mb-1">Email / Phone</label>
+                  <input
+                    required
+                    type="text"
+                    placeholder="e.g. client@domain.com or +254..."
+                    className="w-full bg-gray-50 border border-gray-300 focus:border-black px-3.5 py-2.5 text-xs text-black rounded-xs focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-black uppercase tracking-wider mb-1">Brief Description of Matter</label>
+                  <textarea
+                    required
+                    rows={3}
+                    placeholder="Provide a concise summary of your legal inquiry..."
+                    className="w-full bg-gray-50 border border-gray-300 focus:border-black px-3.5 py-2.5 text-xs text-black rounded-xs focus:outline-none"
+                  />
+                </div>
+                <div className="pt-2 flex justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setShowConsultModal(false)}
+                    className="px-4 py-2 text-xs font-bold text-gray-500 hover:text-black uppercase tracking-wider cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-6 py-2.5 bg-yellow-500 hover:bg-yellow-600 text-black font-extrabold text-xs uppercase tracking-widest rounded-sm cursor-pointer"
+                  >
+                    Submit Evaluation Request →
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </section>
   );
 }

@@ -250,6 +250,9 @@ export default function HomePage() {
         </div>
       </div>
 
+      {/* Practice Areas */}
+      <PracticeAreasSection />
+
       {/* Core Philosophy */}
       <div className="bg-gray-50 py-12 sm:py-20 w-full max-w-full overflow-x-hidden">
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-10 lg:px-16">
@@ -275,9 +278,6 @@ export default function HomePage() {
           </div>
         </div>
       </div>
-
-      {/* What We Do - Premium 5-Category Practice Areas */}
-      <PracticeAreasSection />
 
       {/* Attorneys / Members Teaser */}
       <div className="py-12 sm:py-20 bg-white w-full max-w-full overflow-x-hidden">
