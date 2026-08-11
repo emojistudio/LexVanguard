@@ -74,8 +74,8 @@ export default function HomePage() {
       {/* Top Fixed Header */}
       <Header />
 
-      {/* Hero Container with Slideshow */}
-      <div className="relative h-[70vh] md:h-screen min-h-[70vh] md:min-h-screen w-full max-w-full flex flex-col justify-between items-center overflow-hidden bg-gradient-to-b from-neutral-950 via-neutral-900 to-black">
+      {/* Hero Container with Slideshow (Height reduced by 20% on wider screens to 80vh) */}
+      <div className="relative h-[55vh] md:h-[80vh] min-h-[55vh] md:min-h-[80vh] w-full max-w-full flex flex-col justify-between items-center overflow-hidden bg-gradient-to-b from-neutral-950 via-neutral-900 to-black">
         <style>{`
           .slideshow-container {
             position: absolute;
@@ -122,7 +122,7 @@ export default function HomePage() {
         </div>
 
         {/* Main Content Area / Hero Spacer */}
-        <main className="flex-grow flex items-center justify-center relative z-10 w-full px-4 pointer-events-none min-h-[35vh] md:min-h-[60vh]">
+        <main className="flex-grow flex items-center justify-center relative z-10 w-full px-4 pointer-events-none min-h-[25vh] md:min-h-[45vh]">
           {/* Central text removed as background images provide visual focus */}
         </main>
 
@@ -306,58 +306,56 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* History Teaser (Retaining Founders content under History title, horizontal flex 90vw width on wide screens) */}
-      <div className="py-16 sm:py-24 bg-black text-white w-full max-w-full overflow-x-hidden border-t-4 border-[#ffc107]">
+      {/* History Teaser (Compact Founders Teasers: Image, Name, and One Line Description) */}
+      <div className="py-12 sm:py-16 bg-black text-white w-full max-w-full overflow-x-hidden border-t-4 border-[#ffc107]">
         <div className="w-[90vw] max-w-[90vw] mx-auto text-center">
-          <span className="text-[#ffc107] uppercase tracking-[0.3em] text-xs font-bold font-mono block mb-2">
+          <span className="text-[#ffc107] uppercase tracking-[0.3em] text-xs font-bold font-mono block mb-1.5">
             Origin & Leadership
           </span>
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 text-white uppercase tracking-wider font-serif">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2 text-white uppercase tracking-wider font-serif">
             History
           </h2>
-          <div className="h-1 w-12 sm:w-16 bg-[#ffc107] mx-auto mb-10 sm:mb-14" />
+          <div className="h-1 w-10 sm:w-12 bg-[#ffc107] mx-auto mb-8 sm:mb-10" />
 
-          {/* Horizontal flex layout spreading content to cover 90% of viewport width on wide screens */}
-          <div className="flex flex-col lg:flex-row gap-6 items-stretch justify-center mb-12 text-left w-full">
+          {/* Compact Founder Teasers (Horizontal flex covering 90% width, minimal & non-conspicuous) */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 text-left w-full">
             {[
               {
                 slug: "prince",
                 name: "Prince Micah",
-                role: "Co-Founder | Technology & Innovation Lead",
-                desc: "Law scholar & software engineer who led the digital architecture and web development of the LexVanguard platform (lexvanguard.xyz).",
+                oneLiner: "Co-Founder who planned, architected, and built the entire LexVanguard platform (lexvanguard.xyz).",
                 img: "/images/profiles/prince.jpeg"
               },
               {
                 slug: "kelvin",
                 name: "Kelvin Musya",
-                role: "Co-Founder | Chief Strategist & Organising Director",
-                desc: "Architect of the unified-firm concept. Strategic force behind firm structure, discipline, and execution.",
+                oneLiner: "Co-Founder and Chief Strategist guiding firm execution and institutional structure.",
                 img: "/images/profiles/kelvin.jpeg"
               },
               {
                 slug: "donel",
                 name: "Donel Aganyo",
-                role: "Co-Founder | Advocacy Partner & Outreach Lead",
-                desc: "Voice of member engagement, moot court preparation, oral advocacy, and community outreach.",
+                oneLiner: "Co-Founder leading advocacy training, mooting excellence, and community outreach.",
                 img: "/images/profiles/don.jpeg"
               }
             ].map((f, i) => (
               <Link
                 key={i}
                 href={`/founders/${f.slug}`}
-                className="flex-1 bg-neutral-900 border border-neutral-800 p-6 space-y-4 rounded-xs hover:border-[#ffc107] transition-all group flex flex-col justify-between cursor-pointer"
+                className="bg-neutral-900/90 border border-neutral-800 hover:border-[#ffc107] p-3.5 sm:p-4 flex items-center space-x-3.5 rounded-sm transition-all group cursor-pointer"
               >
-                <div className="space-y-4">
-                  <img src={f.img} alt={f.name} className="w-full aspect-square object-cover" />
-                  <div className="space-y-1">
-                    <h3 className="text-lg font-bold text-white uppercase font-serif group-hover:text-[#ffc107] transition-colors">{f.name}</h3>
-                    <p className="text-xs text-[#ffc107] font-mono font-bold uppercase tracking-wider">{f.role}</p>
-                  </div>
-                  <p className="text-xs text-gray-400 leading-relaxed">{f.desc}</p>
-                </div>
-                <div className="pt-4 border-t border-neutral-800 text-[11px] font-bold uppercase tracking-wider text-[#ffc107] group-hover:text-white transition-colors flex items-center justify-between">
-                  <span>View Detailed Profile</span>
-                  <span>»</span>
+                <img
+                  src={f.img}
+                  alt={f.name}
+                  className="w-14 h-14 sm:w-16 sm:h-16 aspect-square object-cover shrink-0 rounded-xs border border-white/10 group-hover:border-[#ffc107] transition-colors"
+                />
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-xs sm:text-sm font-bold text-white uppercase font-serif group-hover:text-[#ffc107] transition-colors truncate">
+                    {f.name}
+                  </h3>
+                  <p className="text-[11px] sm:text-xs text-gray-400 mt-1 line-clamp-2 leading-relaxed">
+                    {f.oneLiner}
+                  </p>
                 </div>
               </Link>
             ))}
@@ -366,7 +364,7 @@ export default function HomePage() {
           <div>
             <Link
               href="/history"
-              className="border-2 border-[#ffc107] text-[#ffc107] hover:bg-[#ffc107] hover:text-black px-8 py-3 font-extrabold text-xs sm:text-sm uppercase tracking-widest transition-colors inline-block"
+              className="border border-[#ffc107] text-[#ffc107] hover:bg-[#ffc107] hover:text-black px-6 py-2.5 font-extrabold text-xs uppercase tracking-widest transition-colors inline-block"
             >
               EXPLORE OUR HISTORY
             </Link>
