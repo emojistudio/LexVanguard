@@ -324,7 +324,7 @@ export default function HomePage() {
                 slug: "prince",
                 name: "Prince Micah",
                 role: "Co-Founder | Technology & Innovation Lead",
-                desc: "Law scholar & software engineer who planned, architected, designed, and built this entire website (lexvanguard.xyz) from the ground up.",
+                desc: "Law scholar & software engineer who led the digital architecture and web development of the LexVanguard platform (lexvanguard.xyz).",
                 img: "/images/profiles/prince.jpeg"
               },
               {
@@ -348,7 +348,7 @@ export default function HomePage() {
                 className="flex-1 bg-neutral-900 border border-neutral-800 p-6 space-y-4 rounded-xs hover:border-[#ffc107] transition-all group flex flex-col justify-between cursor-pointer"
               >
                 <div className="space-y-4">
-                  <img src={f.img} alt={f.name} className="w-full h-60 object-cover border border-neutral-800" />
+                  <img src={f.img} alt={f.name} className="w-full aspect-square object-cover" />
                   <div className="space-y-1">
                     <h3 className="text-lg font-bold text-white uppercase font-serif group-hover:text-[#ffc107] transition-colors">{f.name}</h3>
                     <p className="text-xs text-[#ffc107] font-mono font-bold uppercase tracking-wider">{f.role}</p>

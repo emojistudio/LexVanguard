@@ -2,7 +2,7 @@ import { useRoute, Link } from "wouter";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
-import { ArrowLeft, Code, Compass, Users, Award, Shield, BookOpen, Globe, Terminal, Sparkles, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, CheckCircle2 } from "lucide-react";
 
 interface FounderDetail {
   slug: string;
@@ -12,7 +12,6 @@ interface FounderDetail {
   image: string;
   summary: string;
   fullBio: string[];
-  builtWebsiteNotice?: boolean;
   keyMilestones: string[];
   philosophy: string;
   contributions: string[];
@@ -26,24 +25,23 @@ const FOUNDERS_DATA: Record<string, FounderDetail> = {
     role: "Co-Founder | Technology & Innovation Lead",
     subtitle: "Software Engineer & Web Developer | Digital Architect of lexvanguard.xyz",
     image: "/images/profiles/prince.jpeg",
-    summary: "Law scholar, software engineer, and digital architect who planned, designed, and built the entire LexVanguard platform (lexvanguard.xyz) from the ground up.",
-    builtWebsiteNotice: true,
+    summary: "Law scholar and software engineer who led the technological architecture and digital web development of the LexVanguard platform (lexvanguard.xyz).",
     fullBio: [
-      "Prince Micah is a co-founder of LexVanguard Advocates LLP and a visionary law scholar with an extensive technical background in software engineering, full-stack web development, and artificial intelligence integration.",
-      "Recognizing the critical role of technology in modern legal practice, Prince single-handedly planned, architected, designed, and built this entire website (lexvanguard.xyz) from scratch, establishing LexVanguard's digital infrastructure, public portal, and legal AI research integration.",
-      "As a law student at Mount Kenya University Parklands Law Campus, Prince brings a rare interdisciplinary perspective: bridging the traditional boundaries of legal jurisprudence with modern software technology, digital security, and AI-assisted legal research.",
+      "Prince Micah is a co-founder of LexVanguard Advocates LLP and a visionary law scholar with an extensive background in software engineering, full-stack web development, and artificial intelligence integration.",
+      "Recognizing the critical role of technology in modern legal practice, Prince led the technical planning, architecture, and digital engineering of the LexVanguard online platform (lexvanguard.xyz), establishing the firm's digital infrastructure, public portal, and legal AI research integration.",
+      "As a law student at Mount Kenya University Parklands Law Campus, Prince brings an interdisciplinary perspective: bridging the traditional boundaries of legal jurisprudence with modern software technology, digital security, and AI-assisted legal research.",
       "Prince envisions a future where advocates do not merely adapt to technological change, but actively lead it—mastering legal technology, digital evidence, data protection, cybersecurity regulations, and automated research systems.",
       "Within LexVanguard, he directs all digital initiatives, oversees platform security, leads technology workshops, and mentors members on leveraging modern digital tools for legal research and litigation preparation."
     ],
     keyMilestones: [
-      "Architected and engineered the entire official website (lexvanguard.xyz)",
+      "Led the technical development and digital architecture of lexvanguard.xyz",
       "Integrated AI-driven legal research tools and automated document analysis",
       "Established digital security and secure data communication protocols for the firm",
       "Pioneered legal tech workshops for law students at MKU Parklands Law Campus"
     ],
     philosophy: "Legal technology is not a replacement for legal reasoning; it is a force multiplier that allows advocates to analyze, research, and communicate with unprecedented depth and velocity.",
     contributions: [
-      "Planned, architected, designed, and built the entire website (lexvanguard.xyz)",
+      "Directed the technological architecture and web development of lexvanguard.xyz",
       "Designed & integrated the eLegal AI research engine and Research Desk",
       "Leads digital infrastructure, cybersecurity, and technological innovation",
       "Coordinates legal technology workshops and digital litigation workflows",
@@ -58,7 +56,6 @@ const FOUNDERS_DATA: Record<string, FounderDetail> = {
     subtitle: "Architect of the Unified Firm Concept | Strategic Execution & Institutional Governance",
     image: "/images/profiles/kelvin.jpeg",
     summary: "Strategic leader and operational anchor who developed the unified-firm organizational framework, turning the vision of LexVanguard into a disciplined institution.",
-    builtWebsiteNotice: false,
     fullBio: [
       "Kelvin Musya is a co-founder of LexVanguard Advocates LLP, serving as Chief Strategist and Organising Director. He is widely recognized as the architect of the unified-firm institutional framework.",
       "Kelvin's leadership is defined by strategic planning, organizational governance, discipline, and systematic execution. He excels at taking complex organizational goals and translating them into structured, operational reality.",
@@ -89,7 +86,6 @@ const FOUNDERS_DATA: Record<string, FounderDetail> = {
     subtitle: "Oral Advocacy Specialist | Member Engagement & Community Building",
     image: "/images/profiles/don.jpeg",
     summary: "Dedicated advocate in training leading member outreach, public speaking, moot court preparation, and student community engagement.",
-    builtWebsiteNotice: false,
     fullBio: [
       "Donel Aganyo is a co-founder of LexVanguard Advocates LLP, serving as Advocacy Partner and Member Outreach & Engagement Lead.",
       "A passionate legal scholar and orator, Donel focuses on legal advocacy, public speaking, student community building, and moot court preparation.",
@@ -132,7 +128,7 @@ export default function FounderDetailPage() {
 
       {/* Hero Header */}
       <div className="bg-black text-white pt-28 sm:pt-36 pb-12 px-4 sm:px-8 border-b-4 border-yellow-500">
-        <div className="max-w-5xl mx-auto space-y-4">
+        <div className="w-[90vw] max-w-[90vw] mx-auto space-y-4">
           <Link
             href="/history"
             className="inline-flex items-center gap-2 text-xs text-yellow-500 font-bold uppercase tracking-widest hover:text-white transition-colors"
@@ -154,13 +150,13 @@ export default function FounderDetailPage() {
         </div>
       </div>
 
-      <main className="max-w-5xl mx-auto px-4 sm:px-8 py-12 sm:py-16 space-y-12 flex-1 w-full text-left">
-        {/* Profile Card & Overview */}
-        <div className="flex flex-col md:flex-row gap-8 items-start bg-gray-50 p-6 sm:p-10 border border-gray-200">
+      <main className="w-[90vw] max-w-[90vw] mx-auto px-2 sm:px-6 py-12 sm:py-16 space-y-12 flex-1 text-left">
+        {/* Profile Card & Overview (No heavy borders, Square Image) */}
+        <div className="flex flex-col md:flex-row gap-8 items-start bg-gray-50/60 p-6 sm:p-10">
           <img
             src={founder.image}
             alt={founder.name}
-            className="w-full md:w-72 h-80 object-cover border-2 border-black shrink-0"
+            className="w-full md:w-72 h-72 aspect-square object-cover shrink-0"
           />
 
           <div className="space-y-4 flex-1">
@@ -168,17 +164,6 @@ export default function FounderDetailPage() {
             <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200 pb-3">
               {founder.subtitle}
             </p>
-
-            {founder.builtWebsiteNotice && (
-              <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 text-xs text-black font-semibold space-y-1">
-                <p className="font-extrabold uppercase tracking-wider text-yellow-700 flex items-center gap-1.5">
-                  <Code className="w-4 h-4 text-yellow-600" /> Digital Architect & Builder Notice
-                </p>
-                <p className="leading-relaxed">
-                  Prince Micah planned, architected, designed, and built this entire website (<strong>lexvanguard.xyz</strong>) from the ground up to establish LexVanguard's official digital legal portal.
-                </p>
-              </div>
-            )}
 
             <p className="text-sm text-gray-700 leading-relaxed font-medium">
               {founder.summary}
@@ -219,7 +204,7 @@ export default function FounderDetailPage() {
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs sm:text-sm text-gray-800">
             {founder.keyMilestones.map((item, idx) => (
-              <div key={idx} className="flex items-start gap-2.5 bg-gray-50 p-3.5 border border-gray-200">
+              <div key={idx} className="flex items-start gap-2.5 bg-gray-50 p-3.5 border border-gray-100">
                 <CheckCircle2 className="w-4 h-4 text-yellow-600 shrink-0 mt-0.5" />
                 <span className="font-medium">{item}</span>
               </div>
@@ -234,7 +219,7 @@ export default function FounderDetailPage() {
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs sm:text-sm text-gray-800">
             {founder.contributions.map((item, idx) => (
-              <div key={idx} className="flex items-start gap-2.5 bg-gray-50 p-3.5 border border-gray-200">
+              <div key={idx} className="flex items-start gap-2.5 bg-gray-50 p-3.5 border border-gray-100">
                 <div className="w-2 h-2 bg-yellow-500 shrink-0 mt-1.5" />
                 <span className="font-medium">{item}</span>
               </div>

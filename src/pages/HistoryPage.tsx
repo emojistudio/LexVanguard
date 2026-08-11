@@ -3,7 +3,7 @@ import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 import { Link } from "wouter";
 import { SITE_KEYWORDS } from "@/lib/seo-data";
-import { ArrowRight, Code, Compass, Users, Award, Shield, BookOpen, Scale, Sparkles, HeartHandshake } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 export default function HistoryPage() {
   return (
@@ -32,11 +32,11 @@ export default function HistoryPage() {
         <span className="text-yellow-500 font-mono text-xs uppercase tracking-[0.3em] font-bold block mb-2">
           Origin & Institutional Evolution
         </span>
-        <h1 className="text-3xl sm:text-5xl font-extrabold text-white uppercase tracking-wider font-serif max-w-4xl mx-auto leading-tight">
+        <h1 className="text-3xl sm:text-5xl font-extrabold text-white uppercase tracking-wider font-serif w-[90vw] max-w-[90vw] mx-auto leading-tight">
           The History of LexVanguard LLP
         </h1>
         <div className="h-1 w-16 bg-yellow-500 mx-auto mt-4 mb-4" />
-        <p className="text-gray-300 max-w-3xl mx-auto text-xs sm:text-base leading-relaxed">
+        <p className="text-gray-300 w-[90vw] max-w-[90vw] mx-auto text-xs sm:text-base leading-relaxed">
           From an Idea to a Growing Legal Community — September 2025 to the Future.
         </p>
       </div>
@@ -52,7 +52,7 @@ export default function HistoryPage() {
               The Initial Architects
             </h2>
             <div className="h-1 w-12 bg-black mx-auto mt-3 mb-4" />
-            <p className="text-gray-700 leading-relaxed text-xs sm:text-base max-w-4xl mx-auto">
+            <p className="text-gray-700 leading-relaxed text-xs sm:text-base w-full mx-auto">
               The establishment of LexVanguard was spearheaded in <strong className="text-black">September 2025</strong> by three law scholars who brought complementary strengths to a common vision. The founders started the idea — the community made it real. Select a founder below to read their full dedicated story.
             </p>
           </div>
@@ -61,12 +61,12 @@ export default function HistoryPage() {
           <div className="flex flex-col lg:flex-row gap-6 items-stretch justify-center w-full text-left">
             
             {/* PRINCE MICAH SUMMARY CARD */}
-            <div className="flex-1 bg-white border-2 border-black p-6 sm:p-8 flex flex-col justify-between hover:border-yellow-500 transition-colors shadow-xs group">
+            <div className="flex-1 bg-white border border-gray-200 p-6 sm:p-8 flex flex-col justify-between hover:border-yellow-500 transition-colors shadow-xs group">
               <div className="space-y-4">
                 <img
                   src="/images/profiles/prince.jpeg"
                   alt="Prince Micah"
-                  className="w-full h-60 object-cover border border-gray-200"
+                  className="w-full aspect-square object-cover"
                 />
                 <div>
                   <span className="text-[10px] font-mono text-yellow-600 font-bold uppercase tracking-widest block">Co-Founder</span>
@@ -77,11 +77,8 @@ export default function HistoryPage() {
                     Technology & Innovation Lead
                   </p>
                 </div>
-                <div className="bg-yellow-50 border-l-2 border-yellow-500 p-2.5 text-[11px] font-semibold text-black leading-snug">
-                  Planned, architected, designed, and built this entire website (<strong>lexvanguard.xyz</strong>) from the ground up.
-                </div>
                 <p className="text-xs text-gray-600 leading-relaxed">
-                  Law scholar & software engineer driving legal technology, digital security, AI research tools, and technological innovation.
+                  Law scholar and software engineer who led the digital architecture and web development of the LexVanguard platform (lexvanguard.xyz), driving legal tech, digital security, and AI research tools.
                 </p>
               </div>
               <div className="pt-6">
@@ -95,12 +92,12 @@ export default function HistoryPage() {
             </div>
 
             {/* KELVIN MUSYA SUMMARY CARD */}
-            <div className="flex-1 bg-white border-2 border-black p-6 sm:p-8 flex flex-col justify-between hover:border-yellow-500 transition-colors shadow-xs group">
+            <div className="flex-1 bg-white border border-gray-200 p-6 sm:p-8 flex flex-col justify-between hover:border-yellow-500 transition-colors shadow-xs group">
               <div className="space-y-4">
                 <img
                   src="/images/profiles/kelvin.jpeg"
                   alt="Kelvin Musya"
-                  className="w-full h-60 object-cover border border-gray-200"
+                  className="w-full aspect-square object-cover"
                 />
                 <div>
                   <span className="text-[10px] font-mono text-yellow-600 font-bold uppercase tracking-widest block">Co-Founder</span>
@@ -126,12 +123,12 @@ export default function HistoryPage() {
             </div>
 
             {/* DONEL AGANYO SUMMARY CARD */}
-            <div className="flex-1 bg-white border-2 border-black p-6 sm:p-8 flex flex-col justify-between hover:border-yellow-500 transition-colors shadow-xs group">
+            <div className="flex-1 bg-white border border-gray-200 p-6 sm:p-8 flex flex-col justify-between hover:border-yellow-500 transition-colors shadow-xs group">
               <div className="space-y-4">
                 <img
                   src="/images/profiles/don.jpeg"
                   alt="Donel Aganyo"
-                  className="w-full h-60 object-cover border border-gray-200"
+                  className="w-full aspect-square object-cover"
                 />
                 <div>
                   <span className="text-[10px] font-mono text-yellow-600 font-bold uppercase tracking-widest block">Co-Founder</span>
@@ -160,8 +157,8 @@ export default function HistoryPage() {
         </div>
       </div>
 
-      {/* NARRATIVE SECTION I: FROM AN IDEA TO A GROWING COMMUNITY */}
-      <div className="w-full max-w-4xl mx-auto px-6 sm:px-10 py-16 space-y-12 text-left">
+      {/* NARRATIVE SECTION I: FROM AN IDEA TO A GROWING COMMUNITY (90% VIEWPORT WIDTH) */}
+      <div className="w-[90vw] max-w-[90vw] mx-auto py-16 space-y-12 text-left">
         <div className="space-y-4">
           <span className="text-yellow-600 font-mono text-xs font-bold uppercase tracking-widest block">
             Chapter I — September 2025
@@ -211,7 +208,7 @@ export default function HistoryPage() {
 
         {/* NARRATIVE SECTION III: THE FOUNDING VISION */}
         <div className="space-y-4 pt-8 border-t border-gray-200">
-          <span className="text-yellow-600 font-mono text-xs font-bold uppercase tracking-widest block">
+          <span className="text-yellow-600 font-mono text-xs font-bold uppercase tracking-tight">
             Chapter III — The Collective Ideology
           </span>
           <h2 className="text-2xl sm:text-3xl font-extrabold text-black uppercase font-serif tracking-tight">
@@ -221,7 +218,7 @@ export default function HistoryPage() {
             The establishment of LexVanguard was spearheaded by <strong className="text-black">Prince Micah, Kelvin Musya and Donel Aganyo</strong>, three law students who brought different strengths to a common vision.
           </p>
           <p className="text-gray-700 leading-relaxed text-sm sm:text-base">
-            Prince contributed a strong technological and innovative perspective (planning, architecting, and building this website), Kelvin provided strategic and organisational leadership, while Donel brought advocacy, outreach and member engagement.
+            Prince contributed a strong technological and innovative perspective (leading digital architecture and web engineering), Kelvin provided strategic and organisational leadership, while Donel brought advocacy, outreach and member engagement.
           </p>
           <p className="text-gray-700 leading-relaxed text-sm sm:text-base">
             However, the founders never represented the entirety of the LexVanguard idea. They were its <strong className="text-black">initial architects</strong>, but the organisation's identity was shaped by everyone who subsequently joined, contributed, participated, encouraged, financed, challenged and supported it.
