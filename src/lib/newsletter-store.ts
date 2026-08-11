@@ -1,5 +1,6 @@
-import { collection, doc, setDoc, getDocs, addDoc, query, orderBy, serverTimestamp } from "firebase/firestore";
+import { collection, doc, setDoc, getDocs, addDoc } from "firebase/firestore";
 import { db } from "./firebase";
+import { renderNewsletterEditionEmailHtml } from "./email-templates";
 
 export interface NewsletterSubscriber {
   id?: string;
@@ -63,7 +64,7 @@ export async function subscribeNewsletter(email: string, name?: string): Promise
 
   return {
     success: true,
-    message: `Thank you for subscribing to LexVanguard Legal Insights! A confirmation email has been sent to ${cleanEmail}.`
+    message: `Thank you for subscribing to the LexVanguard Legal Gazette! A confirmation email has been sent.`
   };
 }
 
@@ -106,16 +107,15 @@ export async function sendNewsletterBroadcast({
   const recipientEmails = subscribers.map((s) => s.email);
 
   if (recipientEmails.length === 0) {
-    // Add default fallback admin / firm email if no subscribers yet
     recipientEmails.push("infolexvanguardfirm@gmail.com");
   }
 
   const payload = {
     title,
-    subject,
+    subject: subject || title,
     content,
     authorName,
-    recipientEmails
+    targetEmails: recipientEmails
   };
 
   let emailDispatched = false;
@@ -131,9 +131,8 @@ export async function sendNewsletterBroadcast({
     const data = await res.json().catch(() => ({}));
     if (res.ok && data.success) {
       emailDispatched = true;
-      sentCount = data.count || recipientEmails.length;
+      sentCount = data.delivered || recipientEmails.length;
     } else {
-      // Client-side direct Resend broadcast fallback
       emailDispatched = await sendNewsletterViaResendDirectly(payload);
     }
   } catch (err) {
@@ -141,7 +140,7 @@ export async function sendNewsletterBroadcast({
       emailDispatched = await sendNewsletterViaResendDirectly(payload);
     } catch (fbErr: any) {
       console.warn("Direct newsletter send fallback notice:", fbErr);
-      emailDispatched = true; // Record generated in db
+      emailDispatched = true;
     }
   }
 
@@ -150,7 +149,7 @@ export async function sendNewsletterBroadcast({
     try {
       await addDoc(collection(db, "newsletters"), {
         title,
-        subject,
+        subject: subject || title,
         content,
         authorName,
         createdAt: new Date().toISOString(),
@@ -162,71 +161,46 @@ export async function sendNewsletterBroadcast({
   return {
     success: true,
     count: sentCount,
-    message: `Newsletter "${title}" published and dispatched via Resend to ${sentCount} subscribers!`
+    message: `Newsletter "${title}" published and dispatched to ${sentCount} subscribers!`
   };
 }
 
 async function sendNewsletterViaResendDirectly({
   title,
-  subject,
   content,
-  authorName,
-  recipientEmails
+  targetEmails
 }: {
   title: string;
-  subject: string;
   content: string;
-  authorName: string;
-  recipientEmails: string[];
+  targetEmails: string[];
 }): Promise<boolean> {
   const apiKey = import.meta.env.VITE_RESEND_API_KEY || "";
   if (!apiKey) return false;
 
-  const htmlContent = `
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body style="margin:0; padding:0; background-color:#0A0A0A; font-family:'Segoe UI', Arial, sans-serif; color:#E5E5E5;">
-<table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#0A0A0A; padding:40px 10px;">
-  <tr>
-    <td align="center">
-      <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:680px; background-color:#141414; border-radius:12px; border:1px solid #262626; overflow:hidden;">
-        <tr>
-          <td style="background-color:#000000; padding:35px 40px; border-b:1px solid #262626;">
-            <div style="font-size:24px; font-weight:800; letter-spacing:1px; color:#FFFFFF; text-transform:uppercase;">
-              Lex <span style="color:#F59E0B;">Vanguard</span> Gazette
-            </div>
-            <div style="font-size:11px; color:#A3A3A3; margin-top:6px; letter-spacing:1px; text-transform:uppercase;">
-              Legal Dispatch &bull; Published by ${authorName} &bull; LexVanguard Advocates LLP
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td style="padding:40px; line-height:1.8; font-size:15px; color:#D4D4D4;">
-            <h1 style="font-size:22px; font-weight:700; color:#FFFFFF; margin-top:0; margin-bottom:16px;">
-              ${title}
-            </h1>
-            <div style="white-space:pre-wrap; color:#D4D4D4; line-height:1.8;">
-              ${content}
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td style="padding:25px 40px; background-color:#0A0A0A; border-top:1px solid #262626; font-size:12px; color:#737373;">
-            <p style="margin:0;">LexVanguard Advocates LLP &bull; Mount Kenya University Parklands Law Campus (MKUPLC)</p>
-            <p style="margin:4px 0 0 0;">Contact: <a href="mailto:infolexvanguardfirm@gmail.com" style="color:#F59E0B; text-decoration:none;">infolexvanguardfirm@gmail.com</a></p>
-          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-</body>
-</html>
-`;
+  const htmlContent = renderNewsletterEditionEmailHtml({
+    title,
+    category: "Gazette Edition",
+    contentHtml: content
+  });
 
-  return false;
+  try {
+    for (const email of targetEmails) {
+      await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${apiKey}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          from: "LexVanguard Gazette <onboarding@resend.dev>",
+          to: [email],
+          subject: `${title} — LexVanguard Legal Gazette`,
+          html: htmlContent
+        })
+      });
+    }
+    return true;
+  } catch {
+    return false;
+  }
 }

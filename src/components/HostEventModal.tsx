@@ -17,7 +17,7 @@ export function HostEventModal({ onClose, onCreated }: HostEventModalProps) {
   const [category, setCategory] = useState<FirmEvent["category"]>("Symposium");
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
-  const [location, setLocation] = useState("Lex Vanguard Chambers Auditorium & Virtual Stream");
+  const [location, setLocation] = useState("LexVanguard LLP Auditorium & Virtual Stream");
   const [isVirtual, setIsVirtual] = useState(false);
   const [cpdCredits, setCpdCredits] = useState("3.0 LSK CPD Units");
   const [capacity, setCapacity] = useState(200);
@@ -50,7 +50,7 @@ export function HostEventModal({ onClose, onCreated }: HostEventModalProps) {
       isVirtual,
       featured: false,
       image,
-      description: description || "Join Lex Vanguard for an exclusive leadership and legal symposium.",
+      description: description || "Join LexVanguard for an exclusive leadership and legal symposium.",
       fullDetails: fullDetails || description,
       cpdCredits,
       speakers: [hostSpeaker],

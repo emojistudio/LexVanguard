@@ -705,8 +705,8 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
 
         {/* 1. CASES VIEW */}
         {activeTab === 'cases' && (
-          <div className="h-full flex flex-col p-6 overflow-y-auto">
-            <div className="max-w-6xl mx-auto w-full">
+          <div className="h-full flex flex-col p-4 sm:p-6 overflow-y-auto">
+            <div className="w-full max-w-full px-2 sm:px-4">
               <div className="flex items-center justify-between mb-6">
                 <div>
                   <h2 className="text-xl font-bold text-zinc-900 tracking-tight">Active Cases</h2>
@@ -800,7 +800,7 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
                   </button>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                   {cases.map((c) => (
                     <div key={c.id} className="bg-white border border-zinc-200/80 rounded-2xl p-5 flex flex-col justify-between hover:border-blue-500/50 hover:shadow-md transition-all group">
                       <div>
@@ -843,8 +843,8 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
 
         {/* 2. eLEGAL SEARCH VIEW */}
         {activeTab === 'search' && (
-          <div className="h-full flex flex-col p-6 overflow-y-auto">
-            <div className="max-w-4xl mx-auto w-full space-y-6">
+          <div className="h-full flex flex-col p-4 sm:p-6 overflow-y-auto">
+            <div className="w-full max-w-full px-2 sm:px-4 space-y-6">
 
               {/* Search Box & Category Filters */}
               <div className="bg-white border border-zinc-200 rounded-2xl p-4 space-y-3 shadow-xs">
@@ -973,8 +973,8 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
 
         {/* 3. MATERIALS / DOCUMENTS VIEW WITH AI SUMMARIZER */}
         {activeTab === 'materials' && (
-          <div className="h-full flex flex-col p-6 overflow-y-auto">
-            <div className="max-w-5xl mx-auto w-full space-y-6">
+          <div className="h-full flex flex-col p-4 sm:p-6 overflow-y-auto">
+            <div className="w-full max-w-full px-2 sm:px-4 space-y-6">
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-xl font-bold text-zinc-900 tracking-tight">Materials & Evidence Library</h2>
@@ -1000,7 +1000,7 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
                   </button>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                   {mockDocuments.map((doc) => (
                     <div key={doc.id} className="bg-white border border-zinc-200 rounded-2xl p-4 flex flex-col justify-between gap-3 shadow-xs hover:border-blue-500/40 transition-all">
                       <div className="flex items-start gap-3 overflow-hidden">
@@ -1041,13 +1041,13 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
           <div className="h-full flex flex-col relative bg-[#fafafa]">
             
             {/* Scrollable Chat Message Area */}
-            <div ref={messagesContainerRef} className="flex-1 overflow-y-auto px-4 py-6 max-w-4xl mx-auto w-full space-y-5">
+            <div ref={messagesContainerRef} className="flex-1 overflow-y-auto px-4 sm:px-8 py-6 w-full max-w-full space-y-5">
               {chatMessages.map((msg, index) => (
                 <div key={index} className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
                   
                   {/* User Bubble */}
                   {msg.role === 'user' ? (
-                    <div className="max-w-[80%] bg-[#0071e3] text-white p-4 rounded-3xl rounded-tr-none text-xs font-medium leading-relaxed shadow-sm">
+                    <div className="max-w-[90%] bg-[#0071e3] text-white p-4 rounded-3xl rounded-tr-none text-xs font-medium leading-relaxed shadow-sm">
                       {msg.attachedMaterials && msg.attachedMaterials.length > 0 && (
                         <div className="flex flex-wrap gap-1 mb-2 border-b border-white/20 pb-2">
                           {msg.attachedMaterials.map((mat, i) => (
@@ -1061,7 +1061,7 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
                     </div>
                   ) : (
                     /* AI Bubble */
-                    <div className="max-w-[88%] bg-white border border-zinc-200/80 p-5 rounded-3xl rounded-tl-none text-xs text-zinc-800 font-medium leading-relaxed shadow-xs space-y-3">
+                    <div className="max-w-[95%] bg-white border border-zinc-200/80 p-5 rounded-3xl rounded-tl-none text-xs text-zinc-800 font-medium leading-relaxed shadow-xs space-y-3">
                       <div className="flex items-center justify-between border-b border-zinc-100 pb-2">
                         <div className="flex items-center gap-2">
                           <div className="w-5 h-5 rounded-full bg-[#1d1d1f] text-amber-300 flex items-center justify-center text-[10px]">
@@ -1105,7 +1105,7 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
 
             {/* Bottom Sticky Chat Input Bar */}
             <div className="p-4 bg-white/90 backdrop-blur-md border-t border-zinc-200/80 shrink-0">
-              <div className="max-w-4xl mx-auto w-full space-y-2">
+              <div className="w-full max-w-full px-2 sm:px-4 space-y-2">
                 
                 {/* Attached Materials Pills */}
                 {attachedDocs.length > 0 && (
@@ -1153,18 +1153,18 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
 
         {/* 5. DRAFTING VIEW (Groq Llama-3.3-70B 5,000-Word Engine + Controls) */}
         {activeTab === 'drafting' && (
-          <div className="h-full flex flex-col p-6 overflow-y-auto">
-            <div className="max-w-6xl mx-auto w-full space-y-6">
+          <div className="h-full flex flex-col p-4 sm:p-6 overflow-y-auto">
+            <div className="w-full max-w-full px-2 sm:px-4 space-y-6">
               
               {/* Simple Minimalist Section Header */}
               <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
                 <h2 className="text-lg font-bold text-zinc-900 tracking-tight">Legal Document Drafter</h2>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full">
                 
-                {/* Left Controls & Inputs (5 Cols) */}
-                <div className="lg:col-span-5 bg-white border border-zinc-200 rounded-2xl p-5 space-y-4 shadow-xs">
+                {/* Left Controls & Inputs (4 Cols) */}
+                <div className="lg:col-span-4 bg-white border border-zinc-200 rounded-2xl p-5 space-y-4 shadow-xs">
                   <h3 className="text-sm font-bold text-zinc-900 border-b border-zinc-100 pb-2">Drafting Specifications</h3>
                   
                   <div>
@@ -1246,8 +1246,8 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
                   </button>
                 </div>
 
-                {/* Right Output Viewer (7 Cols) */}
-                <div className="lg:col-span-7 bg-white border border-zinc-200 rounded-2xl p-5 space-y-3 shadow-xs flex flex-col min-h-[500px]">
+                {/* Right Output Viewer (8 Cols) */}
+                <div className="lg:col-span-8 bg-white border border-zinc-200 rounded-2xl p-5 space-y-3 shadow-xs flex flex-col min-h-[500px]">
                   <div className="flex items-center justify-between border-b border-zinc-100 pb-2">
                     <div>
                       <h3 className="text-sm font-bold text-zinc-900">Generated Legal Submission</h3>

@@ -4,6 +4,7 @@ try {
 } catch {}
 
 import { Resend } from "resend";
+import { renderNewsletterEditionEmailHtml } from "../src/lib/email-templates";
 
 export default async function handler(req: any, res: any) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -14,7 +15,7 @@ export default async function handler(req: any, res: any) {
   if (req.method !== "POST") return res.status(405).json({ success: false, error: "Method not allowed. Use POST." });
 
   try {
-    const { title, content, targetEmails } = req.body || {};
+    const { title, category, issueNumber, content, targetEmails } = req.body || {};
     if (!title || !content) {
       return res.status(400).json({ success: false, error: "Title and content are required." });
     }
@@ -25,17 +26,37 @@ export default async function handler(req: any, res: any) {
     let successCount = 0;
     if (apiKey && Array.isArray(targetEmails) && targetEmails.length > 0) {
       const resend = new Resend(apiKey);
+      const htmlContent = renderNewsletterEditionEmailHtml({
+        title,
+        category: category || "Gazette Edition",
+        issueNumber,
+        contentHtml: content
+      });
+
+      const sender = "LexVanguard Gazette <onboarding@lexvanguard.xyz>";
+
       for (const email of targetEmails) {
         try {
           const r = await resend.emails.send({
-            from: "Lex Vanguard Gazette <onboarding@lexvanguard.xyz>",
+            from: sender,
             to: [email],
-            subject: title,
-            html: `<div style="font-family: serif; padding: 25px;"><h1>${title}</h1><div>${content}</div></div>`
+            subject: `${title} — LexVanguard Legal Gazette`,
+            html: htmlContent
           });
           if (r.data?.id) successCount++;
         } catch (e) {
-          console.warn("Newsletter dispatch failed for", email, e);
+          // Fallback to resend.dev if custom domain is unverified
+          try {
+            const fallbackRes = await resend.emails.send({
+              from: "LexVanguard Gazette <onboarding@resend.dev>",
+              to: [email],
+              subject: `${title} — LexVanguard Legal Gazette`,
+              html: htmlContent
+            });
+            if (fallbackRes.data?.id) successCount++;
+          } catch (err2) {
+            console.warn("Newsletter dispatch failed for recipient:", email, err2);
+          }
         }
       }
     }

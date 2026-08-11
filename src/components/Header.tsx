@@ -30,7 +30,7 @@ export default function Header() {
         <div className="w-1.5 h-10 bg-[#ffc107] group-hover:bg-yellow-400 transition-colors" />
         <div className="flex flex-col">
           <span className="font-extrabold text-lg sm:text-xl md:text-2xl tracking-wider uppercase font-serif text-white group-hover:text-[#ffc107] transition-colors leading-none">
-            LEX VANGUARD
+            LEXVANGUARD
           </span>
           <span className="text-[10px] sm:text-xs text-gray-400 uppercase tracking-widest font-sans mt-0.5">
             Counsels at Law

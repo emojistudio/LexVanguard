@@ -32,7 +32,7 @@ export default async function handler(req: any, res: any) {
       try {
         const resend = new Resend(apiKey);
         await resend.emails.send({
-          from: "Lex Vanguard Inquiry <onboarding@resend.dev>",
+          from: "LexVanguard LLP Inquiry <onboarding@resend.dev>",
           to: ["emojistudio254@gmail.com", "infolexvanguardfirm@gmail.com"],
           subject: `[Legal Inquiry] ${subject || practiceArea} — ${name}`,
           html: `

@@ -280,111 +280,19 @@ Sitemap: ${baseUrl}/sitemap.xml`;
       const senderName = invitedBy || "Prince Micah";
       const senderEmail = invitedByEmail || "infolexvanguardfirm@gmail.com";
 
-      const htmlContent = `
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body style="margin:0; padding:0; background-color:#f4f5f7; font-family:'Segoe UI', Arial, Helvetica, sans-serif; color:#222222;">
-<table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#f4f5f7; padding:40px 10px;">
-  <tr>
-    <td align="center">
-      <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:680px; background-color:#ffffff; border-radius:10px; overflow:hidden; border:1px solid #e6e6e6; box-shadow:0 12px 35px rgba(0,0,0,0.06);">
-        
-        <!-- HEADER -->
-        <tr>
-          <td style="background-color:#0A1F44; padding:45px 40px; color:#ffffff;">
-            <div style="font-size:28px; font-weight:700; letter-spacing:0.8px; color:#ffffff; font-family:'Georgia', serif;">
-              Lex <span style="color:#C9A55C;">Vanguard</span> Chambers
-            </div>
-            <div style="margin-top:10px; font-size:13px; color:#d9d9d9; letter-spacing:0.5px; text-transform:uppercase;">
-              Excellence in Advocacy &bull; Integrity in Service &bull; Innovation in Practice
-            </div>
-          </td>
-        </tr>
-
-        <!-- CONTENT -->
-        <tr>
-          <td style="padding:45px 40px; line-height:1.8; font-size:15px; color:#333333;">
-            <p style="margin:0 0 20px; font-size:17px; color:#0A1F44; font-weight:600;">
-              Dear <strong>${inviteeName}</strong>,
-            </p>
-
-            <p style="margin:0 0 20px;">
-              On behalf of <strong style="color:#0A1F44;">Lex Vanguard Chambers</strong>, we are pleased to extend this formal invitation for you to join the Firm as <strong>Counsel</strong>.
-            </p>
-
-            <p style="margin:0 0 20px;">
-              This invitation has been issued by <strong>${senderName}</strong> (<a href="mailto:${senderEmail}" style="color:#0A1F44; text-decoration:none;">${senderEmail}</a>) following your nomination to become a member of our Chambers. We are confident that your admission will contribute to the continued pursuit of legal excellence, professional integrity, and innovation that define our practice.
-            </p>
-
-            <!-- INVITATION BOX -->
-            <div style="margin:30px 0; padding:28px; background-color:#fafafa; border-left:4px solid #C9A55C; border-radius:4px;">
-              <p style="margin:0 0 14px; font-weight:600; color:#0A1F44;">
-                To complete your onboarding, activate your account using the secure button below. During registration you will:
-              </p>
-
-              <ul style="margin:0 0 25px; padding-left:20px; line-height:2; color:#444444;">
-                <li>Verify your professional details</li>
-                <li>Create a secure password</li>
-                <li>Establish your Counsel Office</li>
-                <li>Gain access to the Lex Vanguard Chambers platform</li>
-              </ul>
-
-              <div style="text-align:left; margin:25px 0 15px 0;">
-                <a href="${inviteUrl}" target="_blank" style="background-color:#0A1F44; color:#ffffff; text-decoration:none; padding:15px 32px; border-radius:6px; font-weight:700; font-size:14px; display:inline-block; letter-spacing:0.5px; box-shadow:0 4px 12px rgba(10,31,68,0.2);">
-                  Activate Your Counsel Account
-                </a>
-              </div>
-
-              <p style="margin:15px 0 0 0; font-size:12px; color:#777777; word-break:break-all;">
-                If the button above does not work, copy and paste the invitation URL into your browser:<br>
-                <a href="${inviteUrl}" style="color:#0A1F44;">${inviteUrl}</a>
-              </p>
-            </div>
-
-            <p style="margin:0 0 20px;">
-              Upon successful registration, you will receive immediate access to your dedicated digital workspace, including case management, secure collaboration tools, legal resources, internal communications, and firm-wide administrative services.
-            </p>
-
-            <div style="height:1px; background-color:#ececec; margin:30px 0;"></div>
-
-            <p style="margin:0; font-size:12px; color:#777777; line-height:1.6;">
-              For your security, this invitation is confidential and intended solely for the recipient named above. Please do not forward or share this email. If you believe you have received this invitation in error, kindly disregard it and notify the sender.
-            </p>
-          </td>
-        </tr>
-
-        <!-- FOOTER -->
-        <tr>
-          <td style="padding:30px 40px; background-color:#fafafa; border-top:1px solid #ececec;">
-            <div style="font-size:14px; line-height:1.7; color:#333333;">
-              Kind regards,<br><br>
-              <strong style="color:#0A1F44; font-size:15px;">Lex Vanguard Chambers Administration</strong>
-            </div>
-
-            <div style="margin-top:20px; font-size:12px; color:#888888; font-style:italic; letter-spacing:0.4px;">
-              Excellence in Advocacy &bull; Integrity in Service &bull; Innovation in Practice
-            </div>
-          </td>
-        </tr>
-
-      </table>
-    </td>
-  </tr>
-</table>
-</body>
-</html>
- `;
+      const htmlContent = renderInvitationEmailHtml({
+        recipientName: inviteeName,
+        role: "Counsel",
+        invitedBy: senderName,
+        inviteUrl
+      });
 
       // Senders to try in order
       const senders = [
-        "Lex Vanguard Chambers <onboarding@lexvanguard.xyz>",
-        "Lex Vanguard Chambers <info@lexvanguard.xyz>",
-        "Lex Vanguard Chambers <chambers@lexvanguard.xyz>",
-        "Lex Vanguard Chambers <onboarding@resend.dev>"
+        "LexVanguard LLP <onboarding@lexvanguard.xyz>",
+        "LexVanguard LLP <info@lexvanguard.xyz>",
+        "LexVanguard LLP <chambers@lexvanguard.xyz>",
+        "LexVanguard LLP <onboarding@resend.dev>"
       ];
 
       let lastError: any = null;
@@ -393,7 +301,7 @@ Sitemap: ${baseUrl}/sitemap.xml`;
           const result = await resend.emails.send({
             from: sender,
             to: [inviteeEmail],
-            subject: "Official Invitation to Join Lex Vanguard Chambers as Counsel",
+            subject: "Official Appointment & Invitation to Join LexVanguard LLP",
             html: htmlContent,
           });
 
@@ -417,13 +325,13 @@ Sitemap: ${baseUrl}/sitemap.xml`;
       // Fallback: send copy to admin inbox
       try {
         const fallbackResult = await resend.emails.send({
-          from: "Lex Vanguard Chambers <onboarding@resend.dev>",
+          from: "LexVanguard LLP <onboarding@resend.dev>",
           to: ["emojistudio254@gmail.com", "infolexvanguardfirm@gmail.com"],
           subject: `[INVITATION FOR ${inviteeEmail}] Official Counsel Onboarding`,
           html: `
-            <div style="padding: 15px; background: #fffbeb; border: 1px solid #f59e0b; border-radius: 8px; margin-bottom: 20px; font-family: sans-serif;">
-              <p style="margin: 0; color: #b45309; font-weight: bold;">⚡ Invitation Notice</p>
-              <p style="margin: 5px 0 0 0; font-size: 13px; color: #78350f;">Invitation requested for <strong>${inviteeEmail}</strong>. Delivery confirmed to verified admin inbox.</p>
+            <div style="padding: 15px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; margin-bottom: 20px; font-family: sans-serif;">
+              <p style="margin: 0; color: #111827; font-weight: bold;">⚡ Invitation Notice</p>
+              <p style="margin: 5px 0 0 0; font-size: 13px; color: #4b5563;">Invitation requested for <strong>${inviteeEmail}</strong>. Delivery confirmed to verified admin inbox.</p>
             </div>
             ${htmlContent}
           `,
@@ -435,8 +343,6 @@ Sitemap: ${baseUrl}/sitemap.xml`;
             emailDispatched: true,
             recipient: "emojistudio254@gmail.com",
             inviteUrl,
-            message: `Invitation generated & delivered to verified admin inbox!`,
-            data: fallbackResult.data
           });
         }
       } catch (e: any) {
@@ -484,51 +390,11 @@ Sitemap: ${baseUrl}/sitemap.xml`;
         ? recipientEmails
         : ["emojistudio254@gmail.com", "infolexvanguardfirm@gmail.com"];
 
-      const htmlContent = `
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body style="margin:0; padding:0; background-color:#0A0A0A; font-family:'Segoe UI', Arial, sans-serif; color:#E5E5E5;">
-<table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#0A0A0A; padding:40px 10px;">
-  <tr>
-    <td align="center">
-      <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:680px; background-color:#141414; border-radius:12px; border:1px solid #262626; overflow:hidden;">
-        <tr>
-          <td style="background-color:#000000; padding:35px 40px; border-bottom:1px solid #262626;">
-            <div style="font-size:24px; font-weight:800; letter-spacing:1px; color:#FFFFFF; text-transform:uppercase;">
-              Lex <span style="color:#F59E0B;">Vanguard</span> Gazette
-            </div>
-            <div style="font-size:11px; color:#A3A3A3; margin-top:6px; letter-spacing:1px; text-transform:uppercase;">
-              Legal Dispatch &bull; Published by ${authorName || "LexVanguard Editorial Board"} &bull; LexVanguard Advocates LLP
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td style="padding:40px; line-height:1.8; font-size:15px; color:#D4D4D4;">
-            <h1 style="font-size:22px; font-weight:700; color:#FFFFFF; margin-top:0; margin-bottom:16px;">
-              ${title}
-            </h1>
-            <div style="white-space:pre-wrap; color:#D4D4D4; line-height:1.8;">
-              ${content}
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td style="padding:25px 40px; background-color:#0A0A0A; border-top:1px solid #262626; font-size:12px; color:#737373;">
-            <p style="margin:0;">LexVanguard Advocates LLP &bull; Mount Kenya University Parklands Law Campus (MKUPLC)</p>
-            <p style="margin:4px 0 0 0;">Contact: <a href="mailto:infolexvanguardfirm@gmail.com" style="color:#F59E0B; text-decoration:none;">infolexvanguardfirm@gmail.com</a></p>
-          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-</body>
-</html>
-`;
+      const htmlContent = renderNewsletterEditionEmailHtml({
+        title,
+        category: "Gazette Edition",
+        contentHtml: content
+      });
 
       let sendResult: any = null;
       let finalRecipients = rawTargets.slice(0, 50);

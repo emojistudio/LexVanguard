@@ -230,7 +230,7 @@ export function generateIcsCalendar(event: FirmEvent): string {
   const icsContent = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//Lex Vanguard Counsels at Law//Events Calendar//EN",
+    "PRODID:-//LexVanguard LLP//Events Calendar//EN",
     "BEGIN:VEVENT",
     `SUMMARY:${event.title}`,
     `DESCRIPTION:${event.description.replace(/\n/g, " ")}`,

@@ -4,6 +4,7 @@ try {
 } catch {}
 
 import { Resend } from "resend";
+import { renderNewsletterWelcomeEmailHtml } from "../src/lib/email-templates";
 
 export default async function handler(req: any, res: any) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -19,36 +20,38 @@ export default async function handler(req: any, res: any) {
       return res.status(400).json({ success: false, error: "A valid email address is required." });
     }
 
+    const cleanEmail = email.trim();
     const FALLBACK_KEY = "re_ZKf7" + "4MyS_2yh6pGkyPQp7QT9cS9HmDXPQ";
     const apiKey = process.env.RESEND_API_KEY || process.env.VITE_RESEND_API_KEY || FALLBACK_KEY;
 
     if (apiKey) {
-      try {
-        const resend = new Resend(apiKey);
-        await resend.emails.send({
-          from: "Lex Vanguard Gazette <onboarding@lexvanguard.xyz>",
-          to: [email.trim()],
-          subject: "Welcome to LexVanguard Legal Gazette & Intelligence Review",
-          html: `
-            <div style="font-family: serif; padding: 30px; background: #fafafa; color: #111;">
-              <h1 style="border-bottom: 2px solid #000; padding-bottom: 10px;">LEX VANGUARD GAZETTE</h1>
-              <p>Thank you for subscribing to the LexVanguard Legal Gazette & Intelligence Review.</p>
-              <p>You will receive our high-impact legal commentary, jurisprudence updates, and transactional intelligence directly in your inbox.</p>
-              <br/>
-              <p><strong>LexVanguard Advocates LLP</strong></p>
-            </div>
-          `
-        });
-      } catch (e) {
-        console.warn("[SUBSCRIBE NEWSLETTER] Email dispatch notice:", e);
+      const htmlContent = renderNewsletterWelcomeEmailHtml({ email: cleanEmail });
+      const senders = [
+        "LexVanguard Gazette <onboarding@lexvanguard.xyz>",
+        "LexVanguard Gazette <info@lexvanguard.xyz>",
+        "LexVanguard Gazette <onboarding@resend.dev>"
+      ];
+
+      for (const sender of senders) {
+        try {
+          const r = await resendSend(apiKey, sender, cleanEmail, "Welcome to the LexVanguard Legal Gazette & Intelligence Review", htmlContent);
+          if (r?.data?.id) break;
+        } catch (e) {
+          console.warn("[SUBSCRIBE NEWSLETTER] Email dispatch notice:", e);
+        }
       }
     }
 
     return res.status(200).json({
       success: true,
-      message: `Successfully subscribed ${email} to the LexVanguard Gazette.`
+      message: `Successfully subscribed ${cleanEmail} to the LexVanguard Gazette.`
     });
   } catch (err: any) {
     return res.status(500).json({ success: false, error: err?.message || "Server error" });
   }
+}
+
+async function resendSend(apiKey: string, from: string, to: string, subject: string, html: string) {
+  const resend = new Resend(apiKey);
+  return await resend.emails.send({ from, to: [to], subject, html });
 }
