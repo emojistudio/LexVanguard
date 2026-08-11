@@ -57,9 +57,6 @@ export default function EventsPage() {
 
   // Filter events
   const filteredEvents = events.filter((evt) => {
-    // Status filter
-    if (selectedStatus === "Upcoming" && evt.status === "Past Event") return false;
-    if (selectedStatus === "Past Event" && evt.status !== "Past Event") return false;
 
     // Category filter
     if (selectedCategory !== "All" && !evt.category.toLowerCase().includes(selectedCategory.toLowerCase())) {
@@ -298,31 +295,11 @@ export default function EventsPage() {
           )}
         </div>
 
-        {/* Filter Pills */}
-        <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setSelectedStatus("Upcoming")}
-              className={`px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer ${
-                selectedStatus === "Upcoming"
-                  ? "bg-black text-white border border-black shadow-xs"
-                  : "bg-white text-black hover:bg-neutral-100 border border-neutral-300"
-              }`}
-            >
-              Upcoming ({upcomingCount})
-            </button>
-
-            <button
-              onClick={() => setSelectedStatus("Past Event")}
-              className={`px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer ${
-                selectedStatus === "Past Event"
-                  ? "bg-black text-white border border-black shadow-xs"
-                  : "bg-white text-black hover:bg-neutral-100 border border-neutral-300"
-              }`}
-            >
-              Past ({pastCount})
-            </button>
-          </div>
+        {/* Search & Minimal Header */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
+          <span className="text-xs text-neutral-500 font-mono uppercase tracking-widest">
+            Showing All Scheduled Events & Symposia ({events.length})
+          </span>
 
           {/* Search Input */}
           <div className="relative min-w-[260px] w-full sm:w-auto">
@@ -331,7 +308,7 @@ export default function EventsPage() {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search events, speakers..."
+              placeholder="Search events, topics..."
               className="w-full bg-white border border-neutral-300 focus:border-black text-black pl-10 pr-4 py-2 rounded-full text-xs focus:outline-none shadow-xs"
             />
           </div>

@@ -306,55 +306,69 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Founders Leadership Teaser */}
+      {/* History Teaser (Retaining Founders content under History title, horizontal flex 90vw width on wide screens) */}
       <div className="py-16 sm:py-24 bg-black text-white w-full max-w-full overflow-x-hidden border-t-4 border-[#ffc107]">
-        <div className="w-full max-w-7xl mx-auto px-4 sm:px-10 lg:px-16 text-center">
+        <div className="w-[90vw] max-w-[90vw] mx-auto text-center">
           <span className="text-[#ffc107] uppercase tracking-[0.3em] text-xs font-bold font-mono block mb-2">
-            Founding Leadership
+            Origin & Leadership
           </span>
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 text-white uppercase tracking-wider font-serif">
-            The Founders of LexVanguard
+            History
           </h2>
           <div className="h-1 w-12 sm:w-16 bg-[#ffc107] mx-auto mb-10 sm:mb-14" />
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12 text-left">
+          {/* Horizontal flex layout spreading content to cover 90% of viewport width on wide screens */}
+          <div className="flex flex-col lg:flex-row gap-6 items-stretch justify-center mb-12 text-left w-full">
             {[
               {
+                slug: "prince",
                 name: "Prince Micah",
                 role: "Co-Founder | Technology & Innovation Lead",
-                desc: "Software engineer and legal tech architect behind LexVanguard's digital platform.",
+                desc: "Law scholar & software engineer who planned, architected, designed, and built this entire website (lexvanguard.xyz) from the ground up.",
                 img: "/images/profiles/prince.jpeg"
               },
               {
+                slug: "kelvin",
                 name: "Kelvin Musya",
                 role: "Co-Founder | Chief Strategist & Organising Director",
-                desc: "Strategic force behind firm structure, discipline, and execution.",
+                desc: "Architect of the unified-firm concept. Strategic force behind firm structure, discipline, and execution.",
                 img: "/images/profiles/kelvin.jpeg"
               },
               {
+                slug: "donel",
                 name: "Donel Aganyo",
                 role: "Co-Founder | Advocacy Partner & Outreach Lead",
-                desc: "Voice of member engagement, oral advocacy, and community building.",
+                desc: "Voice of member engagement, moot court preparation, oral advocacy, and community outreach.",
                 img: "/images/profiles/don.jpeg"
               }
             ].map((f, i) => (
-              <div key={i} className="bg-neutral-900 border border-neutral-800 p-6 space-y-4 rounded-xs">
-                <img src={f.img} alt={f.name} className="w-full h-64 object-cover border border-neutral-800" />
-                <div className="space-y-1">
-                  <h3 className="text-lg font-bold text-white uppercase font-serif">{f.name}</h3>
-                  <p className="text-xs text-[#ffc107] font-mono font-bold uppercase tracking-wider">{f.role}</p>
+              <Link
+                key={i}
+                href={`/founders/${f.slug}`}
+                className="flex-1 bg-neutral-900 border border-neutral-800 p-6 space-y-4 rounded-xs hover:border-[#ffc107] transition-all group flex flex-col justify-between cursor-pointer"
+              >
+                <div className="space-y-4">
+                  <img src={f.img} alt={f.name} className="w-full h-60 object-cover border border-neutral-800" />
+                  <div className="space-y-1">
+                    <h3 className="text-lg font-bold text-white uppercase font-serif group-hover:text-[#ffc107] transition-colors">{f.name}</h3>
+                    <p className="text-xs text-[#ffc107] font-mono font-bold uppercase tracking-wider">{f.role}</p>
+                  </div>
+                  <p className="text-xs text-gray-400 leading-relaxed">{f.desc}</p>
                 </div>
-                <p className="text-xs text-gray-400 leading-relaxed">{f.desc}</p>
-              </div>
+                <div className="pt-4 border-t border-neutral-800 text-[11px] font-bold uppercase tracking-wider text-[#ffc107] group-hover:text-white transition-colors flex items-center justify-between">
+                  <span>View Detailed Profile</span>
+                  <span>»</span>
+                </div>
+              </Link>
             ))}
           </div>
 
           <div>
             <Link
-              href="/founders"
+              href="/history"
               className="border-2 border-[#ffc107] text-[#ffc107] hover:bg-[#ffc107] hover:text-black px-8 py-3 font-extrabold text-xs sm:text-sm uppercase tracking-widest transition-colors inline-block"
             >
-              EXPLORE FOUNDERS' PORTFOLIO
+              EXPLORE OUR HISTORY
             </Link>
           </div>
         </div>

@@ -11,14 +11,11 @@ export default function Header() {
 
   const navLinks = [
     { label: "Our Firm", href: "/" },
-    { label: "Founders", href: "/founders" },
     { label: "Attorneys", href: "/attorneys" },
     { label: "Practice Areas", href: "/services" },
     { label: "History", href: "/history" },
     { label: "News and Events", href: "/events" },
-    { label: "Careers", href: "/careers" },
     { label: "Contact", href: "/contact" },
-    { label: "Research Desk", href: "/desk" },
   ];
 
   const handleLogout = async () => {

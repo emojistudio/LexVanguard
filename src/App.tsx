@@ -12,9 +12,8 @@ import HistoryPage from "@/pages/HistoryPage";
 import EventsPage from "@/pages/EventsPage";
 import PracticeAreasPage from "@/pages/PracticeAreasPage";
 import ResearchCoHelperPage from "@/pages/ResearchCoHelperPage";
-import CareersPage from "@/pages/CareersPage";
 import ContactPage from "@/pages/ContactPage";
-import FoundersPage from "@/pages/FoundersPage";
+import FounderDetailPage from "@/pages/FounderDetailPage";
 import UnderConstruction from "@/pages/UnderConstruction";
 import NotFound from "@/pages/not-found";
 
@@ -96,7 +95,8 @@ function Router() {
       <Switch>
         <Route path="/" component={HomePage} />
         <Route path="/attorneys" component={AttorneysPage} />
-        <Route path="/founders" component={FoundersPage} />
+        <Route path="/founders/:slug" component={FounderDetailPage} />
+        <Route path="/founders" component={HistoryPage} />
         <Route path="/attorneys/:slug" component={MemberProfilePage} />
         <Route path="/members/:slug" component={MemberProfilePage} />
         <Route path="/sitemap" component={SitemapPage} />
@@ -115,7 +115,6 @@ function Router() {
         <Route path="/services/:category" component={PracticeAreasPage} />
         <Route path="/practice-areas" component={PracticeAreasPage} />
         <Route path="/practice-areas/:category" component={PracticeAreasPage} />
-        <Route path="/careers" component={CareersPage} />
         <Route path="/contact" component={ContactPage} />
         <Route component={NotFound} />
       </Switch>
