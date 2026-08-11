@@ -30,7 +30,7 @@ const DEFAULT_KEYWORDS = [
   "Legal Research Co-Helper",
   "Appellate Advocacy Kenya"
 ];
-const DEFAULT_IMAGE = "https://lexvanguard.xyz/og-preview.png";
+const DEFAULT_IMAGE = "https://www.lexvanguard.xyz/og-preview.png";
 
 export function SEOHead({
   title,

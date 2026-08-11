@@ -130,9 +130,9 @@ export const ORGANIZATIONAL_SCHEMA = {
   "@type": "LegalService",
   "name": "LexVanguard Advocates LLP",
   "alternateName": ["LexVanguard Chambers", "MKUPLC Student Law Firm", "LexVanguard Youth in Law"],
-  "url": "https://lexvanguard.xyz",
-  "logo": "https://lexvanguard.xyz/brand-logo.svg",
-  "image": "https://lexvanguard.xyz/og-preview.png",
+  "url": "https://www.lexvanguard.xyz",
+  "logo": "https://www.lexvanguard.xyz/brand-logo.svg",
+  "image": "https://www.lexvanguard.xyz/og-preview.png",
   "description": "LexVanguard Advocates LLP is Kenya's premier student law firm, based at Mount Kenya University Parklands Law Campus (MKUPLC). Specializing in mooting, corporate law, appellate advocacy, tech law, and youth in law initiatives.",
   "address": {
     "@type": "PostalAddress",
@@ -152,19 +152,19 @@ export const ORGANIZATIONAL_SCHEMA = {
       "@type": "Person",
       "name": "Prince Micah",
       "jobTitle": "Founding Partner & Co-Owner (Managing Partner)",
-      "url": "https://lexvanguard.xyz/attorneys/prince-micah"
+      "url": "https://www.lexvanguard.xyz/attorneys/prince-micah"
     },
     {
       "@type": "Person",
       "name": "Kelvin Musya",
       "jobTitle": "Founding Partner & Co-Owner (Senior Partner)",
-      "url": "https://lexvanguard.xyz/attorneys/kelvin-musya"
+      "url": "https://www.lexvanguard.xyz/attorneys/kelvin-musya"
     },
     {
       "@type": "Person",
       "name": "Donel Aganyo",
       "jobTitle": "Founding Partner & Co-Owner (Head of IP)",
-      "url": "https://lexvanguard.xyz/attorneys/donel-aganyo"
+      "url": "https://www.lexvanguard.xyz/attorneys/donel-aganyo"
     }
   ],
   "knowsAbout": [
@@ -178,7 +178,7 @@ export const ORGANIZATIONAL_SCHEMA = {
   ],
   "sameAs": [
     "https://www.lexvanguard.xyz",
-    "https://lexvanguard.xyz",
+    "https://www.lexvanguard.xyz",
     "https://facebook.com/LexVanguardLLP",
     "https://twitter.com/LexVanguardLLP",
     "https://linkedin.com/company/lexvanguard-advocates-llp"
@@ -207,7 +207,7 @@ export function getMemberSchema(member: MemberSEO) {
       "name": "Mount Kenya University Parklands Law Campus (MKUPLC)"
     },
     "knowsAbout": member.skills,
-    "url": `https://lexvanguard.xyz/attorneys/${member.slug}`
+    "url": `https://www.lexvanguard.xyz/attorneys/${member.slug}`
   };
 }
 
