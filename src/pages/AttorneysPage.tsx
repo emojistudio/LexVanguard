@@ -401,12 +401,50 @@ export default function AttorneysPage() {
   const [showInviteModal, setShowInviteModal] = useState(false);
 
   const isFounder = firmUser && (firmUser.role.level >= 100 || ['prince', 'kelvin', 'donel'].includes(firmUser.officeId));
+
   useEffect(() => {
     const unsubscribe = subscribeFirestoreMembers((updated) => {
       setMembers(updated);
     });
     return () => unsubscribe();
   }, []);
+
+  // Hierarchy Sorting: Admin (1) -> Finance (2) -> Counsel (3)
+  const sortedMembers = [...members].sort((a, b) => {
+    const getPriority = (m: FirestoreMember) => {
+      const r = (m.role || "").toLowerCase().trim();
+      const t = (m.title || "").toLowerCase().trim();
+      const rk = (m.rank || "").toLowerCase().trim();
+
+      if (
+        r === "admin" ||
+        rk.includes("admin") ||
+        t.includes("managing partner") ||
+        t.includes("senior partner") ||
+        t.includes("co-founder") ||
+        t.includes("founding partner") ||
+        t.includes("chief strategist") ||
+        t.includes("admin")
+      ) {
+        return 1;
+      }
+      if (
+        r === "finance" ||
+        rk.includes("finance") ||
+        t.includes("finance") ||
+        t.includes("treasurer") ||
+        t.includes("financial")
+      ) {
+        return 2;
+      }
+      return 3;
+    };
+
+    const pA = getPriority(a);
+    const pB = getPriority(b);
+    if (pA !== pB) return pA - pB;
+    return (a.name || "").localeCompare(b.name || "");
+  });
 
   return (
     <div className="w-full max-w-full overflow-x-hidden bg-white">
@@ -487,7 +525,7 @@ export default function AttorneysPage() {
 
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-10 lg:px-16 pb-12 sm:pb-20">
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-8">
-          {members.map((m, idx) => (
+          {sortedMembers.map((m, idx) => (
             <AttorneyCard
               key={`${m.uid || 'member'}-${m.name}-${idx}`}
               member={m}

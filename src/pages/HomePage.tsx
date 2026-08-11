@@ -75,7 +75,7 @@ export default function HomePage() {
       <Header />
 
       {/* Hero Container with Slideshow */}
-      <div className="relative min-h-screen w-full max-w-full flex flex-col justify-between items-center overflow-hidden bg-gradient-to-b from-neutral-950 via-neutral-900 to-black">
+      <div className="relative h-[70vh] md:h-screen min-h-[70vh] md:min-h-screen w-full max-w-full flex flex-col justify-between items-center overflow-hidden bg-gradient-to-b from-neutral-950 via-neutral-900 to-black">
         <style>{`
           .slideshow-container {
             position: absolute;
@@ -122,7 +122,7 @@ export default function HomePage() {
         </div>
 
         {/* Main Content Area / Hero Spacer */}
-        <main className="flex-grow flex items-center justify-center relative z-10 w-full px-4 pointer-events-none min-h-[60vh]">
+        <main className="flex-grow flex items-center justify-center relative z-10 w-full px-4 pointer-events-none min-h-[35vh] md:min-h-[60vh]">
           {/* Central text removed as background images provide visual focus */}
         </main>
 
@@ -250,7 +250,7 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Attorneys / Members Teaser (Moved between Welcome & Core Philosophy) */}
+      {/* Attorneys / Members Teaser (Filtered for Admin & Finance) */}
       <div className="py-12 sm:py-20 bg-white w-full max-w-full overflow-x-hidden border-t border-gray-100">
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-10 lg:px-16 flex flex-col md:flex-row items-center justify-between gap-8">
           <div className="w-full md:w-2/3 pr-0 md:pr-8 text-center md:text-left">
@@ -265,7 +265,29 @@ export default function HomePage() {
           </div>
           <div className="w-full md:w-1/3">
             <div className="grid grid-cols-2 gap-2.5 sm:gap-3.5 w-full max-w-xs sm:max-w-none mx-auto">
-              {members.slice(0, 4).map((p, i) => (
+              {(
+                members.filter((m) => {
+                  const r = (m.role || "").toLowerCase().trim();
+                  const rk = (m.rank || "").toLowerCase().trim();
+                  const t = (m.title || "").toLowerCase().trim();
+                  return (
+                    r === "admin" ||
+                    r === "finance" ||
+                    rk.includes("admin") ||
+                    rk.includes("finance") ||
+                    rk.includes("managing partner") ||
+                    rk.includes("senior partner") ||
+                    t.includes("admin") ||
+                    t.includes("finance") ||
+                    t.includes("managing partner") ||
+                    t.includes("senior partner") ||
+                    t.includes("treasurer") ||
+                    t.includes("co-founder") ||
+                    t.includes("founding partner") ||
+                    t.includes("chief strategist")
+                  );
+                })
+              ).slice(0, 4).map((p, i) => (
                 <div key={i} className="relative group overflow-hidden border-2 border-yellow-500 shadow-sm rounded-xs">
                   <img
                     src={resolveProfileImage(p.name, p.profilePhoto || p.image)}
@@ -280,6 +302,60 @@ export default function HomePage() {
                 </div>
               ))}
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Founders Leadership Teaser */}
+      <div className="py-16 sm:py-24 bg-black text-white w-full max-w-full overflow-x-hidden border-t-4 border-[#ffc107]">
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-10 lg:px-16 text-center">
+          <span className="text-[#ffc107] uppercase tracking-[0.3em] text-xs font-bold font-mono block mb-2">
+            Founding Leadership
+          </span>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 text-white uppercase tracking-wider font-serif">
+            The Founders of LexVanguard
+          </h2>
+          <div className="h-1 w-12 sm:w-16 bg-[#ffc107] mx-auto mb-10 sm:mb-14" />
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12 text-left">
+            {[
+              {
+                name: "Prince Micah",
+                role: "Co-Founder | Technology & Innovation Lead",
+                desc: "Software engineer and legal tech architect behind LexVanguard's digital platform.",
+                img: "/images/profiles/prince.jpeg"
+              },
+              {
+                name: "Kelvin Musya",
+                role: "Co-Founder | Chief Strategist & Organising Director",
+                desc: "Strategic force behind firm structure, discipline, and execution.",
+                img: "/images/profiles/kelvin.jpeg"
+              },
+              {
+                name: "Donel Aganyo",
+                role: "Co-Founder | Advocacy Partner & Outreach Lead",
+                desc: "Voice of member engagement, oral advocacy, and community building.",
+                img: "/images/profiles/don.jpeg"
+              }
+            ].map((f, i) => (
+              <div key={i} className="bg-neutral-900 border border-neutral-800 p-6 space-y-4 rounded-xs">
+                <img src={f.img} alt={f.name} className="w-full h-64 object-cover border border-neutral-800" />
+                <div className="space-y-1">
+                  <h3 className="text-lg font-bold text-white uppercase font-serif">{f.name}</h3>
+                  <p className="text-xs text-[#ffc107] font-mono font-bold uppercase tracking-wider">{f.role}</p>
+                </div>
+                <p className="text-xs text-gray-400 leading-relaxed">{f.desc}</p>
+              </div>
+            ))}
+          </div>
+
+          <div>
+            <Link
+              href="/founders"
+              className="border-2 border-[#ffc107] text-[#ffc107] hover:bg-[#ffc107] hover:text-black px-8 py-3 font-extrabold text-xs sm:text-sm uppercase tracking-widest transition-colors inline-block"
+            >
+              EXPLORE FOUNDERS' PORTFOLIO
+            </Link>
           </div>
         </div>
       </div>

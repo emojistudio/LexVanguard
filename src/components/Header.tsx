@@ -11,6 +11,7 @@ export default function Header() {
 
   const navLinks = [
     { label: "Our Firm", href: "/" },
+    { label: "Founders", href: "/founders" },
     { label: "Attorneys", href: "/attorneys" },
     { label: "Practice Areas", href: "/services" },
     { label: "History", href: "/history" },

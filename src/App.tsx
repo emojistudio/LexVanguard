@@ -14,6 +14,7 @@ import PracticeAreasPage from "@/pages/PracticeAreasPage";
 import ResearchCoHelperPage from "@/pages/ResearchCoHelperPage";
 import CareersPage from "@/pages/CareersPage";
 import ContactPage from "@/pages/ContactPage";
+import FoundersPage from "@/pages/FoundersPage";
 import UnderConstruction from "@/pages/UnderConstruction";
 import NotFound from "@/pages/not-found";
 
@@ -95,6 +96,7 @@ function Router() {
       <Switch>
         <Route path="/" component={HomePage} />
         <Route path="/attorneys" component={AttorneysPage} />
+        <Route path="/founders" component={FoundersPage} />
         <Route path="/attorneys/:slug" component={MemberProfilePage} />
         <Route path="/members/:slug" component={MemberProfilePage} />
         <Route path="/sitemap" component={SitemapPage} />

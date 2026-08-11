@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Globe, MapPin, Phone, Mail, FileText, Instagram, Send, CheckCircle2 } from "lucide-react";
+import { Globe, MapPin, Phone, Mail, Instagram, Send, CheckCircle2 } from "lucide-react";
 import { Link } from "wouter";
 import RotatingPhoneDisplay from "@/components/RotatingPhoneDisplay";
 import { subscribeNewsletter } from "@/lib/newsletter-store";
@@ -136,15 +136,8 @@ export default function Footer() {
           </ul>
         </div>
       </div>
-      <div className="w-full px-2 sm:px-6 lg:px-10 mt-16 pt-8 border-t border-gray-800 text-xs text-gray-500 flex flex-col md:flex-row justify-between items-center">
+      <div className="w-full px-2 sm:px-6 lg:px-10 mt-16 pt-8 border-t border-gray-800 text-xs text-gray-500 text-center">
         <p>&copy; 2026 LexVanguard Advocates LLP. All rights reserved. Mount Kenya University Parklands Law Campus (MKUPLC).</p>
-        <div className="flex space-x-6 mt-4 md:mt-0 uppercase tracking-widest font-semibold">
-          <Link href="/sitemap" className="text-yellow-500 hover:text-white transition-colors flex items-center gap-1">
-            <FileText className="w-3.5 h-3.5" /> Visual Sitemap
-          </Link>
-          <a href="/sitemap.xml" target="_blank" className="hover:text-gray-300 transition-colors">XML Sitemap</a>
-          <a href="/robots.txt" target="_blank" className="hover:text-gray-300 transition-colors">Robots.txt</a>
-        </div>
       </div>
     </footer>
   );
