@@ -3,24 +3,17 @@ import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 import { Link } from "wouter";
 import { SITE_KEYWORDS } from "@/lib/seo-data";
-import { Code, Compass, Users, ArrowRight } from "lucide-react";
-
-const MILESTONES = [
-  { year: "Founded", title: "LexVanguard Established", desc: "LexVanguard was founded at Mount Kenya University Parklands Law Campus (MKUPLC) by Prince Micah, Kelvin Musya, and Donel Aganyo to bridge the gap between academic theory and real-world legal practice." },
-  { year: "Year 1", title: "First National Competition", desc: "Members attended their first national moot court competition, representing Mount Kenya University Parklands Law Campus with distinction and establishing the firm's competitive reputation on a national stage." },
-  { year: "Growth", title: "Expanding Membership", desc: "The firm grew to encompass a diverse tapestry of perspectives, backgrounds, and intellectual approaches — welcoming all who possess the visceral urge to see justice persevere." },
-  { year: "Today", title: "Recognized Excellence", desc: "Recognized as one of the most prestigious student-led law firms in Kenya, LexVanguard has amassed a collection of accolades that belie its relative youth." },
-  { year: "Vision", title: "World-Class Pillar of Justice", desc: "The firm's trajectory is set toward international recognition — standing shoulder to shoulder with the finest law firms and institutions globally." }
-];
+import { ArrowRight, Code, Compass, Users, Award, Shield, BookOpen, Scale, Sparkles, HeartHandshake } from "lucide-react";
 
 export default function HistoryPage() {
   return (
-    <div className="w-full bg-white text-black font-sans">
+    <div className="w-full bg-white text-black font-sans leading-relaxed">
       <SEOHead
-        title="Firm History & Founding Legacy | LexVanguard Advocates LLP"
-        description="The founding history and legacy of LexVanguard Advocates LLP at Mount Kenya University Parklands Law Campus (MKUPLC). Founded in September 2025 by Prince Micah, Kelvin Musya, and Donel Aganyo."
+        title="History of LexVanguard LLP — From an Idea to a Growing Legal Community"
+        description="The complete history and journey of LexVanguard LLP from September 2025 at Mount Kenya University Parklands Law Campus (MKUPLC). Built by founders Prince Micah, Kelvin Musya, Donel Aganyo, and a dedicated community of members."
         keywords={[
           "LexVanguard History",
+          "History of LexVanguard LLP",
           "LexVanguard Founders",
           "Prince Micah",
           "Kelvin Musya",
@@ -34,33 +27,33 @@ export default function HistoryPage() {
       />
       <Header />
 
-      {/* Page Hero */}
-      <div className="bg-black pt-32 sm:pt-40 pb-16 px-6 text-center border-b-4 border-yellow-500">
-        <span className="text-[#ffc107] font-mono text-xs uppercase tracking-[0.3em] font-bold block mb-2">
-          Origin & Evolution
+      {/* Hero Header */}
+      <div className="bg-black pt-32 sm:pt-40 pb-16 px-6 text-center border-b-4 border-yellow-500 text-white">
+        <span className="text-yellow-500 font-mono text-xs uppercase tracking-[0.3em] font-bold block mb-2">
+          Origin & Institutional Evolution
         </span>
-        <h1 className="text-3xl sm:text-5xl font-extrabold text-white uppercase tracking-wider font-serif">
-          History & Founding Portfolio
+        <h1 className="text-3xl sm:text-5xl font-extrabold text-white uppercase tracking-wider font-serif max-w-4xl mx-auto leading-tight">
+          The History of LexVanguard LLP
         </h1>
-        <div className="h-1 w-16 bg-yellow-500 mx-auto mt-4" />
-        <p className="text-gray-300 max-w-2xl mx-auto mt-4 text-xs sm:text-base leading-relaxed">
-          The founding journey, leadership pillars, and historical milestones of LexVanguard Advocates LLP at Mount Kenya University Parklands Law Campus.
+        <div className="h-1 w-16 bg-yellow-500 mx-auto mt-4 mb-4" />
+        <p className="text-gray-300 max-w-3xl mx-auto text-xs sm:text-base leading-relaxed">
+          From an Idea to a Growing Legal Community — September 2025 to the Future.
         </p>
       </div>
 
-      {/* TOP SECTION: FOUNDERS AS PART OF HISTORY (HORIZONTAL FLEX ON WIDE SCREENS - 90% VIEWPORT) */}
-      <div className="py-16 sm:py-20 bg-gray-50 border-b border-gray-200">
+      {/* TOP SECTION: FOUNDERS INTRODUCTIONS (HORIZONTAL FLEX ON WIDE SCREENS - 90% VIEWPORT WIDTH) */}
+      <div id="founders-section" className="py-16 sm:py-20 bg-gray-50 border-b border-gray-200">
         <div className="w-[90vw] max-w-[90vw] mx-auto space-y-10 text-center">
           <div>
             <span className="text-yellow-600 uppercase tracking-[0.25em] text-xs font-bold font-mono block mb-1">
-              Chapter I — September 2025
+              Founding Leadership Introductions
             </span>
             <h2 className="text-2xl sm:text-4xl font-extrabold text-black uppercase font-serif tracking-tight">
-              The Founding Chapter
+              The Initial Architects
             </h2>
             <div className="h-1 w-12 bg-black mx-auto mt-3 mb-4" />
             <p className="text-gray-700 leading-relaxed text-xs sm:text-base max-w-4xl mx-auto">
-              LexVanguard Advocates LLP was established at <strong className="text-black">Mount Kenya University Parklands Law Campus</strong> by three visionary law scholars: <strong className="text-black">Prince Micah, Kelvin Musya, and Donel Aganyo</strong>. They conceived LexVanguard as a disciplined platform for legal innovation, advocacy, and student leadership.
+              The establishment of LexVanguard was spearheaded in <strong className="text-black">September 2025</strong> by three law scholars who brought complementary strengths to a common vision. The founders started the idea — the community made it real. Select a founder below to read their full dedicated story.
             </p>
           </div>
 
@@ -88,7 +81,7 @@ export default function HistoryPage() {
                   Planned, architected, designed, and built this entire website (<strong>lexvanguard.xyz</strong>) from the ground up.
                 </div>
                 <p className="text-xs text-gray-600 leading-relaxed">
-                  Software engineer and legal tech architect positioning LexVanguard at the intersection of law, AI, data security, and emerging digital jurisprudence.
+                  Law scholar & software engineer driving legal technology, digital security, AI research tools, and technological innovation.
                 </p>
               </div>
               <div className="pt-6">
@@ -96,7 +89,7 @@ export default function HistoryPage() {
                   href="/founders/prince"
                   className="w-full bg-black text-white hover:bg-yellow-500 hover:text-black py-2.5 px-4 text-xs font-bold uppercase tracking-wider transition-colors inline-flex items-center justify-center gap-2"
                 >
-                  <span>View Full Profile</span> <ArrowRight className="w-3.5 h-3.5" />
+                  <span>Read Prince's Full Story</span> <ArrowRight className="w-3.5 h-3.5" />
                 </Link>
               </div>
             </div>
@@ -119,7 +112,7 @@ export default function HistoryPage() {
                   </p>
                 </div>
                 <p className="text-xs text-gray-600 leading-relaxed">
-                  Architect of the unified-firm concept. Drives strategic planning, organizational governance, discipline, partnership outreach, and institutional growth.
+                  Architect of the unified-firm concept. Strategic force behind institutional structure, discipline, partner governance, and execution.
                 </p>
               </div>
               <div className="pt-6">
@@ -127,7 +120,7 @@ export default function HistoryPage() {
                   href="/founders/kelvin"
                   className="w-full bg-black text-white hover:bg-yellow-500 hover:text-black py-2.5 px-4 text-xs font-bold uppercase tracking-wider transition-colors inline-flex items-center justify-center gap-2"
                 >
-                  <span>View Full Profile</span> <ArrowRight className="w-3.5 h-3.5" />
+                  <span>Read Kelvin's Full Story</span> <ArrowRight className="w-3.5 h-3.5" />
                 </Link>
               </div>
             </div>
@@ -150,7 +143,7 @@ export default function HistoryPage() {
                   </p>
                 </div>
                 <p className="text-xs text-gray-600 leading-relaxed">
-                  Voice of member engagement, moot court preparation, oral advocacy, legal writing forums, and youth-in-law community outreach.
+                  Voice of member engagement, oral advocacy drills, moot court preparation, legal debates, and youth-in-law community outreach.
                 </p>
               </div>
               <div className="pt-6">
@@ -158,7 +151,7 @@ export default function HistoryPage() {
                   href="/founders/donel"
                   className="w-full bg-black text-white hover:bg-yellow-500 hover:text-black py-2.5 px-4 text-xs font-bold uppercase tracking-wider transition-colors inline-flex items-center justify-center gap-2"
                 >
-                  <span>View Full Profile</span> <ArrowRight className="w-3.5 h-3.5" />
+                  <span>Read Donel's Full Story</span> <ArrowRight className="w-3.5 h-3.5" />
                 </Link>
               </div>
             </div>
@@ -167,58 +160,235 @@ export default function HistoryPage() {
         </div>
       </div>
 
-      {/* Narrative Story */}
-      <div className="w-full px-6 sm:px-10 lg:px-16 py-16 text-center bg-white">
-        <p className="text-yellow-600 uppercase tracking-[0.2em] text-xs font-bold mb-3">Our Story</p>
-        <h2 className="text-2xl sm:text-3xl font-extrabold text-black mb-6 uppercase tracking-wide font-serif">
-          From Vision to Reality
-        </h2>
-        <div className="max-w-5xl mx-auto space-y-6 text-left">
-          <p className="text-gray-700 leading-relaxed text-sm sm:text-base">
-            In the competitive landscape of legal education, where theory often meets the daunting threshold of practice, few organizations stand as beacons of excellence and opportunity. LexVanguard is one such institution. Recognized as one of the most prestigious student-led law firms at Mount Kenya University, its reputation extends across the country, marking it not merely as a university society, but as a formidable incubator for legal talent.
+      {/* NARRATIVE SECTION I: FROM AN IDEA TO A GROWING COMMUNITY */}
+      <div className="w-full max-w-4xl mx-auto px-6 sm:px-10 py-16 space-y-12 text-left">
+        <div className="space-y-4">
+          <span className="text-yellow-600 font-mono text-xs font-bold uppercase tracking-widest block">
+            Chapter I — September 2025
+          </span>
+          <h2 className="text-2xl sm:text-4xl font-extrabold text-black uppercase font-serif tracking-tight">
+            From an Idea to a Growing Legal Community
+          </h2>
+          <div className="h-1 w-12 bg-yellow-500" />
+          
+          <p className="text-gray-800 leading-relaxed text-sm sm:text-base">
+            <strong className="text-black font-bold">LexVanguard LLP</strong> was founded in <strong className="text-black font-bold">September 2025</strong> at <strong className="text-black font-bold">Mount Kenya University, Parklands Law Campus</strong>, with a simple but ambitious idea: to create a unified community of law students committed to <strong className="text-black">excellence in advocacy, legal scholarship, leadership, professional development, collaboration and service</strong>.
           </p>
-          <p className="text-gray-600 leading-relaxed text-sm sm:text-base">
-            The foundation of LexVanguard's success lies in its deeply ingrained culture of inclusivity. The firm operates on the belief that the pursuit of justice is not the exclusive domain of the privileged few, but a calling that requires spirit, discipline, and tenacity. By welcoming a diversity of perspectives and backgrounds, the firm ensures that every member contributes uniquely to the collective pursuit of justice.
+          <p className="text-gray-700 leading-relaxed text-sm sm:text-base">
+            What began as an idea among a small group of ambitious young law students has grown into a collective movement sustained by something far greater than its founding team—the <strong className="text-black font-bold">community of members, friends, supporters and contributors who believed in the idea from its earliest days</strong>.
+          </p>
+          <p className="text-gray-700 leading-relaxed text-sm sm:text-base">
+            LexVanguard's history is therefore not the story of three individuals alone. It is the story of a <strong className="text-black">community that chose to believe in an idea and build it together</strong>.
           </p>
         </div>
-      </div>
 
-      {/* Timeline Milestones */}
-      <div className="bg-black py-16 sm:py-20 px-6 text-white border-t-4 border-yellow-500">
-        <div className="w-full max-w-5xl mx-auto">
-          <div className="text-center mb-14">
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-white uppercase tracking-wider font-serif mb-3">
-              Historical Milestones
-            </h2>
-            <div className="h-1 w-16 bg-yellow-500 mx-auto" />
+        {/* NARRATIVE SECTION II: THE BEGINNING */}
+        <div className="space-y-4 pt-8 border-t border-gray-200">
+          <span className="text-yellow-600 font-mono text-xs font-bold uppercase tracking-widest block">
+            Chapter II — The Catalyst
+          </span>
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-black uppercase font-serif tracking-tight">
+            The Beginning — September 2025
+          </h2>
+          <p className="text-gray-700 leading-relaxed text-sm sm:text-base">
+            The story of LexVanguard began in September 2025, during a period when the founders and other students were increasingly recognising the need for a stronger sense of unity among aspiring legal professionals.
+          </p>
+          <p className="text-gray-700 leading-relaxed text-sm sm:text-base">
+            Law school is inherently competitive. Students are expected to develop individually, compete academically, participate in advocacy, build professional networks and prepare for demanding careers. Yet the founders believed that there was another possibility:
+          </p>
+
+          <blockquote className="p-5 bg-black text-white border-l-4 border-yellow-500 my-6 font-serif text-base sm:text-lg italic">
+            "Students could compete with excellence while still building one another."
+          </blockquote>
+
+          <p className="text-gray-700 leading-relaxed text-sm sm:text-base">
+            The idea behind LexVanguard was consequently not to create another ordinary student club, but to establish a platform where law students could <strong className="text-black">learn together, compete together, organise together and grow together</strong>.
+          </p>
+          <p className="text-gray-700 leading-relaxed text-sm sm:text-base">
+            The founding vision was built around the belief that the best legal professionals are not produced solely through lectures and examinations. They are developed through <strong className="text-black">experience, advocacy, teamwork, research, debate, leadership, mentorship, exposure and community</strong>.
+          </p>
+        </div>
+
+        {/* NARRATIVE SECTION III: THE FOUNDING VISION */}
+        <div className="space-y-4 pt-8 border-t border-gray-200">
+          <span className="text-yellow-600 font-mono text-xs font-bold uppercase tracking-widest block">
+            Chapter III — The Collective Ideology
+          </span>
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-black uppercase font-serif tracking-tight">
+            The Founding Vision
+          </h2>
+          <p className="text-gray-700 leading-relaxed text-sm sm:text-base">
+            The establishment of LexVanguard was spearheaded by <strong className="text-black">Prince Micah, Kelvin Musya and Donel Aganyo</strong>, three law students who brought different strengths to a common vision.
+          </p>
+          <p className="text-gray-700 leading-relaxed text-sm sm:text-base">
+            Prince contributed a strong technological and innovative perspective (planning, architecting, and building this website), Kelvin provided strategic and organisational leadership, while Donel brought advocacy, outreach and member engagement.
+          </p>
+          <p className="text-gray-700 leading-relaxed text-sm sm:text-base">
+            However, the founders never represented the entirety of the LexVanguard idea. They were its <strong className="text-black">initial architects</strong>, but the organisation's identity was shaped by everyone who subsequently joined, contributed, participated, encouraged, financed, challenged and supported it.
+          </p>
+
+          <div className="p-6 bg-yellow-50 border-2 border-yellow-500 my-6 text-center">
+            <p className="text-base sm:text-xl font-extrabold font-serif text-black uppercase tracking-wider">
+              "The founders started the idea. The community made it real."
+            </p>
           </div>
-          <div className="relative">
-            <div className="absolute left-0 md:left-1/2 top-0 bottom-0 w-px bg-yellow-500/30 md:transform md:-translate-x-px" />
-            <div className="space-y-10">
-              {MILESTONES.map((m, i) => (
-                <div key={i} className={`relative flex flex-col md:flex-row gap-8 ${i % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'}`}>
-                  <div className="md:w-1/2 md:text-right md:pr-12 pl-8 md:pl-0">
-                    {i % 2 === 0 && (
-                      <div>
-                        <span className="text-yellow-500 font-extrabold text-xs uppercase tracking-widest block mb-1">{m.year}</span>
-                        <h3 className="text-white font-extrabold text-base uppercase tracking-wide mb-2">{m.title}</h3>
-                        <p className="text-gray-400 text-xs sm:text-sm leading-relaxed">{m.desc}</p>
-                      </div>
-                    )}
-                  </div>
-                  <div className="absolute left-0 md:left-1/2 top-1 w-3.5 h-3.5 bg-yellow-500 rounded-full md:-translate-x-1/2 -translate-x-1/2 shadow-lg shadow-yellow-500/50 shrink-0" />
-                  <div className="md:w-1/2 md:pl-12 pl-8">
-                    {i % 2 !== 0 && (
-                      <div>
-                        <span className="text-yellow-500 font-extrabold text-xs uppercase tracking-widest block mb-1">{m.year}</span>
-                        <h3 className="text-white font-extrabold text-base uppercase tracking-wide mb-2">{m.title}</h3>
-                        <p className="text-gray-400 text-xs sm:text-sm leading-relaxed">{m.desc}</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
+        </div>
+
+        {/* NARRATIVE SECTION IV: THE FIRST MEMBERS */}
+        <div className="space-y-4 pt-8 border-t border-gray-200">
+          <span className="text-yellow-600 font-mono text-xs font-bold uppercase tracking-widest block">
+            Chapter IV — Foundational Support
+          </span>
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-black uppercase font-serif tracking-tight">
+            The First Members — The People Who Believed Early
+          </h2>
+          <p className="text-gray-700 leading-relaxed text-sm sm:text-base">
+            From the earliest days, LexVanguard attracted a growing circle of students who saw value in the vision. These early members were not merely names on a membership list — they became part of the organisation's <strong className="text-black">foundational community</strong>.
+          </p>
+          <p className="text-gray-700 leading-relaxed text-sm sm:text-base">
+            They attended activities, contributed ideas, participated in discussions, supported initiatives and helped create the atmosphere that would eventually define LexVanguard.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-xs sm:text-sm text-gray-800">
+            <div className="bg-gray-50 p-3.5 border border-gray-200">Some contributed their time and skills.</div>
+            <div className="bg-gray-50 p-3.5 border border-gray-200">Others contributed financially and logistically.</div>
+            <div className="bg-gray-50 p-3.5 border border-gray-200">Many assisted in publicity, research and advocacy.</div>
+            <div className="bg-gray-50 p-3.5 border border-gray-200">Many simply showed up when their presence was needed.</div>
+          </div>
+          <p className="text-gray-700 leading-relaxed text-sm sm:text-base pt-2">
+            Organisations do not become institutions because of their names or constitutions alone. They become institutions when <strong className="text-black">people repeatedly choose to invest themselves in the vision</strong>.
+          </p>
+        </div>
+
+        {/* NARRATIVE SECTION V: A COMMUNITY BUILT ON CONTRIBUTION */}
+        <div className="space-y-4 pt-8 border-t border-gray-200">
+          <span className="text-yellow-600 font-mono text-xs font-bold uppercase tracking-widest block">
+            Chapter V — Collective Investment
+          </span>
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-black uppercase font-serif tracking-tight">
+            A Community Built on Contribution & Ownership
+          </h2>
+          <p className="text-gray-700 leading-relaxed text-sm sm:text-base">
+            One of the defining features of LexVanguard's development has been the willingness of its members to contribute to the organisation's growth. The organisation's activities have benefited from member contributions, financial support, shared resources, participation and voluntary efforts.
+          </p>
+          <p className="text-gray-700 leading-relaxed text-sm sm:text-base">
+            Every contribution, regardless of size, has formed part of the larger story. These contributions may appear different individually, but collectively they represent one core truth:
+          </p>
+          <div className="p-6 bg-black text-white text-center font-serif text-2xl font-extrabold uppercase tracking-widest border-l-4 border-yellow-500 my-4">
+            OWNERSHIP.
+          </div>
+          <p className="text-gray-700 leading-relaxed text-sm sm:text-base">
+            LexVanguard belongs to the people who have invested themselves in its journey.
+          </p>
+        </div>
+
+        {/* NARRATIVE SECTION VI: GROWTH OF THE COMMUNITY & ADVOCACY */}
+        <div className="space-y-4 pt-8 border-t border-gray-200">
+          <span className="text-yellow-600 font-mono text-xs font-bold uppercase tracking-widest block">
+            Chapter VI — Legal Excellence & Advocacy
+          </span>
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-black uppercase font-serif tracking-tight">
+            The Growth of the Community & The Spirit of Advocacy
+          </h2>
+          <p className="text-gray-700 leading-relaxed text-sm sm:text-base">
+            As the organisation developed, the original concept expanded. LexVanguard became centered around a broader understanding of legal education—engaging with moot court, legal research, public speaking, debates, legal technology, and academic collaboration.
+          </p>
+          <p className="text-gray-700 leading-relaxed text-sm sm:text-base">
+            Through participation in moot court competitions, members have developed:
+          </p>
+          <div className="flex flex-wrap gap-2 pt-1 font-mono text-xs font-bold uppercase">
+            {["Research", "Reasoning", "Persuasion", "Presentation", "Teamwork", "Preparation", "Resilience"].map((pillar, i) => (
+              <span key={i} className="bg-black text-white px-3 py-1.5 border border-yellow-500">
+                {pillar}
+              </span>
+            ))}
+          </div>
+          <p className="text-gray-700 leading-relaxed text-sm sm:text-base pt-3">
+            For LexVanguard, advocacy is not simply about winning competitions. It is about <strong className="text-black">building lawyers capable of thinking critically, speaking confidently and defending their positions with knowledge, logic and integrity</strong>.
+          </p>
+        </div>
+
+        {/* NARRATIVE SECTION VII: A FOUNDING FAMILY & POWER OF COLLECTIVE OWNERSHIP */}
+        <div className="space-y-4 pt-8 border-t border-gray-200">
+          <span className="text-yellow-600 font-mono text-xs font-bold uppercase tracking-widest block">
+            Chapter VII — The LexVanguard Family
+          </span>
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-black uppercase font-serif tracking-tight">
+            The People Behind the Progress & A Founding Family
+          </h2>
+          <p className="text-gray-700 leading-relaxed text-sm sm:text-base">
+            Over time, LexVanguard evolved into a community that students belong to. The founders, members, supporters and contributors collectively formed what can appropriately be described as the <strong className="text-black font-bold">LexVanguard family</strong>.
+          </p>
+          <p className="text-gray-700 leading-relaxed text-sm sm:text-base">
+            While LexVanguard is fundamentally a community effort, the contribution of its founders remains an important part of its history. Prince Micah, Kelvin Musya, and Donel Aganyo provided the initial leadership and vision around which the organisation developed.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 my-4 text-xs font-semibold">
+            <div className="p-4 bg-gray-50 border-t-2 border-yellow-500">
+              <strong className="block text-black text-sm uppercase mb-1">The Founders</strong>
+              Provided direction.
             </div>
+            <div className="p-4 bg-gray-50 border-t-2 border-black">
+              <strong className="block text-black text-sm uppercase mb-1">The Members</strong>
+              Provided momentum.
+            </div>
+            <div className="p-4 bg-black text-white border-t-2 border-yellow-500">
+              <strong className="block text-yellow-500 text-sm uppercase mb-1">Together</strong>
+              They created movement.
+            </div>
+          </div>
+          <p className="text-gray-700 leading-relaxed text-sm sm:text-base">
+            One of the most important lessons in LexVanguard's history is that meaningful institutions cannot be sustained by leadership alone. <strong className="text-black">Leadership can initiate. But community sustains.</strong>
+          </p>
+        </div>
+
+        {/* NARRATIVE SECTION VIII: AN AMBITIOUS FUTURE & CONTINUING JOURNEY */}
+        <div className="space-y-4 pt-8 border-t border-gray-200">
+          <span className="text-yellow-600 font-mono text-xs font-bold uppercase tracking-widest block">
+            Chapter VIII — Tomorrow's Advocates
+          </span>
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-black uppercase font-serif tracking-tight">
+            A Young Organisation With an Ambitious Future
+          </h2>
+          <p className="text-gray-700 leading-relaxed text-sm sm:text-base">
+            Technology is changing legal practice. Artificial intelligence is reshaping research and professional workflows. Digital evidence, cybersecurity, and data protection are creating new legal frontiers. The modern advocate must be a <strong className="text-black">researcher, communicator, strategist, technologist, negotiator, problem-solver and lifelong learner</strong>. LexVanguard seeks to cultivate precisely these qualities.
+          </p>
+        </div>
+
+        {/* LEGACY SUMMARY BOX */}
+        <div className="bg-black text-white p-8 sm:p-10 border-t-4 border-yellow-500 space-y-6 text-center">
+          <h2 className="text-2xl sm:text-3xl font-extrabold uppercase font-serif text-white tracking-wider">
+            The LexVanguard Legacy
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left pt-2">
+            <div className="space-y-2 border-l-2 border-yellow-500 pl-4">
+              <span className="text-yellow-500 font-mono text-xs uppercase font-bold">Stage 1</span>
+              <h3 className="text-base font-bold text-white uppercase font-serif">An Idea</h3>
+              <p className="text-xs text-gray-300 leading-relaxed">
+                Three young law students envisioned a stronger, more unified platform for aspiring legal professionals.
+              </p>
+            </div>
+            <div className="space-y-2 border-l-2 border-white pl-4">
+              <span className="text-gray-400 font-mono text-xs uppercase font-bold">Stage 2</span>
+              <h3 className="text-base font-bold text-white uppercase font-serif">A Community</h3>
+              <p className="text-xs text-gray-300 leading-relaxed">
+                Students believed in that vision, contributed their resources, and transformed the idea into a living organisation.
+              </p>
+            </div>
+            <div className="space-y-2 border-l-2 border-yellow-500 pl-4">
+              <span className="text-yellow-500 font-mono text-xs uppercase font-bold">Stage 3</span>
+              <h3 className="text-base font-bold text-white uppercase font-serif">A Movement</h3>
+              <p className="text-xs text-gray-300 leading-relaxed">
+                A collective expression of a generation preparing themselves to enter—and shape—the legal profession.
+              </p>
+            </div>
+          </div>
+
+          <div className="pt-6 border-t border-gray-800 text-xs sm:text-sm text-gray-300 space-y-2">
+            <p className="font-bold text-white uppercase tracking-widest">
+              LexVanguard LLP — Mount Kenya University Parklands Law Campus
+            </p>
+            <p className="text-yellow-500 font-mono font-bold tracking-wider uppercase">
+              United by Law. Driven by Excellence. Preparing the Advocates of Tomorrow.
+            </p>
           </div>
         </div>
       </div>
