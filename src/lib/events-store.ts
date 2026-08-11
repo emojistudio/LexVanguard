@@ -1,4 +1,4 @@
-import { collection, doc, setDoc, addDoc, deleteDoc, onSnapshot, updateDoc, increment, serverTimestamp } from "firebase/firestore";
+import { collection, doc, setDoc, addDoc, deleteDoc, onSnapshot, updateDoc, increment } from "firebase/firestore";
 import { db } from "./firebase";
 
 export interface EventSpeaker {
@@ -54,20 +54,45 @@ export const INITIAL_EVENTS: FirmEvent[] = [];
 
 const LOCAL_STORAGE_KEY = "lexvanguard_firm_events";
 const LOCAL_RSVP_KEY = "lexvanguard_event_rsvps";
+const DELETED_EVENTS_KEY = "lexvanguard_deleted_events";
+
+function getDeletedEventIds(): Set<string> {
+  try {
+    const raw = localStorage.getItem(DELETED_EVENTS_KEY);
+    if (raw) return new Set<string>(JSON.parse(raw));
+  } catch {}
+  return new Set<string>();
+}
+
+function isLegacyDemoEvent(evt: Partial<FirmEvent>): boolean {
+  if (!evt) return true;
+  const id = (evt.id || "").toLowerCase();
+  const title = (evt.title || "").toLowerCase();
+  
+  if (id.startsWith("evt-summit-") || id.startsWith("evt-moot-court-")) return true;
+  if (title.includes("summer legal brunch")) return true;
+  if (title.includes("pro bono & community")) return true;
+  if (title.includes("first aniversary")) return true;
+  if (title.includes("first aniversario")) return true;
+  if (title.includes("moot court & legal")) return true;
+  if (title.includes("lex vanguard")) return true;
+  return false;
+}
 
 function getLocalEvents(): FirmEvent[] {
   try {
     const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
+    const deletedIds = getDeletedEventIds();
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed)) {
-        // Filter out legacy generic demo events
-        const userEvents = parsed.filter(evt => !evt.id?.startsWith("evt-summit-") && !evt.id?.startsWith("evt-moot-court-"));
         const todayStr = new Date().toISOString().split("T")[0];
-        return userEvents.map(evt => ({
-          ...evt,
-          status: (evt.date && evt.date < todayStr) ? "Past Event" : (evt.status || "Upcoming")
-        }));
+        return parsed
+          .filter(evt => !isLegacyDemoEvent(evt) && !deletedIds.has(evt.id))
+          .map(evt => ({
+            ...evt,
+            status: (evt.date && evt.date < todayStr) ? "Past Event" : (evt.status || "Upcoming")
+          }));
       }
     }
   } catch {}
@@ -76,7 +101,8 @@ function getLocalEvents(): FirmEvent[] {
 
 function saveLocalEvents(events: FirmEvent[]) {
   try {
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(events));
+    const cleaned = events.filter(e => !isLegacyDemoEvent(e));
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(cleaned));
   } catch {}
 }
 
@@ -88,11 +114,12 @@ export function subscribeEvents(callback: (events: FirmEvent[]) => void) {
     return onSnapshot(colRef, (snapshot) => {
       const list: FirmEvent[] = [];
       const seen = new Set<string>();
+      const deletedIds = getDeletedEventIds();
 
       snapshot.forEach((docSnap) => {
         const data = docSnap.data() as FirmEvent;
         const id = docSnap.id || data.id;
-        if (id && !seen.has(id)) {
+        if (id && !seen.has(id) && !deletedIds.has(id) && !deletedIds.has(docSnap.id) && !isLegacyDemoEvent(data)) {
           seen.add(id);
           const computedStatus = (data.date && data.date < todayStr) ? "Past Event" : (data.status || "Upcoming");
           list.push({ ...data, id, status: computedStatus });
@@ -102,7 +129,7 @@ export function subscribeEvents(callback: (events: FirmEvent[]) => void) {
       // Merge with local events if missing
       const local = getLocalEvents();
       local.forEach((evt) => {
-        if (!seen.has(evt.id)) {
+        if (!seen.has(evt.id) && !deletedIds.has(evt.id) && !isLegacyDemoEvent(evt)) {
           seen.add(evt.id);
           const computedStatus = (evt.date && evt.date < todayStr) ? "Past Event" : (evt.status || "Upcoming");
           list.push({ ...evt, status: computedStatus });
@@ -130,10 +157,22 @@ export function subscribeEvents(callback: (events: FirmEvent[]) => void) {
 }
 
 export async function deleteFirmEvent(id: string): Promise<void> {
+  // 1. Mark ID in local deleted set to immediately hide from UI
+  try {
+    const raw = localStorage.getItem(DELETED_EVENTS_KEY) || "[]";
+    const deletedList: string[] = JSON.parse(raw);
+    if (!deletedList.includes(id)) {
+      deletedList.push(id);
+      localStorage.setItem(DELETED_EVENTS_KEY, JSON.stringify(deletedList));
+    }
+  } catch {}
+
+  // 2. Remove from local events store
   const current = getLocalEvents();
   const updated = current.filter(e => e.id !== id);
   saveLocalEvents(updated);
 
+  // 3. Delete from Firestore
   try {
     const docRef = doc(db, "events", id);
     await deleteDoc(docRef);

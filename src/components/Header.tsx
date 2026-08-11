@@ -25,12 +25,13 @@ export default function Header() {
 
   return (
     <header className="fixed top-0 left-0 w-full z-50 bg-black/95 backdrop-blur-md border-b border-white/10 shadow-2xl transition-all duration-300">
-      <div className="max-w-7xl mx-auto px-4 sm:px-8 py-3 sm:py-4 flex items-center justify-between">
+      {/* Full-width container spanning end to end */}
+      <div className="w-full px-4 sm:px-8 lg:px-12 py-3.5 flex items-center justify-between">
         
-        {/* Brand Logo & Name (Desktop always visible, Mobile hidden when dropdown is open) */}
+        {/* Brand Logo & Name (Always visible on left across both Desktop & Mobile) */}
         <Link 
           href="/" 
-          className={`items-center space-x-3 text-white group cursor-pointer ${mobileOpen ? 'hidden lg:flex' : 'flex'}`}
+          className="flex items-center space-x-3 text-white group cursor-pointer shrink-0"
         >
           <div className="w-1.5 h-9 sm:h-10 bg-[#ffc107] group-hover:bg-yellow-400 transition-colors shrink-0" />
           <div className="flex flex-col">
@@ -94,63 +95,25 @@ export default function Header() {
           </nav>
         </div>
 
-        {/* Mobile Compact Header Bar (Visible on Mobile / Tablet < LG) */}
-        <div className="flex lg:hidden items-center justify-between w-full">
-          {mobileOpen ? (
-            /* Active Dropdown Header: Branding is hidden, phone number is aligned with navigation close button */
-            <div className="flex items-center justify-between w-full py-1">
-              <span className="text-xs font-extrabold uppercase tracking-widest text-[#ffc107]">
-                Navigation Menu
-              </span>
-              <div className="flex items-center gap-3">
-                <div className="flex items-center text-[#ffc107] text-xs font-bold bg-white/10 border border-white/15 px-3 py-1.5 rounded-full">
-                  <Phone className="w-3 h-3 mr-1.5 shrink-0 text-[#ffc107]" />
-                  <RotatingPhoneDisplay className="tracking-wider text-[#ffc107] text-xs" />
-                </div>
-                <button
-                  onClick={() => setMobileOpen(false)}
-                  className="text-[#ffc107] hover:text-white p-1.5 rounded-lg bg-white/5 border border-white/10 cursor-pointer focus:outline-none"
-                  aria-label="Close Navigation Menu"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
-          ) : (
-            /* Closed Mobile Bar: Logo on Left, Phone + Menu Trigger on Right */
-            <div className="flex items-center justify-between w-full">
-              <Link href="/" className="flex items-center space-x-2.5 text-white">
-                <div className="w-1.5 h-8 bg-[#ffc107] shrink-0" />
-                <div className="flex flex-col">
-                  <span className="font-extrabold text-base tracking-wider uppercase font-serif text-white leading-none">
-                    LEXVANGUARD
-                  </span>
-                  <span className="text-[9px] text-gray-400 uppercase tracking-widest font-sans mt-0.5">
-                    Counsels at Law
-                  </span>
-                </div>
-              </Link>
+        {/* Mobile Control Group (< LG): Revolving Number followed by Hamburger Icon */}
+        <div className="flex lg:hidden items-center space-x-2.5 sm:space-x-4">
+          <div className="flex items-center text-[#ffc107] text-xs font-bold bg-white/5 border border-white/10 px-2.5 sm:px-3 py-1 rounded-full">
+            <Phone className="w-3 h-3 mr-1.5 text-[#ffc107] shrink-0" />
+            <RotatingPhoneDisplay className="text-xs text-[#ffc107] tracking-wider" />
+          </div>
 
-              <div className="flex items-center space-x-2.5">
-                <div className="flex items-center text-[#ffc107] text-xs font-bold bg-white/5 border border-white/10 px-2.5 py-1 rounded-full">
-                  <Phone className="w-3 h-3 mr-1.5 text-[#ffc107] shrink-0" />
-                  <RotatingPhoneDisplay className="text-xs text-[#ffc107]" />
-                </div>
-                <button
-                  onClick={() => setMobileOpen(true)}
-                  className="text-white hover:text-[#ffc107] p-1.5 rounded-lg bg-white/5 border border-white/10 cursor-pointer focus:outline-none"
-                  aria-label="Open Navigation Menu"
-                >
-                  <Menu className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
-          )}
+          <button
+            onClick={() => setMobileOpen(!mobileOpen)}
+            className="text-white hover:text-[#ffc107] p-1.5 rounded-lg bg-white/5 border border-white/10 cursor-pointer focus:outline-none"
+            aria-label="Toggle Navigation Menu"
+          >
+            {mobileOpen ? <X className="w-5 h-5 text-[#ffc107]" /> : <Menu className="w-5 h-5" />}
+          </button>
         </div>
 
       </div>
 
-      {/* Mobile Drawer Content */}
+      {/* Mobile Drawer Dropdown Menu */}
       {mobileOpen && (
         <div className="lg:hidden bg-black/98 border-t border-white/10 text-white w-full px-6 py-5 shadow-2xl animate-in slide-in-from-top-2 duration-200">
           <div className="flex flex-col space-y-1">
@@ -179,7 +142,7 @@ export default function Header() {
                     handleLogout();
                     setMobileOpen(false);
                   }}
-                  className="text-left text-sm font-bold uppercase tracking-wider text-red-400 py-3 w-full cursor-pointer bg-transparent border-none"
+                  className="text-left text-sm font-bold uppercase tracking-wider text-red-400 py-3 w-full cursor-pointer bg-transparent border-none text-left"
                 >
                   Logout
                 </button>
