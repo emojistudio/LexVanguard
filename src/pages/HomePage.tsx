@@ -231,7 +231,7 @@ export default function HomePage() {
               {members.slice(0, 4).map((p, i) => (
                 <div key={i} className="relative group overflow-hidden border-2 border-yellow-500 shadow-sm rounded-xs">
                   <img
-                    src={p.profilePhoto || p.image || "https://api.dicebear.com/7.x/avataaars/svg?seed=" + p.name}
+                    src={resolveProfileImage(p.name, p.profilePhoto || p.image)}
                     alt={p.name}
                     onError={(e) => handleProfileImageError(e, p.name)}
                     className="w-full h-28 sm:h-32 md:h-36 object-cover transition-transform duration-500 group-hover:scale-105"

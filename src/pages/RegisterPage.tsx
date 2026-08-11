@@ -82,7 +82,7 @@ export default function RegisterPage() {
 
       const finalTitle = title.trim() || "Counsel";
       const finalPractice = practice.trim() || "Legal Counsel & Advisory";
-      const avatarSvg = `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(name)}`;
+      const avatarUrl = resolveProfileImage(name.trim());
 
       // 2. Prepare unified user payload (includes profile info, roles, and photo)
       const usersPayload = {
@@ -99,10 +99,10 @@ export default function RegisterPage() {
         officeId: "counsel",
         roleLevel: 50,
         roleName: "Counsel",
-        profilePhoto: avatarSvg,
-        image: avatarSvg,
-        photoURL: avatarSvg,
-        avatar: avatarSvg,
+        profilePhoto: avatarUrl,
+        image: avatarUrl,
+        photoURL: avatarUrl,
+        avatar: avatarUrl,
         updatedAt: new Date().toISOString()
       };
 
@@ -121,8 +121,8 @@ export default function RegisterPage() {
         email: canonicalEmail,
         education: "LLB, High Court Advocate",
         achievements: "Legal Counsel",
-        image: avatarSvg,
-        profilePhoto: avatarSvg
+        image: avatarUrl,
+        profilePhoto: avatarUrl
       });
 
       // 6. Automatically purge/delete invitation token & email from whitelist so it cannot be reused

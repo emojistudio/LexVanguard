@@ -135,7 +135,7 @@ function UserManagementModal({ onClose }: { onClose: () => void }) {
                   return (
                     <tr key={m.uid} className="hover:bg-gray-50/80 transition-colors">
                       <td className="p-3 font-semibold text-gray-900 flex items-center gap-2">
-                        <img src={m.profilePhoto || m.image || `https://api.dicebear.com/7.x/avataaars/svg?seed=${m.name}`} className="w-7 h-7 rounded-full object-cover border" />
+                        <img src={resolveProfileImage(m.name, m.profilePhoto || m.image)} className="w-7 h-7 rounded-full object-cover border" />
                         <div>
                           <div>{m.name}</div>
                           <div className="text-[10px] text-gray-500 font-normal">{m.title || "Counsel"}</div>

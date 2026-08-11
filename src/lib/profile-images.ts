@@ -26,17 +26,18 @@ export const NAME_TO_PROFILE_IMAGE: Record<string, string> = {
 
 /**
  * Resolves a user's profile image based on their name and current image string.
- * Uses user uploaded photo if present, falls back to owner images in /images/profiles/, or /default.png.
+ * Uses user-uploaded photos (e.g. ImgBB) or local profile photos in /images/profiles/.
+ * If none, defaults to /default.png (Strictly no Dicebear).
  */
 export function resolveProfileImage(name?: string, currentImg?: string): string {
-  // If currentImg is a valid user-uploaded custom photo (e.g. ImgBB, Base64, or non-unsplash custom URL), keep it
   if (currentImg && typeof currentImg === "string" && currentImg.trim() !== "") {
     const trimmed = currentImg.trim();
+    const isDicebear = trimmed.includes("dicebear");
     const isUnsplashFake = trimmed.includes("unsplash.com");
     const is37Signals = trimmed.includes("37signals.com");
     const isGenericPlaceholder = trimmed.includes("placeholder");
 
-    if (!isUnsplashFake && !is37Signals && !isGenericPlaceholder) {
+    if (!isDicebear && !isUnsplashFake && !is37Signals && !isGenericPlaceholder) {
       return trimmed;
     }
   }

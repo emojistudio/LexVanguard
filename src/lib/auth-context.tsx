@@ -56,7 +56,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               practice: "Corporate & Tech Law, Mergers & Acquisitions",
               bio: "Managing Partner & Co-Owner directing firm strategy and legal operations.",
               phone: "+254 116 171 396",
-              profilePhoto: "https://api.dicebear.com/7.x/avataaars/svg?seed=Prince%20Micah",
+              profilePhoto: "/images/profiles/prince.jpeg",
               updatedAt: new Date().toISOString()
             }, { merge: true });
           } catch (err) {
