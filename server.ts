@@ -1,3 +1,8 @@
+import dns from "dns";
+try {
+  dns.setDefaultResultOrder("ipv4first");
+} catch {}
+
 import express from "express";
 import path from "path";
 import fs from "fs";
@@ -374,96 +379,76 @@ Sitemap: ${baseUrl}/sitemap.xml`;
 </html>
  `;
 
-      let sendResult: any = null;
-      let recipientUsed = inviteeEmail;
+      // Senders to try in order
+      const senders = [
+        "Lex Vanguard Chambers <onboarding@lexvanguard.xyz>",
+        "Lex Vanguard Chambers <info@lexvanguard.xyz>",
+        "Lex Vanguard Chambers <chambers@lexvanguard.xyz>",
+        "Lex Vanguard Chambers <onboarding@resend.dev>"
+      ];
 
-      // 1. Attempt custom domain lexvanguard.xyz
+      let lastError: any = null;
+      for (const sender of senders) {
+        try {
+          const result = await resend.emails.send({
+            from: sender,
+            to: [inviteeEmail],
+            subject: "Official Invitation to Join Lex Vanguard Chambers as Counsel",
+            html: htmlContent,
+          });
+
+          if (result.data?.id && !result.error) {
+            console.log(`✅ Resend Email successfully sent to ${inviteeEmail} via ${sender}. ID:`, result.data.id);
+            return res.json({
+              success: true,
+              emailDispatched: true,
+              recipient: inviteeEmail,
+              inviteUrl,
+              message: `Invitation email successfully sent to ${inviteeEmail}!`,
+              data: result.data
+            });
+          }
+          lastError = result.error;
+        } catch (e: any) {
+          lastError = e;
+        }
+      }
+
+      // Fallback: send copy to admin inbox
       try {
-        sendResult = await resend.emails.send({
-          from: "Lex Vanguard Chambers <onboarding@lexvanguard.xyz>",
-          to: [inviteeEmail],
-          subject: "Official Invitation to Join Lex Vanguard Chambers as Counsel",
-          html: htmlContent,
+        const fallbackResult = await resend.emails.send({
+          from: "Lex Vanguard Chambers <onboarding@resend.dev>",
+          to: ["emojistudio254@gmail.com", "infolexvanguardfirm@gmail.com"],
+          subject: `[INVITATION FOR ${inviteeEmail}] Official Counsel Onboarding`,
+          html: `
+            <div style="padding: 15px; background: #fffbeb; border: 1px solid #f59e0b; border-radius: 8px; margin-bottom: 20px; font-family: sans-serif;">
+              <p style="margin: 0; color: #b45309; font-weight: bold;">⚡ Invitation Notice</p>
+              <p style="margin: 5px 0 0 0; font-size: 13px; color: #78350f;">Invitation requested for <strong>${inviteeEmail}</strong>. Delivery confirmed to verified admin inbox.</p>
+            </div>
+            ${htmlContent}
+          `,
         });
+
+        if (fallbackResult.data?.id) {
+          return res.json({
+            success: true,
+            emailDispatched: true,
+            recipient: "emojistudio254@gmail.com",
+            inviteUrl,
+            message: `Invitation generated & delivered to verified admin inbox!`,
+            data: fallbackResult.data
+          });
+        }
       } catch (e: any) {
-        console.error("❌ Resend Attempt 1 (lexvanguard.xyz) Exception:", formatErrorMsg(e));
-        sendResult = { error: e };
+        console.error("Fallback Exception:", e);
       }
 
-      // 2. Attempt fallback domain lexshub.xyz
-      if (sendResult?.error) {
-        console.error("❌ Resend Attempt 1 Failed. Exact Error:", formatErrorMsg(sendResult.error));
-        try {
-          sendResult = await resend.emails.send({
-            from: "Lex Vanguard Chambers <onboarding@lexshub.xyz>",
-            to: [inviteeEmail],
-            subject: "Official Invitation to Join Lex Vanguard Chambers as Counsel",
-            html: htmlContent,
-          });
-        } catch (e: any) {
-          console.error("❌ Resend Attempt 2 (lexshub.xyz) Exception:", formatErrorMsg(e));
-          sendResult = { error: e };
-        }
-      }
-
-      // 3. Attempt Resend sandbox default sender to target email
-      if (sendResult?.error) {
-        console.error("❌ Resend Attempt 2 Failed. Exact Error:", formatErrorMsg(sendResult.error));
-        try {
-          sendResult = await resend.emails.send({
-            from: "Lex Vanguard Chambers <onboarding@resend.dev>",
-            to: [inviteeEmail],
-            subject: "Official Invitation to Join Lex Vanguard Chambers as Counsel",
-            html: htmlContent,
-          });
-        } catch (e: any) {
-          console.error("❌ Resend Attempt 3 (onboarding@resend.dev) Exception:", formatErrorMsg(e));
-          sendResult = { error: e };
-        }
-      }
-
-      // 4. Fallback for unauthorized domain or testing restriction -> re-route to emojistudio254@gmail.com & infolexvanguardfirm@gmail.com
-      if (sendResult?.error) {
-        console.error("❌ Resend Attempt 3 Failed for target email (" + inviteeEmail + "). Exact Error:", formatErrorMsg(sendResult.error));
-        console.warn(`[RESEND FALLBACK] Re-routing invitation for ${inviteeEmail} to verified accounts emojistudio254@gmail.com & infolexvanguardfirm@gmail.com`);
-        recipientUsed = "emojistudio254@gmail.com";
-        try {
-          sendResult = await resend.emails.send({
-            from: "Lex Vanguard Chambers <onboarding@resend.dev>",
-            to: ["emojistudio254@gmail.com", "infolexvanguardfirm@gmail.com"],
-            subject: `[INVITATION FOR ${inviteeEmail}] Official Counsel Onboarding`,
-            html: `
-              <div style="padding: 15px; background: #fffbeb; border: 1px solid #f59e0b; border-radius: 8px; margin-bottom: 20px; font-family: sans-serif;">
-                <p style="margin: 0; color: #b45309; font-weight: bold;">⚡ Invitation Re-Routed Notice</p>
-                <p style="margin: 5px 0 0 0; font-size: 13px; color: #78350f;">This invitation was requested for <strong>${inviteeEmail}</strong>. Since your Resend account restrictions apply, this copy was delivered directly to your verified inbox.</p>
-              </div>
-              ${htmlContent}
-            `,
-          });
-        } catch (e: any) {
-          console.error("❌ Resend Fallback Exception:", formatErrorMsg(e));
-          sendResult = { error: e };
-        }
-      }
-
-      if (sendResult?.error) {
-        const exactErrStr = formatErrorMsg(sendResult.error);
-        console.error("❌ ALL RESEND DELIVERY ATTEMPTS FAILED. Exact Error:", exactErrStr);
-        return res.status(400).json({
-          success: false,
-          error: `Resend Email Delivery Error: ${exactErrStr}`,
-          inviteUrl
-        });
-      }
-
-      console.log(`✅ Resend Email successfully sent to ${recipientUsed}. ID:`, sendResult.data?.id);
-      return res.json({
-        success: true,
-        emailDispatched: true,
-        recipient: recipientUsed,
-        inviteUrl,
-        message: `Invitation email successfully sent to ${recipientUsed}!`,
-        data: sendResult.data
+      const exactErrStr = formatErrorMsg(lastError);
+      console.error("❌ ALL RESEND DELIVERY ATTEMPTS FAILED. Exact Error:", exactErrStr);
+      return res.status(400).json({
+        success: false,
+        error: `Resend Email Delivery Error: ${exactErrStr}`,
+        inviteUrl
       });
     } catch (err: any) {
       const errDetail = err?.message || String(err);
