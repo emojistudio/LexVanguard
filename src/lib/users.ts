@@ -176,6 +176,8 @@ export async function cleanupOrphanUserDocs(): Promise<{ cleaned: number }> {
 
 
 export interface FirestoreMember {
+  rank: string;
+  role: string;
   uid: string;
   name: string;
   title?: string;
