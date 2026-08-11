@@ -67,6 +67,27 @@ function GenericOfficeRoute() {
   return <Redirect to={`/office/${firmUser.officeId || "counsel"}`} />;
 }
 
+function ProtectedResearchRoute() {
+  const { firmUser, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-white text-center">
+          <div className="w-12 h-12 border-4 border-yellow-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-sm text-gray-400 uppercase tracking-widest font-mono">Loading Research Intelligence...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!firmUser) {
+    return <Redirect to="/login" />;
+  }
+
+  return <ResearchCoHelperPage />;
+}
+
 function Router() {
   return (
     <>
@@ -82,14 +103,16 @@ function Router() {
         <Route path="/onboard" component={RegisterPage} />
         <Route path="/office" component={GenericOfficeRoute} />
         <Route path="/office/:officeId" component={ProtectedOfficeRoute} />
-        <Route path="/desk" component={ResearchCoHelperPage} />
-        <Route path="/research" component={ResearchCoHelperPage} />
-        <Route path="/research-cohelper" component={ResearchCoHelperPage} />
+        <Route path="/desk" component={ProtectedResearchRoute} />
+        <Route path="/research" component={ProtectedResearchRoute} />
+        <Route path="/research-cohelper" component={ProtectedResearchRoute} />
         <Route path="/history" component={HistoryPage} />
         <Route path="/events" component={EventsPage} />
         <Route path="/news" component={EventsPage} />
         <Route path="/services" component={PracticeAreasPage} />
+        <Route path="/services/:category" component={PracticeAreasPage} />
         <Route path="/practice-areas" component={PracticeAreasPage} />
+        <Route path="/practice-areas/:category" component={PracticeAreasPage} />
         <Route path="/careers" component={CareersPage} />
         <Route path="/contact" component={ContactPage} />
         <Route component={NotFound} />

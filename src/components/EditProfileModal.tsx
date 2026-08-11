@@ -9,13 +9,13 @@ interface EditProfileModalProps {
 }
 
 export const EditProfileModal: React.FC<EditProfileModalProps> = ({ onClose, onSaved }) => {
-  const { firmUser, user } = useAuth();
+  const { firmUser, firebaseUser } = useAuth();
   
-  const currentName = firmUser?.name || user?.displayName || "Firm Member";
+  const currentName = firmUser?.name || firebaseUser?.displayName || "Firm Member";
   const initialProfile = loadProfile(currentName, {
     title: firmUser?.title,
     practice: firmUser?.practice,
-    email: firmUser?.email || user?.email || undefined
+    email: firmUser?.email || firebaseUser?.email || undefined
   });
 
   const [name, setName] = useState(initialProfile.name);

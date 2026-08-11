@@ -24,5 +24,7 @@
     "allowImportingTsExtensions": true,
     "types": ["node", "vite/client"],
     "noEmit": true
-  }
+  },
+  "include": ["src/**/*", "server.ts"],
+  "exclude": ["artifacts", "lib", "node_modules", "dist"]
 }

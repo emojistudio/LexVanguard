@@ -52,6 +52,47 @@ export interface ElegalSearchResult {
   excerpt: string;
 }
 
+export const extractPdfTextFromBuffer = (buffer: ArrayBuffer): string => {
+  try {
+    const bytes = new Uint8Array(buffer);
+    const decoder = new TextDecoder("latin1");
+    const rawString = decoder.decode(bytes);
+
+    const textPieces: string[] = [];
+    const matches = rawString.match(/\(([^()]{3,})\)/g);
+    if (matches && matches.length > 0) {
+      for (const m of matches) {
+        const cleaned = m.slice(1, -1).replace(/\\([0-7]{1,3})/g, '').replace(/\\/g, '').trim();
+        if (cleaned.length > 2 && /[a-zA-Z0-9]/.test(cleaned) && !/^\d+[\s\d]*$/.test(cleaned)) {
+          textPieces.push(cleaned);
+        }
+      }
+    }
+
+    if (textPieces.length > 5) {
+      return textPieces.join(" ");
+    }
+
+    const lines = rawString.split(/[\r\n]+/);
+    const validLines: string[] = [];
+    for (const line of lines) {
+      const trimmed = line.replace(/[^\x20-\x7E]/g, ' ').trim();
+      if (trimmed.length > 15 && /[a-zA-Z]{3,}/.test(trimmed) && !/obj|endobj|stream|endstream|xref|trailer|Filter|Length/i.test(trimmed)) {
+        validLines.push(trimmed);
+      }
+    }
+
+    if (validLines.length > 0) {
+      return validLines.join("\n");
+    }
+
+    return textPieces.join(" ") || "";
+  } catch (e) {
+    console.warn("PDF text extraction notice:", e);
+    return "";
+  }
+};
+
 interface ResearchCoHelperProps {
   currentOfficeId?: string;
   userName?: string;
@@ -237,30 +278,67 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
     if (!files || files.length === 0) return;
 
     Array.from(files).forEach(file => {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const content = event.target?.result as string || "";
-        const extension = file.name.split('.').pop()?.toUpperCase() || 'TXT';
-        const docType = extension === 'PDF' ? 'PDF' : (extension === 'DOCX' || extension === 'DOC' ? 'DOCX' : 'TXT');
+      const isPdf = file.name.toLowerCase().endsWith(".pdf") || file.type === "application/pdf";
+      
+      if (isPdf) {
+        const readerData = new FileReader();
+        readerData.onload = (evtData) => {
+          const dataUrl = evtData.target?.result as string || "";
 
-        const newDoc: DocumentItem = {
-          id: `doc_upload_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
-          caseId: selectedCase?.id,
-          caseTitle: selectedCase?.title,
-          name: file.name,
-          type: docType as any,
-          date: new Date().toISOString().split('T')[0],
-          size: `${(file.size / 1024).toFixed(1)} KB`,
-          excerpt: content.substring(0, 300) || `Uploaded file: ${file.name}`,
-          extractedText: content || `File content of ${file.name}`
+          const readerBuf = new FileReader();
+          readerBuf.onload = (evtBuf) => {
+            const buffer = evtBuf.target?.result as ArrayBuffer;
+            let textContent = extractPdfTextFromBuffer(buffer);
+            if (!textContent || textContent.length < 10) {
+              textContent = `PDF Document Title: ${file.name}\nSize: ${(file.size / 1024).toFixed(1)} KB`;
+            }
+
+            const newDoc: DocumentItem = {
+              id: `doc_upload_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+              caseId: selectedCase?.id,
+              caseTitle: selectedCase?.title,
+              name: file.name,
+              type: 'PDF',
+              date: new Date().toISOString().split('T')[0],
+              size: `${(file.size / 1024).toFixed(1)} KB`,
+              excerpt: textContent.substring(0, 300),
+              extractedText: textContent,
+              fileDataUrl: dataUrl,
+              pdfUrl: dataUrl
+            };
+
+            setMockDocuments(prev => [newDoc, ...prev]);
+            setAttachedDocs(prev => [...prev, newDoc]);
+            showToast(`Uploaded & extracted text from "${file.name}"!`);
+          };
+          readerBuf.readAsArrayBuffer(file);
         };
+        readerData.readAsDataURL(file);
+      } else {
+        const readerText = new FileReader();
+        readerText.onload = (evtText) => {
+          const content = evtText.target?.result as string || "";
+          const extension = file.name.split('.').pop()?.toUpperCase() || 'TXT';
 
-        setMockDocuments(prev => [newDoc, ...prev]);
-        setAttachedDocs(prev => [...prev, newDoc]);
-        showToast(`Uploaded "${file.name}" to Materials Library!`);
-      };
+          const newDoc: DocumentItem = {
+            id: `doc_upload_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+            caseId: selectedCase?.id,
+            caseTitle: selectedCase?.title,
+            name: file.name,
+            type: extension === 'DOCX' || extension === 'DOC' ? 'DOCX' : 'TXT',
+            date: new Date().toISOString().split('T')[0],
+            size: `${(file.size / 1024).toFixed(1)} KB`,
+            excerpt: content.substring(0, 300) || `Uploaded file: ${file.name}`,
+            extractedText: content,
+            fileDataUrl: content
+          };
 
-      reader.readAsText(file);
+          setMockDocuments(prev => [newDoc, ...prev]);
+          setAttachedDocs(prev => [...prev, newDoc]);
+          showToast(`Uploaded "${file.name}"!`);
+        };
+        readerText.readAsText(file);
+      }
     });
 
     if (fileInputRef.current) fileInputRef.current.value = "";
@@ -310,23 +388,80 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
     setIsAnalyzingDoc(true);
     setDocAnalysisSummary(null);
 
+    let docText = doc.fileDataUrl || doc.extractedText || doc.excerpt || "";
+
+    // Internal text extraction: fetch plain text content if document is remote or needs extraction
+    if ((!docText || docText.length < 50) && doc.sourceUrl) {
+      try {
+        const fetchRes = await fetch(`/api/elegal/document-content?sourceUrl=${encodeURIComponent(doc.sourceUrl)}`);
+        if (fetchRes.ok) {
+          const fetchJson = await fetchRes.json();
+          if (fetchJson.plainText) {
+            docText = fetchJson.plainText;
+          }
+        }
+      } catch (e) {
+        console.warn("Text extraction fetch notice:", e);
+      }
+    }
+
+    const docCategory = doc.type === 'statute' || /\b(act|statute|legislation|cap|bill|code)\b/i.test(doc.name) ? 'statute' : 'precedent';
+
     try {
       const res = await fetch("/api/research/analyze-document", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           documentTitle: doc.name,
-          documentContent: doc.extractedText || doc.excerpt || "",
-          matterTitle: selectedCase?.title || doc.caseTitle || "Legal Material"
+          documentContent: docText,
+          matterTitle: selectedCase?.title || doc.caseTitle || "Legal Material",
+          docCategory
         })
       });
 
       if (res.ok) {
         const data = await res.json();
-        setDocAnalysisSummary(data.analysis || "Document analysis completed.");
-      } else {
-        setDocAnalysisSummary("Failed to generate document analysis summary.");
+        if (data.analysis) {
+          setDocAnalysisSummary(data.analysis);
+          return;
+        }
       }
+
+      // Direct Groq API Client-Side Fallback if proxy endpoint returns error
+      const groqKey = import.meta.env.VITE_GROQ_API_KEY;
+      if (groqKey) {
+        const isStatute = docCategory === 'statute';
+        const systemPrompt = isStatute
+          ? `You are Senior Legal Analyst at LexVanguard Chambers. Extract and summarize strictly from the provided text using: 1. Long Title, 2. Short Title, 3. Preamble, 4. Enacting Clause, 5. Definitions / Interpretation Section, 6. Sections and Subsections, 7. Provisos. STRICT NON-HALLUCINATION: If a section is missing from text, state "Not stated in provided document text."`
+          : `You are Senior Legal Analyst at LexVanguard Chambers. Extract and summarize strictly from the provided text using: 1. Case Name and Citation, 2. Procedural History, 3. Material Facts, 4. Legal Issues, 5. Rule of Law, 6. Court Reasoning (Ratio Decidendi), 7. Holding / Judgment, 8. Side Remarks (Obiter Dictum). STRICT NON-HALLUCINATION: If a section is missing from text, state "Not stated in provided document text."`;
+
+        const groqRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${groqKey}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            model: "llama-3.3-70b-versatile",
+            messages: [
+              { role: "system", content: systemPrompt },
+              { role: "user", content: `Document Title: ${doc.name}\nMatter: ${selectedCase?.title || doc.caseTitle || "Legal Material"}\nText:\n${docText}` }
+            ],
+            temperature: 0.1
+          })
+        });
+
+        if (groqRes.ok) {
+          const gData = await groqRes.json();
+          const gText = gData.choices?.[0]?.message?.content;
+          if (gText) {
+            setDocAnalysisSummary(gText);
+            return;
+          }
+        }
+      }
+
+      setDocAnalysisSummary("Failed to generate document analysis summary.");
     } catch (err) {
       setDocAnalysisSummary("Error contacting document analysis API engine.");
     } finally {
@@ -462,7 +597,7 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
   const outputCharCount = draftOutput ? draftOutput.length : 0;
 
   return (
-    <div className="w-full h-full flex flex-col font-sans selection:bg-[#0071e3] selection:text-white bg-[#fafafa] text-[#1d1d1f] relative overflow-hidden">
+    <div className="w-full h-full min-h-screen flex flex-col font-sans selection:bg-[#0071e3] selection:text-white bg-white text-[#1d1d1f] relative overflow-hidden">
       
       {/* Hidden File Input for Real Material Uploads */}
       <input 
@@ -550,7 +685,7 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
               activeTab === 'drafting' ? 'bg-white text-zinc-900 shadow-xs border border-zinc-200/60' : 'text-zinc-500 hover:text-zinc-900'
             }`}
           >
-            <FileText className="w-3.5 h-3.5" /> Groq Drafting
+            <FileText className="w-3.5 h-3.5" /> Drafting
           </button>
         </nav>
 
@@ -574,8 +709,7 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
             <div className="max-w-6xl mx-auto w-full">
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h2 className="text-xl font-bold text-zinc-900 tracking-tight">Active Cases Registry</h2>
-                  <p className="text-xs text-zinc-500 mt-0.5 font-medium">Scope legal research and documents to specific case workspaces.</p>
+                  <h2 className="text-xl font-bold text-zinc-900 tracking-tight">Active Cases</h2>
                 </div>
                 <button 
                   onClick={() => setIsCreatingCase(true)}
@@ -711,20 +845,6 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
         {activeTab === 'search' && (
           <div className="h-full flex flex-col p-6 overflow-y-auto">
             <div className="max-w-4xl mx-auto w-full space-y-6">
-              
-              {/* API Connection Banner */}
-              <div className="bg-gradient-to-r from-neutral-900 to-black text-white p-4 rounded-2xl border border-yellow-500/30 flex items-center justify-between shadow-md">
-                <div className="flex items-center gap-3">
-                  <ShieldCheck className="w-5 h-5 text-yellow-400 shrink-0" />
-                  <div>
-                    <h4 className="text-xs font-bold text-white uppercase tracking-wider">eLegal Case Law & Statute API Connected</h4>
-                    <p className="text-[11px] text-gray-300">Live integration with eLegal Kenya Law Reports & statutory authority repository (https://elegal-1.onrender.com/dev)</p>
-                  </div>
-                </div>
-                <span className="text-[10px] font-mono bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 px-2.5 py-1 rounded-full uppercase font-bold">
-                  Status: Online
-                </span>
-              </div>
 
               {/* Search Box & Category Filters */}
               <div className="bg-white border border-zinc-200 rounded-2xl p-4 space-y-3 shadow-xs">
@@ -746,9 +866,9 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
                     type="submit"
                     disabled={isELegalLoading}
                     className="bg-[#1d1d1f] hover:bg-black text-white px-5 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 cursor-pointer shrink-0"
+                    title="Search eLegal Corpus"
                   >
                     {isELegalLoading ? <Sparkles className="w-4 h-4 animate-spin text-amber-300" /> : <Search className="w-4 h-4" />}
-                    <span>Query Corpus</span>
                   </button>
                 </form>
 
@@ -858,7 +978,6 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-xl font-bold text-zinc-900 tracking-tight">Materials & Evidence Library</h2>
-                  <p className="text-xs text-zinc-500 mt-0.5 font-medium">Uploaded legal documents, authorities, and case exhibits usable for research AI.</p>
                 </div>
                 <button 
                   onClick={() => fileInputRef.current?.click()}
@@ -948,11 +1067,8 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
                           <div className="w-5 h-5 rounded-full bg-[#1d1d1f] text-amber-300 flex items-center justify-center text-[10px]">
                             <Sparkles className="w-3 h-3" />
                           </div>
-                          <span className="font-bold text-zinc-900 text-xs">LexAI Grounded Assistant</span>
+                          <span className="font-bold text-zinc-900 text-xs">LexAI Assistant</span>
                         </div>
-                        <span className="text-[9px] font-mono bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full font-bold">
-                          Google Search & eLegal Grounded
-                        </span>
                       </div>
                       <div className="whitespace-pre-wrap leading-relaxed">{msg.text}</div>
                       
@@ -1040,19 +1156,9 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
           <div className="h-full flex flex-col p-6 overflow-y-auto">
             <div className="max-w-6xl mx-auto w-full space-y-6">
               
-              {/* Engine Announcement Header */}
-              <div className="bg-gradient-to-r from-neutral-950 via-neutral-900 to-black text-white p-5 rounded-2xl border border-yellow-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xl">
-                <div className="space-y-1">
-                  <div className="inline-flex items-center gap-2 px-2.5 py-0.5 bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider">
-                    <Cpu className="w-3 h-3" /> Groq Llama-3.3-70B Drafting Engine
-                  </div>
-                  <h2 className="text-lg font-extrabold text-white tracking-tight">Court Submission & Legal Document Drafter</h2>
-                  <p className="text-xs text-gray-300">Generate full multi-page legal submissions up to 5,000 words with exhaustive statutory & judicial precedent grounding.</p>
-                </div>
-                <div className="text-right shrink-0">
-                  <span className="text-xs font-mono font-bold text-yellow-400 block">Target Word Capacity</span>
-                  <span className="text-xl font-extrabold text-white">Up to 5,000 Words</span>
-                </div>
+              {/* Simple Minimalist Section Header */}
+              <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
+                <h2 className="text-lg font-bold text-zinc-900 tracking-tight">Legal Document Drafter</h2>
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -1180,51 +1286,71 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
 
       </main>
 
-      {/* DOCUMENT READER MODAL */}
+      {/* MINIMALIST LIGHT-THEME FULL-VIEWPORT DOCUMENT READER */}
       {isPDFReaderOpen && viewingDoc && (
-        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-white max-w-3xl w-full max-h-[85vh] rounded-2xl flex flex-col overflow-hidden shadow-2xl">
-            <div className="p-4 border-b border-zinc-200 flex items-center justify-between bg-zinc-50">
-              <h3 className="text-xs font-bold text-zinc-900 truncate">{viewingDoc.name}</h3>
-              <button onClick={() => setIsPDFReaderOpen(false)} className="text-zinc-400 hover:text-zinc-700">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <div className="flex-1 p-6 overflow-y-auto font-mono text-xs text-zinc-800 leading-relaxed whitespace-pre-wrap">
-              {viewingDoc.extractedText || viewingDoc.excerpt || "Document text preview."}
-            </div>
-          </div>
+        <div className="fixed inset-0 z-[9999] bg-white w-screen h-screen flex flex-col overflow-hidden text-neutral-900 m-0 p-0">
+          {/* Header Bar: Only Back Icon & File Name */}
+          <header className="h-12 px-4 border-b border-neutral-200 bg-white flex items-center gap-3 shrink-0">
+            <button
+              onClick={() => setIsPDFReaderOpen(false)}
+              className="p-1.5 hover:bg-neutral-100 rounded-lg text-neutral-700 hover:text-black transition cursor-pointer flex items-center justify-center shrink-0"
+              title="Back"
+              aria-label="Back"
+            >
+              <ArrowLeft className="w-5 h-5 text-neutral-800" />
+            </button>
+            <h1 className="text-sm font-semibold text-neutral-900 truncate tracking-tight font-sans">
+              {viewingDoc.name}
+            </h1>
+          </header>
+
+          {/* Dedicated Full Viewport Document Body */}
+          <main className="flex-1 w-full h-full bg-white overflow-hidden flex flex-col">
+            {viewingDoc.type === 'PDF' || (viewingDoc.fileDataUrl && viewingDoc.fileDataUrl.startsWith('data:application/pdf')) || (viewingDoc.name.toLowerCase().endsWith('.pdf')) ? (
+              <iframe
+                src={viewingDoc.fileDataUrl || viewingDoc.pdfUrl || viewingDoc.sourceUrl}
+                className="w-full h-full border-0 flex-1"
+                title={viewingDoc.name}
+              />
+            ) : (
+              <div className="flex-1 w-full h-full p-6 sm:p-12 overflow-y-auto font-sans text-sm sm:text-base text-neutral-900 leading-relaxed bg-white">
+                <div className="max-w-4xl mx-auto whitespace-pre-wrap">
+                  {viewingDoc.extractedText || viewingDoc.excerpt || "No document text available."}
+                </div>
+              </div>
+            )}
+          </main>
         </div>
       )}
 
       {/* AI DOCUMENT SUMMARIZER MODAL */}
       {analyzingDoc && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-white max-w-2xl w-full max-h-[85vh] rounded-2xl flex flex-col overflow-hidden shadow-2xl">
-            <div className="p-4 border-b border-zinc-200 flex items-center justify-between bg-zinc-900 text-white">
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white max-w-3xl w-full max-h-[85vh] rounded-2xl flex flex-col overflow-hidden shadow-2xl border border-zinc-200">
+            <div className="p-4 border-b border-zinc-100 flex items-center justify-between bg-white">
               <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-amber-300" />
-                <h3 className="text-xs font-bold truncate">AI Document Analysis: {analyzingDoc.name}</h3>
+                <Sparkles className="w-4 h-4 text-zinc-900" />
+                <h3 className="text-sm font-bold text-zinc-900 truncate">Document Analysis: {analyzingDoc.name}</h3>
               </div>
-              <button onClick={() => setAnalyzingDoc(null)} className="text-gray-400 hover:text-white">
+              <button onClick={() => setAnalyzingDoc(null)} className="text-zinc-400 hover:text-zinc-700">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="flex-1 p-6 overflow-y-auto text-xs text-zinc-800 leading-relaxed">
+            <div className="flex-1 p-6 overflow-y-auto text-xs text-zinc-800 leading-relaxed font-sans">
               {isAnalyzingDoc ? (
                 <div className="text-center py-12 space-y-3">
-                  <Sparkles className="w-8 h-8 animate-spin text-[#0071e3] mx-auto" />
-                  <p className="font-bold text-zinc-600">Gemini AI is analyzing material facts, statutory provisions & vulnerabilities...</p>
+                  <Sparkles className="w-6 h-6 animate-spin text-[#0071e3] mx-auto" />
+                  <p className="font-bold text-zinc-600">Analyzing document text structure...</p>
                 </div>
               ) : (
-                <div className="whitespace-pre-wrap font-sans space-y-2">
+                <div className="whitespace-pre-wrap font-sans space-y-2 text-sm text-zinc-800 leading-relaxed">
                   {docAnalysisSummary}
                 </div>
               )}
             </div>
 
-            <div className="p-3 bg-zinc-50 border-t border-zinc-200 flex justify-end">
+            <div className="p-3 bg-zinc-50 border-t border-zinc-100 flex justify-end">
               <button
                 onClick={() => setAnalyzingDoc(null)}
                 className="px-4 py-2 bg-[#1d1d1f] text-white text-xs font-bold rounded-xl hover:bg-black cursor-pointer"

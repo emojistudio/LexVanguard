@@ -1,35 +1,15 @@
 import { useEffect, useState } from "react";
 import { Link } from "wouter";
-import { ChevronLeft, ChevronRight, ChevronDown, Scale, Users, Globe } from "lucide-react";
+import { ChevronLeft, ChevronRight, ChevronDown, Info, Scale, Users, Globe, X, Phone, Mail, MapPin } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import EventsSection from "@/components/EventsSection";
+import PracticeAreasSection from "@/components/PracticeAreasSection";
 import SEOHead from "@/components/SEOHead";
 import { ORGANIZATIONAL_SCHEMA, SITE_KEYWORDS } from "@/lib/seo-data";
 import { loadProfile, handleProfileImageError } from "@/lib/profile-store";
-import { subscribeFirestoreMembers } from "@/lib/users";
-import { makeAvatarSvg } from "@/lib/avatar";
-
-const SLIDES = [
-  {
-    image: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=1000&q=60",
-    fallback: "https://images.unsplash.com/photo-1453728013993-6d66e9c9123a?auto=format&fit=crop&w=1000&q=60",
-    lines: ["MERGING A", "MODERN MINDSET", "WITH THE PRACTICES WE", "VALUE"],
-    gold: [true, true, false, false]
-  },
-  {
-    image: "https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=1000&q=60",
-    fallback: "https://images.unsplash.com/photo-1575320181282-9afab399332c?auto=format&fit=crop&w=1000&q=60",
-    lines: ["PIONEERING", "LEGAL RESEARCH", "AND ELITE APPELLATE", "ADVOCACY"],
-    gold: [true, true, false, false]
-  },
-  {
-    image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1000&q=60",
-    fallback: "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1000&q=60",
-    lines: ["ENTERPRISE-GRADE", "LEGAL COUNSEL", "FOR TOMORROW'S", "CHALLENGES"],
-    gold: [true, true, false, false]
-  }
-];
+import { FirestoreMember, subscribeFirestoreMembers } from "@/lib/users";
+import { resolveProfileImage } from "@/lib/profile-images";
 
 const PHILOSOPHY = [
   {
@@ -52,13 +32,22 @@ const PHILOSOPHY = [
   }
 ];
 
+const SLIDE_IMAGES = [
+  "https://i.ibb.co/3Yf3BzVB/Whats-App-Image-2026-08-11-at-14-37-59.jpg",
+  "https://i.ibb.co/k2tP1823/Whats-App-Image-2026-08-11-at-14-37-58.jpg",
+  "https://i.ibb.co/m524x61g/Whats-App-Image-2026-08-11-at-14-37-57-1.jpg",
+  "https://i.ibb.co/C3vgF6X4/Whats-App-Image-2026-08-11-at-14-37-57.jpg",
+  "https://i.ibb.co/ccjKrf8Q/Whats-App-Image-2026-08-11-at-14-37-56.jpg"
+];
+
 export default function HomePage() {
   const [slide, setSlide] = useState(0);
   const [expanded, setExpanded] = useState<number | null>(null);
   const [members, setMembers] = useState<FirestoreMember[]>([]);
+  const [infoModalOpen, setInfoModalOpen] = useState(false);
 
   useEffect(() => {
-    const timer = setInterval(() => setSlide(s => (s + 1) % SLIDES.length), 6000);
+    const timer = setInterval(() => setSlide(s => (s + 1) % SLIDE_IMAGES.length), 5000);
     return () => clearInterval(timer);
   }, []);
 
@@ -69,11 +58,11 @@ export default function HomePage() {
     return () => unsubscribe();
   }, []);
 
-  const prev = () => setSlide(s => s === 0 ? SLIDES.length - 1 : s - 1);
-  const next = () => setSlide(s => (s + 1) % SLIDES.length);
+  const prev = () => setSlide(s => s === 0 ? SLIDE_IMAGES.length - 1 : s - 1);
+  const next = () => setSlide(s => (s + 1) % SLIDE_IMAGES.length);
 
   return (
-    <div className="w-full max-w-full overflow-x-hidden bg-black">
+    <div className="w-full max-w-full overflow-x-hidden bg-black text-white font-sans">
       <SEOHead
         title="Premier Student Law Firm & Mooting Powerhouse"
         description="Official homepage of LexVanguard Advocates LLP at Mount Kenya University Parklands Law Campus (MKUPLC). Founded by Prince Micah, Kelvin Musya, and Donel Aganyo. Championing youth in law, moot court excellence, and legal research."
@@ -81,50 +70,158 @@ export default function HomePage() {
         url="https://lexvanguard.xyz/"
         jsonLd={ORGANIZATIONAL_SCHEMA}
       />
+
+      {/* Top Fixed Header */}
       <Header />
 
-      {/* Hero Slider */}
-      <div className="relative h-[60vh] sm:h-[85vh] md:h-screen w-full max-w-full flex items-center overflow-hidden">
-        {SLIDES.map((s, i) => (
-          <div key={i} className={`absolute inset-0 z-0 transition-opacity duration-1000 ease-in-out ${i === slide ? 'opacity-100' : 'opacity-0'}`}>
-            <img
-              src={s.image}
-              onError={(e) => { (e.target as HTMLImageElement).src = s.fallback; }}
-              alt={`Slide ${i + 1}`}
-              className="w-full h-full object-cover opacity-80"
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-black/40 to-black/90" />
-            <div className="relative z-10 w-full h-full px-4 sm:px-10 lg:px-16 pt-24 sm:pt-32 pb-16 sm:pb-24 flex items-center justify-end">
-              <div className="w-full sm:w-[80%] md:w-[70%] lg:w-[60%] border-l-[3px] sm:border-l-[4px] md:border-l-[6px] border-yellow-500 pl-3 sm:pl-6 md:pl-8 lg:pr-20">
-                <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold leading-[1.15] md:leading-[1.1] tracking-tight">
-                  {s.lines.map((line, j) => (
-                    <span key={j} className={`block ${s.gold[j] ? 'text-yellow-500' : 'text-white'}`}>{line}</span>
-                  ))}
-                </h1>
+      {/* Hero Container with Slideshow */}
+      <div className="relative min-h-screen w-full max-w-full flex flex-col justify-between items-center overflow-hidden bg-gradient-to-b from-neutral-950 via-neutral-900 to-black">
+        <style>{`
+          .slideshow-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+          }
+          .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 1s ease-in-out, transform 1.5s ease-in-out;
+            background-size: cover;
+            background-position: center;
+            transform: scale(1.05);
+          }
+          .slide.active {
+            opacity: 1;
+            transform: scale(1);
+          }
+          .slide-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(5,5,5,0.4) 0%, rgba(5,5,5,0.85) 100%);
+          }
+        `}</style>
+
+        {/* Slideshow Background */}
+        <div className="slideshow-container">
+          {SLIDE_IMAGES.map((src, i) => (
+            <div key={i} className={`slide ${i === slide ? 'active' : ''}`} style={{ backgroundImage: `url('${src}')` }}>
+              <div className="slide-overlay" />
+            </div>
+          ))}
+        </div>
+
+        {/* Main Content Area / Hero Spacer */}
+        <main className="flex-grow flex items-center justify-center relative z-10 w-full px-4 pointer-events-none min-h-[60vh]">
+          {/* Central text removed as background images provide visual focus */}
+        </main>
+
+        {/* Bottom Controls Area */}
+        <footer className="absolute bottom-0 left-0 w-full p-6 md:px-12 flex justify-between items-end z-20">
+          {/* Left info button */}
+          <button
+            onClick={() => setInfoModalOpen(true)}
+            className="border border-[#ffc107] text-[#ffc107] w-10 h-10 flex items-center justify-center cursor-pointer hover:bg-[#ffc107] hover:text-black transition-all focus:outline-none"
+            title="Firm Details"
+            aria-label="Firm Details"
+          >
+            <Info className="w-5 h-5 italic" />
+          </button>
+
+          {/* Center Explore Button */}
+          <div
+            onClick={() => {
+              document.getElementById('intro-section')?.scrollIntoView({ behavior: 'smooth' });
+            }}
+            className="flex flex-col items-center cursor-pointer group pb-2"
+          >
+            <ChevronDown className="w-4 h-4 text-[#ffc107] mb-2 group-hover:translate-y-1 transition-transform" />
+            <span className="text-white text-xs font-bold tracking-widest uppercase group-hover:text-[#ffc107] transition-colors">
+              Explore
+            </span>
+          </div>
+
+          {/* Right Pagination / Slider Controls */}
+          <div className="flex items-center space-x-4 text-[#ffc107] font-bold text-sm">
+            <button
+              onClick={prev}
+              className="hover:text-white transition-colors focus:outline-none p-2 cursor-pointer"
+              aria-label="Previous Slide"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <div className="flex items-center font-mono">
+              <span>{String(slide + 1).padStart(2, '0')}</span>
+              <span className="mx-2 text-white">/</span>
+              <span className="text-white">{String(SLIDE_IMAGES.length).padStart(2, '0')}</span>
+            </div>
+            <button
+              onClick={next}
+              className="hover:text-white transition-colors focus:outline-none p-2 cursor-pointer"
+              aria-label="Next Slide"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        </footer>
+      </div>
+
+      {/* Info Modal */}
+      {infoModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+          <div className="bg-neutral-900 border border-[#ffc107]/40 max-w-lg w-full p-6 sm:p-8 rounded-lg shadow-2xl relative text-white">
+            <button
+              onClick={() => setInfoModalOpen(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors p-1"
+            >
+              <X className="w-6 h-6" />
+            </button>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-1 bg-[#ffc107] h-8" />
+              <div>
+                <h3 className="text-xl font-extrabold tracking-wider text-white">LEXVANGUARD ADVOCATES LLP</h3>
+                <p className="text-xs text-[#ffc107] uppercase tracking-widest font-semibold">Counsels at Law</p>
               </div>
             </div>
-          </div>
-        ))}
-
-        <div className="absolute bottom-6 sm:bottom-10 left-0 w-full px-4 sm:px-6 md:px-10 z-20 flex justify-between items-end">
-          <button className="border-2 border-yellow-500 text-white w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center hover:bg-yellow-500 hover:text-black transition-colors shrink-0">
-            <span className="font-bold text-lg sm:text-xl italic">i</span>
-          </button>
-          <button className="absolute left-1/2 transform -translate-x-1/2 bottom-0 flex items-center bg-black/50 border border-white/10 hover:border-white/30 px-4 py-2 sm:px-6 sm:py-3 text-white font-bold text-xs sm:text-sm tracking-widest transition-all rounded-xs shrink-0"
-            onClick={() => { document.getElementById('intro-section')?.scrollIntoView({ behavior: 'smooth' }); }}>
-            <ChevronDown className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-yellow-500 mr-2 sm:mr-3" /> EXPLORE
-          </button>
-          <div className="hidden md:flex items-center text-white space-x-6 text-sm font-bold tracking-widest">
-            <button onClick={prev} className="cursor-pointer hover:text-yellow-500 transition-colors"><ChevronLeft className="w-5 h-5" /></button>
-            <div className="flex items-center space-x-2">
-              <span className="text-yellow-500">{String(slide + 1).padStart(2, '0')}</span>
-              <span className="text-gray-400">/</span>
-              <span className="text-white">{String(SLIDES.length).padStart(2, '0')}</span>
+            <p className="text-gray-300 text-xs sm:text-sm leading-relaxed mb-6">
+              LexVanguard is Mount Kenya University Parklands Law Campus's premier student-led law firm and moot court powerhouse, established to cultivate elite legal talent, systemic advocacy, and scholarly legal research.
+            </p>
+            <div className="space-y-3 text-xs sm:text-sm border-t border-white/10 pt-4">
+              <div className="flex items-center gap-3 text-gray-300">
+                <Phone className="w-4 h-4 text-[#ffc107]" />
+                <span>+254 116 171 396</span>
+              </div>
+              <div className="flex items-center gap-3 text-gray-300">
+                <Mail className="w-4 h-4 text-[#ffc107]" />
+                <span>lexvanguardadvocatesllp@gmail.com</span>
+              </div>
+              <div className="flex items-center gap-3 text-gray-300">
+                <MapPin className="w-4 h-4 text-[#ffc107]" />
+                <span>MKU Parklands Law Campus, Nairobi, Kenya</span>
+              </div>
             </div>
-            <button onClick={next} className="cursor-pointer hover:text-yellow-500 transition-colors"><ChevronRight className="w-5 h-5" /></button>
+            <div className="mt-6 flex justify-end">
+              <button
+                onClick={() => setInfoModalOpen(false)}
+                className="bg-[#ffc107] text-black px-5 py-2 text-xs font-extrabold uppercase tracking-widest hover:bg-yellow-400 transition-colors rounded-sm cursor-pointer"
+              >
+                Close Window
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
+
 
       {/* Intro Section */}
       <div id="intro-section" className="py-12 sm:py-20 bg-white w-full max-w-full overflow-x-hidden">
@@ -179,39 +276,8 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* What We Do */}
-      <div className="py-12 sm:py-20 bg-black text-white w-full max-w-full overflow-x-hidden">
-        <div className="w-full max-w-7xl mx-auto px-4 sm:px-10 lg:px-16">
-          <div className="text-center mb-10 sm:mb-16">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4 text-white uppercase tracking-wider">What We Do</h2>
-            <div className="h-1 w-12 sm:w-16 bg-yellow-500 mx-auto mb-4 sm:mb-6" />
-            <p className="text-gray-400 max-w-3xl mx-auto text-xs sm:text-base leading-relaxed">
-              LexVanguard moves beyond the textbook to provide hands-on experience across our core pillars of legal excellence.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-            {[
-              { title: "Research", desc: "Navigate complex statutes, case law, and legal instruments with AI grounding and eLegal integration.", mobileShow: true },
-              { title: "Mootcourts", desc: "Hone trial advocacy, oral argument, and court procedures through competitive simulated hearings.", mobileShow: true },
-              { title: "ICJ & Public Law", desc: "Analyze international court precedents, treaty obligations, and public international law frameworks.", mobileShow: true },
-              { title: "ADR", desc: "Master commercial arbitration, mediation, and dispute settlement strategy for complex disputes.", mobileShow: true },
-              { title: "Legal Writing & Drafting", desc: "Craft airtight contracts, persuasive appellate briefs, and authoritative legal opinions.", mobileShow: false },
-              { title: "Client Advisory & Corporate Strategy", desc: "Develop advisory protocols and strategic risk management solutions for corporate entities.", mobileShow: false }
-            ].map((item, i) => (
-              <div
-                key={i}
-                className={`border border-white/10 p-5 sm:p-8 hover:border-yellow-500 hover:bg-white/5 transition-all duration-300 rounded-sm ${
-                  !item.mobileShow ? 'hidden md:block' : 'block'
-                }`}
-              >
-                <div className="w-6 sm:w-8 h-1 bg-yellow-500 mb-3 sm:mb-5" />
-                <h3 className="font-extrabold text-white uppercase tracking-wider text-xs sm:text-sm mb-2 sm:mb-3">{item.title}</h3>
-                <p className="text-gray-400 text-xs sm:text-sm leading-relaxed">{item.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+      {/* What We Do - Premium 5-Category Practice Areas */}
+      <PracticeAreasSection />
 
       {/* Attorneys / Members Teaser */}
       <div className="py-12 sm:py-20 bg-white w-full max-w-full overflow-x-hidden">

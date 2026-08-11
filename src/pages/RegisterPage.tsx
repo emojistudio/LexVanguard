@@ -5,6 +5,7 @@ import { doc, setDoc } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 import { saveProfile } from "@/lib/profile-store";
 import { verifyInvitation, markInvitationAccepted } from "@/lib/invitation-store";
+import { resolveProfileImage } from "@/lib/profile-images";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 

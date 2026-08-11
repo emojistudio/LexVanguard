@@ -1,4 +1,4 @@
-import { doc, getDoc, collection, query, where, getDocs, onSnapshot, deleteDoc } from "firebase/firestore";
+import { doc, getDoc, collection, query, where, getDocs, onSnapshot, deleteDoc, updateDoc } from "firebase/firestore";
 import { db } from "./firebase";
 import { syncProfileFromFirestore, syncLocalProfilesToFirestore } from "./profile-store";
 import { resolveProfileImage } from "./profile-images";

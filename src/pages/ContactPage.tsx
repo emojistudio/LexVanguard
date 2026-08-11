@@ -75,9 +75,7 @@ export default function ContactPage() {
       {/* Hero Banner */}
       <div className="pt-32 sm:pt-40 pb-16 px-4 sm:px-6 text-center border-b border-yellow-500/20 bg-gradient-to-b from-neutral-950 via-black to-neutral-950">
         <div className="max-w-4xl mx-auto space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-yellow-500/10 border border-yellow-500/30 rounded-full text-yellow-400 text-xs font-mono font-bold uppercase tracking-widest">
-            <Sparkles className="w-3.5 h-3.5" /> Confidential Legal Evaluation & Inquiries
-          </div>
+       
           <h1 className="text-3xl sm:text-5xl font-extrabold uppercase tracking-tight text-white">
             Contact Senior Counsel
           </h1>

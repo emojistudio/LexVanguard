@@ -50,7 +50,59 @@ export interface EventRSVP {
   timestamp: string;
 }
 
-export const INITIAL_EVENTS: FirmEvent[] = [];
+export const INITIAL_EVENTS: FirmEvent[] = [
+  {
+    id: "evt-summit-2026",
+    title: "Annual East African Legal & Technology Summit 2026",
+    category: "Keynote & Summit",
+    date: "2026-09-18",
+    displayDate: "September 18, 2026",
+    time: "09:00 AM - 05:00 PM EAT",
+    location: "LexVanguard Chambers & Virtual Broadcast",
+    isVirtual: true,
+    featured: true,
+    image: "https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1200&q=80",
+    description: "High-level summit convening senior counsel, arbitrators, and legal tech innovators to discuss AI jurisprudence and cross-border commercial litigation.",
+    fullDetails: "Join LexVanguard Advocates LLP for our landmark annual summit exploring legal transformation in East Africa. Key topics include digital evidence admissibility under Kenyan law, cross-border arbitration standards, and ethical AI integration in trial preparation.",
+    cpdCredits: "4 LSK CPD Points",
+    speakers: [
+      { name: "Prince Micah", role: "Managing Partner & Senior Litigator" },
+      { name: "Kelvin Musya", role: "Senior Partner — Constitutional Advocacy" }
+    ],
+    capacity: 250,
+    registeredCount: 84,
+    agenda: [
+      { time: "09:00 AM", topic: "Opening Remarks & Firm Vision", presenter: "Prince Micah" },
+      { time: "11:00 AM", topic: "Constitutional & Civil Appeals Panel", presenter: "Kelvin Musya" }
+    ],
+    status: "Upcoming"
+  },
+  {
+    id: "evt-moot-court-2026",
+    title: "LexVanguard National Constitutional Law Moot Championship",
+    category: "Symposium",
+    date: "2026-10-24",
+    displayDate: "October 24, 2026",
+    time: "08:30 AM - 04:30 PM EAT",
+    location: "Mount Kenya University Parklands Law Campus (MKUPLC)",
+    isVirtual: false,
+    featured: true,
+    image: "https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&w=1200&q=80",
+    description: "Premier law student advocacy tournament centered on fundamental rights, human dignity, and constitutional interpretation under Article 47.",
+    fullDetails: "The annual LexVanguard Championship challenges law scholars to present written memorials and oral arguments before a bench of distinguished High Court and appellate practitioners.",
+    cpdCredits: "Student & Alumni Citation",
+    speakers: [
+      { name: "Donel Aganyo", role: "Founding Partner & CIArb Specialist" }
+    ],
+    capacity: 180,
+    registeredCount: 62,
+    agenda: [
+      { time: "08:30 AM", topic: "Preliminary Rounds", presenter: "Bench Evaluation Committee" },
+      { time: "02:00 PM", topic: "Grand Final Oral Advocacy", presenter: "Presiding Bench" }
+    ],
+    status: "Upcoming"
+  }
+];
 
 const LOCAL_STORAGE_KEY = "lexvanguard_firm_events";
 const LOCAL_RSVP_KEY = "lexvanguard_event_rsvps";

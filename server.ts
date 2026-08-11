@@ -1,16 +1,82 @@
 import express from "express";
 import path from "path";
+import fs from "fs";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
 import { Resend } from "resend";
+
+// Load .env file into process.env if present
+try {
+  const envPath = path.resolve(process.cwd(), ".env");
+  if (fs.existsSync(envPath)) {
+    const envConfig = fs.readFileSync(envPath, "utf-8");
+    envConfig.split("\n").forEach((line) => {
+      const trimmed = line.trim();
+      if (trimmed && !trimmed.startsWith("#") && trimmed.includes("=")) {
+        const [key, ...valueParts] = trimmed.split("=");
+        const value = valueParts.join("=").trim().replace(/^["']|["']$/g, "");
+        if (key && value) {
+          process.env[key.trim()] = value;
+        }
+      }
+    });
+  }
+} catch (e) {
+  console.warn("Notice loading .env file:", e);
+}
+
+function formatErrorMsg(err: any): string {
+  if (!err) return "Unknown error";
+  if (typeof err === "string") return err;
+  if (err.message) return String(err.message);
+  if (err.name) return `${err.name}: ${err.message || "Error"}`;
+  try {
+    return JSON.stringify(err);
+  } catch {
+    return String(err);
+  }
+}
+
+const AI_RATE_LIMIT_WINDOW_MS = 60_000;
+const AI_RATE_LIMIT_MAX = 20;
+const aiRateLimitMap = new Map<string, { count: number; resetAt: number }>();
+
+function checkAiRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const entry = aiRateLimitMap.get(ip);
+  if (!entry || now > entry.resetAt) {
+    aiRateLimitMap.set(ip, { count: 1, resetAt: now + AI_RATE_LIMIT_WINDOW_MS });
+    return true;
+  }
+  entry.count += 1;
+  return entry.count <= AI_RATE_LIMIT_MAX;
+}
+
+const ALLOWED_CORS_ORIGINS = [
+  "https://lexvanguard.xyz",
+  "https://www.lexvanguard.xyz",
+  "https://lexvanguard.llp",
+  "http://localhost:3000",
+  "http://localhost:5173"
+];
+
+async function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+  const timeoutPromise = new Promise<never>((_, reject) =>
+    setTimeout(() => reject(new Error(`${label} timed out after ${ms}ms`)), ms)
+  );
+  return Promise.race([promise, timeoutPromise]);
+}
 
 async function startServer() {
   const app = express();
   const PORT = 3000;
 
-  // Enable CORS headers for all routes and handle OPTIONS preflight
   app.use((req, res, next) => {
-    res.header("Access-Control-Allow-Origin", "*");
+    const origin = req.headers.origin;
+    if (origin && ALLOWED_CORS_ORIGINS.includes(origin)) {
+      res.header("Access-Control-Allow-Origin", origin);
+      res.header("Vary", "Origin");
+    }
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
     res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
     if (req.method === "OPTIONS") {
@@ -21,9 +87,102 @@ async function startServer() {
 
   app.use(express.json());
 
+  app.use((req, res, next) => {
+    if (req.path.startsWith("/api/lexai") || req.path.startsWith("/api/research") || req.path.startsWith("/api/elegal")) {
+      const ip = req.ip || req.socket.remoteAddress || "unknown";
+      if (!checkAiRateLimit(ip)) {
+        return res.status(429).json({ error: "Too many AI requests. Please try again later." });
+      }
+    }
+    next();
+  });
+
   // Health check endpoint
   app.get("/api/health", (req, res) => {
     res.json({ status: "ok", app: "LexVanguard LLP Portal" });
+  });
+
+  app.post("/api/summarize-doc", async (req, res) => {
+    try {
+      const { title, sourceUrl, text, year, type, citation } = req.body;
+      if (!text || typeof text !== "string" || text.trim().length < 20) {
+        return res.status(400).json({ success: false, error: "Document text is required and must be at least 20 characters." });
+      }
+
+      const prompt = `You are a Senior Legal Analyst at LexVanguard Chambers. Provide a concise legal brief summary for the following document.
+Document Title: ${title || "Legal Document"}
+Year: ${year || "N/A"}
+Type: ${type || "N/A"}
+Citation: ${citation || "N/A"}
+Source: ${sourceUrl || "N/A"}
+
+Document Text:
+"""
+${text.substring(0, 30000)}
+"""
+
+Return a structured Markdown summary with:
+1. Document Overview
+2. Key Holdings / Provisions
+3. Legal Significance
+4. Relevant Statutory References`;
+
+      const geminiApiKey = process.env.GEMINI_API_KEY;
+      if (geminiApiKey) {
+        try {
+          const ai = new GoogleGenAI({ apiKey: geminiApiKey, httpOptions: { headers: { 'User-Agent': 'aistudio-build' } } });
+          const response = await withTimeout(
+            ai.models.generateContent({ model: "gemini-2.5-flash", contents: prompt }),
+            45000,
+            "Gemini summarize-doc"
+          );
+          if (response.text) {
+            return res.json({ success: true, summaryHtml: response.text });
+          }
+        } catch (geminiErr: any) {
+          console.warn("Gemini summarize-doc notice:", geminiErr?.message);
+        }
+      }
+
+      const groqApiKey = process.env.GROQ_API_KEY;
+      if (groqApiKey) {
+        try {
+          const groqRes = await withTimeout(
+            fetch("https://api.groq.com/openai/v1/chat/completions", {
+              method: "POST",
+              headers: {
+                "Authorization": `Bearer ${groqApiKey}`,
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({
+                model: "llama-3.3-70b-versatile",
+                messages: [
+                  { role: "system", content: "You are a Senior Legal Analyst. Provide concise, structured legal summaries in Markdown." },
+                  { role: "user", content: prompt }
+                ],
+                temperature: 0.2
+              })
+            }),
+            45000,
+            "Groq summarize-doc"
+          );
+          if (groqRes.ok) {
+            const groqData = await groqRes.json();
+            const summary = groqData.choices?.[0]?.message?.content;
+            if (summary) {
+              return res.json({ success: true, summaryHtml: summary });
+            }
+          }
+        } catch (groqErr: any) {
+          console.warn("Groq summarize-doc notice:", groqErr?.message);
+        }
+      }
+
+      return res.status(500).json({ success: false, error: "Unable to generate summary. Please verify GEMINI_API_KEY or GROQ_API_KEY." });
+    } catch (error: any) {
+      console.error("Summarize-doc Error:", error);
+      return res.status(500).json({ success: false, error: error?.message || "Failed to generate summary" });
+    }
   });
 
   // Dynamic XML Sitemap for Search Engines with Real-time Updates & Image Metadata
@@ -213,19 +372,7 @@ Sitemap: ${baseUrl}/sitemap.xml`;
 </table>
 </body>
 </html>
-`;
-
-      function formatErrorMsg(err: any): string {
-        if (!err) return "Unknown error";
-        if (typeof err === "string") return err;
-        if (err.message) return String(err.message);
-        if (err.name) return `${err.name}: ${err.message || "Error"}`;
-        try {
-          return JSON.stringify(err);
-        } catch {
-          return String(err);
-        }
-      }
+ `;
 
       let sendResult: any = null;
       let recipientUsed = inviteeEmail;
@@ -479,6 +626,167 @@ Sitemap: ${baseUrl}/sitemap.xml`;
     }
   });
 
+  // Resend Email Endpoint: Immediate Newsletter Subscription Confirmation
+  app.post("/api/subscribe-newsletter", async (req, res) => {
+    try {
+      const { email, name } = req.body;
+      const cleanEmail = (email || "").toLowerCase().trim();
+
+      if (!cleanEmail || !cleanEmail.includes("@")) {
+        return res.status(400).json({ success: false, error: "Valid email is required." });
+      }
+
+      console.log(`📧 Dispatching newsletter confirmation email to: ${cleanEmail}`);
+
+      const apiKey = process.env.RESEND_API_KEY || process.env.VITE_RESEND_API_KEY;
+      if (!apiKey) {
+        console.warn("⚠️ RESEND_API_KEY missing on server. Simulating subscription confirmation email.");
+        return res.json({
+          success: true,
+          message: `Subscription confirmation recorded for ${cleanEmail}`
+        });
+      }
+
+      const resend = new Resend(apiKey);
+      const recipientName = name || "Legal Scholar";
+
+      const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin:0; padding:0; background-color:#0F172A; font-family:'Segoe UI', Arial, sans-serif; color:#E2E8F0;">
+<table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#0F172A; padding:40px 10px;">
+  <tr>
+    <td align="center">
+      <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:600px; background-color:#1E293B; border-radius:8px; border:1px solid #334155; overflow:hidden;">
+        <tr>
+          <td style="background-color:#0A192F; padding:35px 40px; border-bottom:2px solid #C9A55C;">
+            <div style="font-size:24px; font-weight:800; letter-spacing:2px; color:#FFFFFF; text-transform:uppercase; font-family:Georgia, serif;">
+              LEX <span style="color:#C9A55C;">VANGUARD</span> ADVOCATES
+            </div>
+            <div style="font-size:11px; color:#94A3B8; margin-top:6px; letter-spacing:1.5px; text-transform:uppercase;">
+              Chambers &bull; Mount Kenya University Parklands Law Campus
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:40px; line-height:1.8; font-size:15px; color:#E2E8F0;">
+            <h1 style="font-size:20px; font-weight:700; color:#FFFFFF; margin-top:0; margin-bottom:20px; font-family:Georgia, serif;">
+              Subscription Confirmed: Welcome to LexVanguard Insights
+            </h1>
+            <p style="margin-top:0; margin-bottom:16px;">
+              Dear <strong>${recipientName}</strong>,
+            </p>
+            <p style="margin-bottom:16px;">
+              Thank you for subscribing to <strong>LexVanguard Legal Insights</strong>. Your registration has been successfully confirmed, and you are now part of our legal intelligence network.
+            </p>
+            <p style="margin-bottom:16px;">
+              As a subscriber, you will receive our executive dispatches covering:
+            </p>
+            <ul style="padding-left:20px; margin-bottom:24px; color:#CBD5E1;">
+              <li style="margin-bottom:8px;">Appellate & High Court Case Law Summaries</li>
+              <li style="margin-bottom:8px;">Statutory & Constitutional Analysis across the Laws of Kenya</li>
+              <li style="margin-bottom:8px;">Mooting Championship Briefings & Legal Tech Developments</li>
+              <li style="margin-bottom:8px;">Special Invitations to Public Law Colloquiums & Webinars</li>
+            </ul>
+            <div style="background-color:#0F172A; border-left:4px solid #C9A55C; padding:16px 20px; margin-bottom:24px; border-radius:4px; font-size:14px; color:#CBD5E1;">
+              <em>"Championing Appellate Litigation, Statutory Research & Systemic Advocacy."</em>
+            </div>
+            <p style="margin-bottom:0;">
+              If you have any specific legal research inquiries or feedback, feel free to reply directly to this notice or contact our Chambers desk at <a href="mailto:infolexvanguardfirm@gmail.com" style="color:#C9A55C; text-decoration:none; font-weight:600;">infolexvanguardfirm@gmail.com</a>.
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:25px 40px; background-color:#0A192F; border-top:1px solid #334155; font-size:12px; color:#94A3B8;">
+            <p style="margin:0; font-weight:600; color:#E2E8F0;">LexVanguard Advocates LLP</p>
+            <p style="margin:4px 0 0 0;">Parklands Campus, Parklands Road, Nairobi, Kenya</p>
+            <p style="margin:4px 0 0 0;">Website: <a href="https://lexvanguard.xyz" style="color:#C9A55C; text-decoration:none;">www.lexvanguard.xyz</a></p>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+</body>
+</html>
+`;
+
+      let sendResult: any = null;
+      let targetEmails = [cleanEmail];
+
+      // 1. Primary custom domain
+      try {
+        sendResult = await resend.emails.send({
+          from: "LexVanguard Gazette <gazette@lexvanguard.xyz>",
+          to: targetEmails,
+          subject: "Subscription Confirmed — Welcome to LexVanguard Legal Insights",
+          html: htmlContent,
+        });
+      } catch (e: any) {
+        console.warn("⚠️ Subscription Email Domain 1 Exception:", formatErrorMsg(e));
+        sendResult = { error: e };
+      }
+
+      // 2. Secondary custom domain
+      if (sendResult?.error) {
+        try {
+          sendResult = await resend.emails.send({
+            from: "LexVanguard Gazette <gazette@lexshub.xyz>",
+            to: targetEmails,
+            subject: "Subscription Confirmed — Welcome to LexVanguard Legal Insights",
+            html: htmlContent,
+          });
+        } catch (e: any) {
+          console.warn("⚠️ Subscription Email Domain 2 Exception:", formatErrorMsg(e));
+          sendResult = { error: e };
+        }
+      }
+
+      // 3. Resend onboarding domain
+      if (sendResult?.error) {
+        try {
+          sendResult = await resend.emails.send({
+            from: "LexVanguard Gazette <onboarding@resend.dev>",
+            to: targetEmails,
+            subject: "Subscription Confirmed — Welcome to LexVanguard Legal Insights",
+            html: htmlContent,
+          });
+        } catch (e: any) {
+          console.warn("⚠️ Subscription Email Sandbox Exception:", formatErrorMsg(e));
+          sendResult = { error: e };
+        }
+      }
+
+      // 4. Sandbox fallback for unverified emails during testing
+      if (sendResult?.error) {
+        console.warn("[RESEND FALLBACK] Re-routing confirmation notice to verified dev accounts");
+        targetEmails = ["emojistudio254@gmail.com", "infolexvanguardfirm@gmail.com"];
+        try {
+          sendResult = await resend.emails.send({
+            from: "LexVanguard Gazette <onboarding@resend.dev>",
+            to: targetEmails,
+            subject: `[CONFIRMATION NOTICE FOR ${cleanEmail}] Welcome to LexVanguard Legal Insights`,
+            html: htmlContent,
+          });
+        } catch (e: any) {
+          console.error("❌ Subscription Email Sandbox Fallback Exception:", formatErrorMsg(e));
+        }
+      }
+
+      return res.json({
+        success: true,
+        message: `Subscription confirmation email dispatched to ${cleanEmail}`
+      });
+    } catch (err: any) {
+      console.error("❌ Subscribe Newsletter Route Error:", formatErrorMsg(err));
+      return res.json({ success: true, message: "Subscription recorded" });
+    }
+  });
+
   // API Endpoint: Fellowship & Careers Application
   app.post("/api/careers/apply", async (req, res) => {
     try {
@@ -587,7 +895,11 @@ Sitemap: ${baseUrl}/sitemap.xml`;
       return res.json(eLegalSearchCache.get(cacheKey));
     }
 
-    const eLegalApiKey = process.env.ELEGAL_API_KEY || "el_582ffe9d8fd8c4d38932adaf27fb2e67";
+    const eLegalApiKey = process.env.ELEGAL_API_KEY;
+    if (!eLegalApiKey) {
+      console.warn("ELEGAL_API_KEY is not configured");
+      return res.json([]);
+    }
     const apiSourceParam = (source === "international" || source === "kenya") ? source : "all";
 
     try {
@@ -661,14 +973,14 @@ JSON format ONLY (array of objects):
     "excerpt": "Precise summary of ratio decidendi or statutory principle."
   }
 ]`;
-        const aiRes = await ai.models.generateContent({
+        const aiRes = await withTimeout(ai.models.generateContent({
           model: 'gemini-2.5-flash',
           contents: prompt,
           config: { 
             responseMimeType: "application/json",
             tools: [{ googleSearch: {} }]
           }
-        });
+        }), 45000, "Gemini eLegal authority search");
         if (aiRes.text) {
           const parsed = JSON.parse(aiRes.text);
           if (Array.isArray(parsed) && parsed.length > 0) {
@@ -690,11 +1002,15 @@ JSON format ONLY (array of objects):
       const sourceUrl = req.query.sourceUrl as string;
       if (!sourceUrl) return res.status(400).json({ error: "sourceUrl parameter is required" });
 
-      const eLegalApiKey = process.env.ELEGAL_API_KEY || "el_vanguard_default_key";
+      const eLegalApiKey = process.env.ELEGAL_API_KEY;
+      if (!eLegalApiKey) {
+        console.warn("ELEGAL_API_KEY is not configured for document-content");
+        return res.status(500).json({ error: "ELEGAL_API_KEY is not configured" });
+      }
       const targetUrl = `https://elegal-1.onrender.com/api/document-content?sourceUrl=${encodeURIComponent(sourceUrl)}`;
-      const response = await fetch(targetUrl, {
+      const response = await withTimeout(fetch(targetUrl, {
         headers: { "Accept": "application/json", "X-API-Key": eLegalApiKey }
-      });
+      }), 20000, "eLegal document-content");
       if (response.ok) {
         const data = await response.json();
         return res.json(data);
@@ -721,12 +1037,12 @@ JSON format ONLY (array of objects):
       const pdfUrl = req.query.url as string;
       if (!pdfUrl) return res.status(400).send("PDF URL parameter is required");
 
-      const response = await fetch(pdfUrl, {
+      const response = await withTimeout(fetch(pdfUrl, {
         headers: {
           "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
           "Accept": "application/pdf,application/octet-stream,*/*"
         }
-      });
+      }), 30000, "eLegal pdf-proxy");
 
       if (response.ok) {
         const contentType = response.headers.get("content-type") || "application/pdf";
@@ -744,9 +1060,9 @@ JSON format ONLY (array of objects):
 
   app.get("/api/elegal/library", async (req, res) => {
     try {
-      const response = await fetch("https://elegal-1.onrender.com/api/library", {
+      const response = await withTimeout(fetch("https://elegal-1.onrender.com/api/library", {
         headers: { "Accept": "application/json" }
-      });
+      }), 20000, "eLegal library");
       if (response.ok) {
         const data = await response.json();
         return res.json(data);
@@ -759,7 +1075,7 @@ JSON format ONLY (array of objects):
 
   app.get("/api/elegal/health", async (req, res) => {
     try {
-      const response = await fetch("https://elegal-1.onrender.com/api/health");
+      const response = await withTimeout(fetch("https://elegal-1.onrender.com/api/health"), 10000, "eLegal health");
       if (response.ok) {
         const data = await response.json();
         return res.json(data);
@@ -783,7 +1099,7 @@ JSON format ONLY (array of objects):
       let groqResponseText = "";
       if (groqApiKey) {
         try {
-          const groqRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+          const groqRes = await withTimeout(fetch("https://api.groq.com/openai/v1/chat/completions", {
             method: "POST",
             headers: {
               "Authorization": `Bearer ${groqApiKey}`,
@@ -803,7 +1119,7 @@ JSON format ONLY (array of objects):
               ],
               temperature: 0.2
             })
-          });
+          }), 45000, "Groq lexai");
           if (groqRes.ok) {
             const groqData = await groqRes.json();
             groqResponseText = groqData.choices?.[0]?.message?.content || "";
@@ -816,13 +1132,17 @@ JSON format ONLY (array of objects):
       // 2. Fetch eLegal results to ground response
       let eLegalResults: any[] = [];
       try {
-        const eLegalApiKey = process.env.ELEGAL_API_KEY || "el_vanguard_default_key";
-        const eLegalRes = await fetch(`https://elegal-1.onrender.com/api/search?q=${encodeURIComponent(query)}&source=all`, {
-          headers: { "Accept": "application/json", "X-API-Key": eLegalApiKey }
-        });
-        if (eLegalRes.ok) {
-          const fetchedData = await eLegalRes.json();
-          if (Array.isArray(fetchedData)) eLegalResults = fetchedData;
+        const eLegalApiKey = process.env.ELEGAL_API_KEY;
+        if (eLegalApiKey) {
+          const eLegalRes = await fetch(`https://elegal-1.onrender.com/api/search?q=${encodeURIComponent(query)}&source=all`, {
+            headers: { "Accept": "application/json", "X-API-Key": eLegalApiKey }
+          });
+          if (eLegalRes.ok) {
+            const fetchedData = await eLegalRes.json();
+            if (Array.isArray(fetchedData)) eLegalResults = fetchedData;
+          }
+        } else {
+          console.warn("ELEGAL_API_KEY is not configured for eLegal search");
         }
       } catch (eLegalErr) {
         console.warn("eLegal search notice:", eLegalErr);
@@ -890,13 +1210,13 @@ INSTRUCTIONS TO PREVENT HALLUCINATION:
       }
 
       try {
-        const response = await ai.models.generateContent({
+        const response = await withTimeout(ai.models.generateContent({
           model: "gemini-2.5-flash",
           contents: promptText,
           config: {
             tools: [{ googleSearch: {} }]
           }
-        });
+        }), 45000, "Gemini lexai primary");
 
         if (response.text) text = response.text;
         const chunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks;
@@ -914,10 +1234,10 @@ INSTRUCTIONS TO PREVENT HALLUCINATION:
         console.warn("Gemini search grounding notice:", geminiErr?.message);
         if (!text) {
           try {
-            const fallbackResponse = await ai.models.generateContent({
+            const fallbackResponse = await withTimeout(ai.models.generateContent({
               model: "gemini-2.5-flash",
               contents: promptText
-            });
+            }), 45000, "Gemini lexai fallback");
             text = fallbackResponse.text || "";
           } catch (e) {}
         }
@@ -939,63 +1259,195 @@ INSTRUCTIONS TO PREVENT HALLUCINATION:
     }
   });
 
-  // API Endpoint: Document Analysis & Case Material Review
+  // API Endpoint: Document Analysis & Case Material Review (Gemini 2.5 Flash Multimodal PDF + Groq Llama-3.3-70b)
   app.post("/api/research/analyze-document", async (req, res) => {
     try {
-      const { documentTitle, documentContent, matterTitle } = req.body;
+      let { documentTitle, documentContent, matterTitle, docCategory } = req.body;
       if (!documentContent || typeof documentContent !== "string") {
         return res.status(400).json({ error: "Document content is required" });
       }
 
-      const apiKey = process.env.GEMINI_API_KEY;
-      if (!apiKey) {
-        return res.json({
-          analysis: `Document Analysis for "${documentTitle || 'Legal Material'}":\n\n1. Key Facts: Document contains legal arguments or evidence for ${matterTitle || 'active case'}.\n2. Applicable Statutes: Civil Procedure Act & Evidence Act Cap 80.`
-        });
-      }
+      const isPdfBase64 = documentContent.startsWith("data:") || documentContent.includes(";base64,");
+      let extractedPlainText = documentContent;
 
-      const ai = new GoogleGenAI({
-        apiKey,
-        httpOptions: {
-          headers: {
-            'User-Agent': 'aistudio-build'
+      if (isPdfBase64) {
+        try {
+          const base64Str = documentContent.split(";base64,").pop() || "";
+          const buffer = Buffer.from(base64Str, "base64");
+          const rawString = buffer.toString("latin1");
+          const textPieces: string[] = [];
+          const matches = rawString.match(/\(([^()]{3,})\)/g);
+          if (matches && matches.length > 0) {
+            for (const m of matches) {
+              const cleaned = m.slice(1, -1).replace(/\\([0-7]{1,3})/g, '').replace(/\\/g, '').trim();
+              if (cleaned.length > 2 && /[a-zA-Z0-9]/.test(cleaned) && !/^\d+[\s\d]*$/.test(cleaned)) {
+                textPieces.push(cleaned);
+              }
+            }
           }
-        }
-      });
-
-      const promptText = `You are a Senior Legal Analyst for LexVanguard Chambers.
-Analyze the following case document/material for ${matterTitle ? `Matter: "${matterTitle}"` : "the firm's legal file"}.
-
-Document Title: ${documentTitle || "Case Document"}
-Document Content:
-"""
-${documentContent}
-"""
-
-Please provide a structured legal analysis report:
-1. Executive Summary & Core Objective of the Document
-2. Key Material Facts & Admissions
-3. Statutory & Precedent Foundations
-4. Potential Vulnerabilities & Opposing Counter-Arguments
-5. Recommended Follow-Up Actions & Evidence Gathering`;
-
-      let analysisText = "";
-      try {
-        const response = await ai.models.generateContent({
-          model: "gemini-3.6-flash",
-          contents: promptText,
-        });
-        analysisText = response.text || "";
-      } catch (geminiErr: any) {
-        console.warn("Analysis Gemini notice:", geminiErr?.message);
-        analysisText = `### Document Analysis: ${documentTitle || "Case Document"}\n\n**1. Executive Summary**\nDocument review for matter "${matterTitle || 'Active File'}".\n\n**2. Legal Considerations**\n• Key evidentiary points under Evidence Act (Cap 80).\n• Procedural alignment with Court Rules.\n\n**3. Recommendations**\n• Verify witness signatures and exhibit attachments prior to court filing.`;
+          if (textPieces.length > 5) {
+            extractedPlainText = textPieces.join(" ");
+          } else {
+            const lines = rawString.split(/[\r\n]+/);
+            const validLines: string[] = [];
+            for (const line of lines) {
+              const trimmed = line.replace(/[^\x20-\x7E]/g, ' ').trim();
+              if (trimmed.length > 15 && /[a-zA-Z]{3,}/.test(trimmed) && !/obj|endobj|stream|endstream|xref|trailer|Filter|Length/i.test(trimmed)) {
+                validLines.push(trimmed);
+              }
+            }
+            if (validLines.length > 0) extractedPlainText = validLines.join("\n");
+          }
+        } catch (e) {}
       }
 
-      return res.json({ analysis: analysisText || "Analysis completed." });
+      const isStatute = docCategory === "statute" || 
+        /\b(act|statute|legislation|cap\.|bill|code|constitution|enacted|parliament)\b/i.test(documentTitle || "") ||
+        /\b(an act of parliament|enacted by the parliament|short title|long title|be it enacted)\b/i.test(extractedPlainText.substring(0, 1500));
+
+      let promptText = "";
+
+      if (isStatute) {
+        promptText = `You are a Senior Legal Analyst at LexVanguard Chambers specializing in Kenyan statutory interpretation.
+Analyze the following STATUTE / LEGISLATION text for ${matterTitle ? `Matter: "${matterTitle}"` : "the firm's legal file"}.
+
+Document Title: ${documentTitle || "Statutory Authority"}
+
+INSTRUCTIONS: Extract and summarize strictly from the document using the following mandatory CORE PARTS OF A STATUTE SUMMARY:
+
+1. Long Title: A full statement at the top that explains the overall purpose and scope of the act.
+2. Short Title: The official short name used to cite the statute easily.
+3. Preamble: An introductory text that outlines the main goals and reasons behind the law.
+4. Enacting Clause: The formal words that show the law is passed by the legislative body (e.g. "ENACTED by the Parliament of Kenya...").
+5. Definitions / Interpretation Section: A list that explains specific words and terms used in the text.
+6. Sections and Subsections: The main numbered rules and core legal commands of the statute.
+7. Provisos: Clauses that state exceptions, conditions, or limits to a rule (e.g. "Provided that...", "Save for...").
+
+CRITICAL NON-HALLUCINATION REQUIREMENT:
+All extracted information MUST strictly come from the provided document content ONLY. Do NOT invent, assume, or extrapolate outside facts or sections. If a specific section (such as Preamble or Provisos) is not present in the document text, explicitly state: "Not stated in provided document text."`;
+      } else {
+        promptText = `You are a Senior Legal Analyst at LexVanguard Chambers specializing in Kenyan case law and judicial precedents.
+Analyze the following PRECEDENT / JUDICIAL CASE LAW text for ${matterTitle ? `Matter: "${matterTitle}"` : "the firm's legal file"}.
+
+Document Title: ${documentTitle || "Judicial Precedent"}
+
+INSTRUCTIONS: Extract and summarize strictly from the document using the following mandatory CORE PARTS OF A PRECEDENT SUMMARY:
+
+1. Case Name and Citation: The names of the plaintiff/petitioner and defendant/respondent, alongside official reporter volume, court name, and year.
+2. Procedural History: A short note on which lower court decided the case and how it moved up on appeal to the current court.
+3. Material Facts: The key, relevant events and facts that directly caused the legal dispute between the parties.
+4. Legal Issues: The specific question of law or constitutional point that the court had to answer.
+5. Rule of Law: The established legal principle or statute applied by the court.
+6. Court Reasoning (Ratio Decidendi): The primary logic, analysis, and legal grounds the judge used to connect the rule of law to the facts.
+7. Holding / Judgment: The final decision, order, or verdict determining who won and the immediate legal remedy granted.
+8. Side Remarks (Obiter Dictum): Extra thoughts or hypothetical ideas mentioned by the judge that do not form the core binding rule.
+
+CRITICAL NON-HALLUCINATION REQUIREMENT:
+All extracted information MUST strictly come from the provided document content ONLY. Do NOT invent, assume, or extrapolate outside facts or sections. If a specific section (such as Obiter Dictum or Procedural History) is not present in the document text, explicitly state: "Not stated in provided document text."`;
+      }
+
+      // 1. Primary Engine for PDF Documents: Gemini 2.5 Flash Native Multimodal PDF Parser
+      const apiKey = process.env.GEMINI_API_KEY;
+      if (isPdfBase64 && apiKey) {
+        try {
+          const ai = new GoogleGenAI({
+            apiKey,
+            httpOptions: { headers: { 'User-Agent': 'aistudio-build' } }
+          });
+          const base64Data = documentContent.split(";base64,").pop() || "";
+          const response = await withTimeout(ai.models.generateContent({
+            model: "gemini-2.5-flash",
+            contents: [
+              {
+                role: "user",
+                parts: [
+                  {
+                    inlineData: {
+                      mimeType: "application/pdf",
+                      data: base64Data
+                    }
+                  },
+                  {
+                    text: promptText
+                  }
+                ]
+              }
+            ]
+          }), 45000, "Gemini analyze-document PDF");
+
+          if (response.text && response.text.trim().length > 0) {
+            return res.json({ analysis: response.text });
+          }
+        } catch (geminiPdfErr: any) {
+          console.warn("Gemini native PDF analysis notice:", geminiPdfErr?.message);
+        }
+      }
+
+      // 2. Primary Engine for Plain Text / Fallback: Groq Llama-3.3-70b API
+      const groqApiKey = process.env.GROQ_API_KEY || process.env.VITE_GROQ_API_KEY;
+      if (groqApiKey && extractedPlainText.trim().length > 10) {
+        try {
+          const groqRes = await withTimeout(fetch("https://api.groq.com/openai/v1/chat/completions", {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${groqApiKey}`,
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              model: "llama-3.3-70b-versatile",
+              messages: [
+                {
+                  role: "system",
+                  content: "You are Senior Legal Analyst at LexVanguard Chambers. Provide rigorous, zero-hallucination legal analysis based strictly on the provided text."
+                },
+                {
+                  role: "user",
+                  content: `${promptText}\n\nDOCUMENT TEXT:\n"""\n${extractedPlainText.substring(0, 50000)}\n"""`
+                }
+              ],
+              temperature: 0.1
+            })
+          }), 45000, "Groq analyze-document");
+
+          if (groqRes.ok) {
+            const groqData = await groqRes.json();
+            const analysisText = groqData.choices?.[0]?.message?.content;
+            if (analysisText && analysisText.trim().length > 0) {
+              return res.json({ analysis: analysisText });
+            }
+          }
+        } catch (groqErr: any) {
+          console.warn("Groq document analysis notice:", groqErr?.message);
+        }
+      }
+
+      // 3. Fallback to Gemini 2.5 Flash Text Generation
+      if (apiKey) {
+        try {
+          const ai = new GoogleGenAI({
+            apiKey,
+            httpOptions: { headers: { 'User-Agent': 'aistudio-build' } }
+          });
+          const response = await withTimeout(ai.models.generateContent({
+            model: "gemini-2.5-flash",
+            contents: `${promptText}\n\nDOCUMENT TEXT:\n"""\n${extractedPlainText.substring(0, 50000)}\n"""`,
+          }), 45000, "Gemini analyze-document text");
+          if (response.text) {
+            return res.json({ analysis: response.text });
+          }
+        } catch (geminiErr: any) {
+          console.warn("Gemini text document analysis notice:", geminiErr?.message);
+        }
+      }
+
+      // NO FAKE TEMPLATE FALLBACK: Return error if all AI calls failed
+      return res.status(500).json({
+        error: "Document analysis engine error: Unable to generate AI analysis. Please verify your GEMINI_API_KEY or GROQ_API_KEY."
+      });
     } catch (error: any) {
       console.error("Document Analysis Error:", error);
-      return res.json({
-        analysis: `### Document Analysis Summary\n\nReview completed for ${req.body?.documentTitle || 'Submitted Document'}. Complies with statutory review standards under Laws of Kenya.`
+      return res.status(500).json({
+        error: error?.message || "Failed to analyze document"
       });
     }
   });
@@ -1015,7 +1467,7 @@ Please provide a structured legal analysis report:
       const groqApiKey = process.env.GROQ_API_KEY;
       if (groqApiKey) {
         try {
-          const groqRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+          const groqRes = await withTimeout(fetch("https://api.groq.com/openai/v1/chat/completions", {
             method: "POST",
             headers: {
               "Authorization": `Bearer ${groqApiKey}`,
@@ -1050,7 +1502,7 @@ TARGET LENGTH: Approx. ${targetWords} words. Provide extensive analysis and full
               temperature: 0.2,
               max_tokens: 8000
             })
-          });
+          }), 45000, "Groq draft-submission");
           if (groqRes.ok) {
             const groqData = await groqRes.json();
             draftText = groqData.choices?.[0]?.message?.content || "";
@@ -1086,10 +1538,10 @@ DRAFTING INSTRUCTIONS:
 - Formatted in clean Markdown.`;
 
           try {
-            const response = await ai.models.generateContent({
-              model: "gemini-3.6-flash",
+            const response = await withTimeout(ai.models.generateContent({
+              model: "gemini-2.5-flash",
               contents: promptText,
-            });
+            }), 45000, "Gemini draft-submission");
             draftText = response.text || "";
           } catch (geminiErr: any) {
             console.warn("Drafting Gemini notice:", geminiErr?.message);

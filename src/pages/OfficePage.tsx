@@ -263,8 +263,8 @@ export const OfficePage: React.FC = () => {
       setTasks(list);
     }, () => {
       setTasks([
-        { id: "t1", title: "Review Supreme Court Constitutional Petition No. 4", priority: "High", dueDate: "Today", completed: false },
-        { id: "t2", title: "Prepare Corporate M&A Due Diligence Report", priority: "Medium", dueDate: "Tomorrow", completed: false }
+        { id: "t1", title: "Review Supreme Court Constitutional Petition No. 4", priority: "High", dueDate: "Today", status: "Pending" },
+        { id: "t2", title: "Prepare Corporate M&A Due Diligence Report", priority: "Medium", dueDate: "Tomorrow", status: "Pending" }
       ]);
     });
 
@@ -278,7 +278,7 @@ export const OfficePage: React.FC = () => {
       setMatters(list);
     }, () => {
       setMatters([
-        { id: "m1", title: "Commercial IP Dispute - LexVanguard v. Partner", client: "LexVanguard LLP", status: "Active", area: "Intellectual Property" }
+        { id: "m1", title: "Commercial IP Dispute - LexVanguard v. Partner", clientName: "LexVanguard LLP", status: "Active", practiceArea: "Intellectual Property" }
       ]);
     });
 

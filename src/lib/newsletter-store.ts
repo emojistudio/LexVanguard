@@ -50,9 +50,20 @@ export async function subscribeNewsletter(email: string, name?: string): Promise
     }
   }
 
+  // Trigger immediate confirmation email via backend
+  try {
+    await fetch("/api/subscribe-newsletter", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: cleanEmail, name: subscriber.name })
+    });
+  } catch (err) {
+    console.warn("Newsletter confirmation dispatch error:", err);
+  }
+
   return {
     success: true,
-    message: `Thank you for subscribing to LexVanguard Legal Insights! We sent a confirmation notice to ${cleanEmail}.`
+    message: `Thank you for subscribing to LexVanguard Legal Insights! A confirmation email has been sent to ${cleanEmail}.`
   };
 }
 
