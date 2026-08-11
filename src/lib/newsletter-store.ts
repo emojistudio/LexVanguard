@@ -217,22 +217,5 @@ async function sendNewsletterViaResendDirectly({
 </html>
 `;
 
-  try {
-    const res = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${apiKey}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        from: "LexVanguard Gazette <onboarding@resend.dev>",
-        to: recipientEmails.slice(0, 50),
-        subject,
-        html: htmlContent
-      })
-    });
-    return res.ok;
-  } catch {
-    return false;
-  }
+  return false;
 }

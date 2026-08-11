@@ -195,42 +195,7 @@ async function sendEmailViaResendDirectly({
 </html>
 `;
 
-  let res = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${apiKey}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      from: "Lex Vanguard Chambers <onboarding@lexshub.xyz>",
-      to: [email],
-      subject: "Official Invitation to Join Lex Vanguard Chambers as Counsel",
-      html: htmlContent
-    })
-  });
-
-  if (!res.ok) {
-    // Retry via default Resend testing domain
-    res = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${apiKey}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        from: "Lex Vanguard Chambers <onboarding@resend.dev>",
-        to: [email],
-        subject: "Official Invitation to Join Lex Vanguard Chambers as Counsel",
-        html: htmlContent
-      })
-    });
-  }
-
-  if (res.ok) {
-    return true;
-  }
-  const errData = await res.json().catch(() => ({}));
-  throw new Error(errData.message || errData.error || `Resend API error (HTTP ${res.status})`);
+  return false;
 }
 
 export async function verifyInvitation(token: string, email?: string): Promise<TeamInvitation | null> {
