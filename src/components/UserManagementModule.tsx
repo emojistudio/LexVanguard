@@ -132,6 +132,33 @@ export const UserManagementModule: React.FC<UserManagementModuleProps> = ({ onCl
       // 2. Update application status in Firestore
       await updateDoc(doc(db, "firm_applications", app.id), { status: "accepted" });
 
+      // 3. Save invitation record so registration is authorized seamlessly
+      const cleanEmail = app.email.toLowerCase().trim();
+      const token = `inv_app_${app.id}`;
+      const invitation = {
+        id: token,
+        email: cleanEmail,
+        name: app.name || "Counsel",
+        invitedBy: "Executive Admissions Committee",
+        invitedByEmail: "info@lexvanguard.xyz",
+        officeId: "counsel",
+        roleName: app.roleInterest || "Counsel",
+        roleLevel: 50,
+        token,
+        status: "pending",
+        createdAt: new Date().toISOString()
+      };
+
+      try {
+        const emailKey = cleanEmail.replace(/[^a-z0-9]/g, "_");
+        await setDoc(doc(db, "invitations", token), invitation);
+        await setDoc(doc(db, "invitations_by_email", emailKey), invitation);
+        if (typeof localStorage !== "undefined") {
+          localStorage.setItem(`lex_invitation_${token}`, JSON.stringify(invitation));
+          localStorage.setItem(`lex_invitation_email_${cleanEmail}`, JSON.stringify(invitation));
+        }
+      } catch (e) {}
+
       showFeedback(`Accepted ${app.name}! Formal acceptance notice dispatched to ${app.email}.`);
     } catch (err) {
       showFeedback("Error accepting application.", "error");

@@ -39,15 +39,16 @@ export default function RegisterPage() {
       verifyInvitation(qToken, qEmail).then((inv) => {
         if (inv) {
           setIsInviteVerified(true);
+          setError("");
           if (inv.name && inv.name !== "Legal Counsel") {
             setName(inv.name);
           }
           if (inv.email) {
             setEmail(inv.email);
           }
-        } else {
+        } else if (qEmail || qToken) {
           setIsInviteVerified(false);
-          setError("Registration requires an official invitation link sent via email by LexVanguard Chambers.");
+          setError("Registration requires an official invitation link or approved application sent by LexVanguard Chambers.");
         }
       });
     } catch {
@@ -75,6 +76,14 @@ export default function RegisterPage() {
     try {
       setError("");
       setLoading(true);
+
+      // Verify invitation or admitted application for entered email
+      const inv = await verifyInvitation(inviteToken, email.trim());
+      if (!inv && isInviteVerified === false) {
+        setError("Registration requires an official invitation or admitted application email sent by LexVanguard Chambers.");
+        setLoading(false);
+        return;
+      }
 
       // 1. Create Firebase Auth user
       const userCredential = await createUserWithEmailAndPassword(auth, email.trim(), password);

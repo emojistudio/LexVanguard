@@ -1,4 +1,4 @@
-import { collection, doc, setDoc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import { collection, doc, setDoc, getDoc, updateDoc, deleteDoc, query, where, getDocs } from "firebase/firestore";
 import { db } from "./firebase";
 
 export interface TeamInvitation {
@@ -104,6 +104,7 @@ export async function sendTeamMemberInvite({
 
 export async function verifyInvitation(token: string, email?: string): Promise<TeamInvitation | null> {
   if (!token && !email) return null;
+  const cleanEmail = (email || "").toLowerCase().trim();
 
   // 1. Check Firestore invitations
   if (db) {
@@ -116,13 +117,41 @@ export async function verifyInvitation(token: string, email?: string): Promise<T
           if (inv.status !== "accepted") return inv;
         }
       }
-      if (email) {
-        const emailKey = email.toLowerCase().trim().replace(/[^a-z0-9]/g, "_");
+      if (cleanEmail) {
+        const emailKey = cleanEmail.replace(/[^a-z0-9]/g, "_");
         const invRef = doc(db, "invitations_by_email", emailKey);
         const snap = await getDoc(invRef);
         if (snap.exists()) {
           const inv = snap.data() as TeamInvitation;
           if (inv.status !== "accepted") return inv;
+        }
+
+        // 1b. Check Firestore firm_applications for admitted / accepted applicants
+        const appsRef = collection(db, "firm_applications");
+        const q = query(appsRef, where("email", "==", cleanEmail));
+        const appSnaps = await getDocs(q);
+        let acceptedApp: any = null;
+        appSnaps.forEach((docSnap) => {
+          const d = docSnap.data();
+          if (d.status === "accepted" || d.status === "admitted" || d.status === "approved") {
+            acceptedApp = { id: docSnap.id, ...d };
+          }
+        });
+
+        if (acceptedApp) {
+          return {
+            id: acceptedApp.id,
+            email: cleanEmail,
+            name: acceptedApp.name || "Counsel",
+            invitedBy: "Executive Admissions Directorate",
+            invitedByEmail: "info@lexvanguard.xyz",
+            officeId: "counsel",
+            roleName: acceptedApp.roleInterest || "Counsel",
+            roleLevel: 50,
+            token: token || `app_${acceptedApp.id}`,
+            status: "pending",
+            createdAt: acceptedApp.createdAt || new Date().toISOString()
+          };
         }
       }
     } catch (err) {
@@ -140,8 +169,7 @@ export async function verifyInvitation(token: string, email?: string): Promise<T
           if (inv.status !== "accepted") return inv;
         }
       }
-      if (email) {
-        const cleanEmail = email.toLowerCase().trim();
+      if (cleanEmail) {
         const local = localStorage.getItem(`lex_invitation_email_${cleanEmail}`);
         if (local) {
           const inv = JSON.parse(local) as TeamInvitation;
@@ -155,21 +183,30 @@ export async function verifyInvitation(token: string, email?: string): Promise<T
 }
 
 export async function markInvitationAccepted(token: string, email?: string): Promise<void> {
+  const cleanEmail = (email || "").toLowerCase().trim();
   if (typeof localStorage !== "undefined") {
     try {
       if (token) localStorage.removeItem(`lex_invitation_${token}`);
-      if (email) localStorage.removeItem(`lex_invitation_email_${email.toLowerCase().trim()}`);
+      if (cleanEmail) localStorage.removeItem(`lex_invitation_email_${cleanEmail}`);
     } catch {}
   }
 
   if (!db) return;
   try {
     if (token) {
-      await deleteDoc(doc(db, "invitations", token));
+      await deleteDoc(doc(db, "invitations", token)).catch(() => {});
     }
-    if (email) {
-      const emailKey = email.toLowerCase().trim().replace(/[^a-z0-9]/g, "_");
-      await deleteDoc(doc(db, "invitations_by_email", emailKey));
+    if (cleanEmail) {
+      const emailKey = cleanEmail.replace(/[^a-z0-9]/g, "_");
+      await deleteDoc(doc(db, "invitations_by_email", emailKey)).catch(() => {});
+
+      // Mark firm application status as registered
+      const appsRef = collection(db, "firm_applications");
+      const q = query(appsRef, where("email", "==", cleanEmail));
+      const appSnaps = await getDocs(q);
+      appSnaps.forEach(async (docSnap) => {
+        await updateDoc(doc(db, "firm_applications", docSnap.id), { status: "registered" }).catch(() => {});
+      });
     }
   } catch (err) {
     console.warn("Error purging invitation:", err);

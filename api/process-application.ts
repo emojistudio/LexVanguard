@@ -34,7 +34,8 @@ export default async function handler(req: any, res: any) {
     if (apiKey) {
       const resend = new Resend(apiKey);
       const isAccept = action === "accept";
-      const activationUrl = `https://lexvanguard.xyz/register?email=${encodeURIComponent(cleanEmail)}`;
+      const token = `app_${Date.now()}`;
+      const activationUrl = `https://lexvanguard.xyz/register?email=${encodeURIComponent(cleanEmail)}&token=${token}`;
 
       const htmlContent = isAccept
         ? `
