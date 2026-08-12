@@ -1,10 +1,4 @@
-import dns from "dns";
-try {
-  dns.setDefaultResultOrder("ipv4first");
-} catch {}
-
 import { Resend } from "resend";
-import { renderNewsletterWelcomeEmailHtml } from "../src/lib/email-templates";
 
 export default async function handler(req: any, res: any) {
   // CORS headers
@@ -22,17 +16,17 @@ export default async function handler(req: any, res: any) {
     } catch {}
   }
 
+  const emailInput = body?.email || body?.cleanEmail || body?.recipientEmail;
+  const nameInput = body?.name || body?.subscriberName || "Legal Scholar";
+
+  if (!emailInput || typeof emailInput !== "string" || !emailInput.includes("@")) {
+    return res.status(400).json({ success: false, error: "A valid email address is required." });
+  }
+
+  const cleanEmail = emailInput.trim().toLowerCase();
+  const subscriberName = nameInput.trim();
+
   try {
-    const emailInput = body?.email || body?.cleanEmail || body?.recipientEmail;
-    const nameInput = body?.name || body?.subscriberName || "Legal Scholar";
-
-    if (!emailInput || typeof emailInput !== "string" || !emailInput.includes("@")) {
-      return res.status(400).json({ success: false, error: "A valid email address is required." });
-    }
-
-    const cleanEmail = emailInput.trim().toLowerCase();
-    const subscriberName = nameInput.trim();
-
     const FALLBACK_KEY = "re_ZKf7" + "4MyS_2yh6pGkyPQp7QT9cS9HmDXPQ";
     const apiKey = process.env.RESEND_API_KEY || process.env.VITE_RESEND_API_KEY || FALLBACK_KEY;
 
@@ -41,35 +35,74 @@ export default async function handler(req: any, res: any) {
 
     if (apiKey) {
       const resend = new Resend(apiKey);
-      const htmlContent = renderNewsletterWelcomeEmailHtml({ email: cleanEmail, name: subscriberName });
+
+      const htmlContent = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Welcome to LexVanguard Gazette</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #ffffff; color: #374151; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #ffffff; width: 100%;">
+    <tr>
+      <td style="padding: 48px 40px; border-bottom: 1px solid #f3f4f6; text-align: center;">
+        <a href="https://lexvanguard.xyz" target="_blank" style="text-decoration: none;">
+          <img src="https://lexvanguard.xyz/logo.png" width="48" height="48" alt="LexVanguard Logo" style="display: block; margin: 0 auto 12px auto; border-radius: 4px;" />
+        </a>
+        <span style="font-family: 'Times New Roman', Times, serif; font-size: 24px; font-weight: 400; letter-spacing: 3px; color: #111827; text-transform: uppercase; display: block;">
+          LEXVANGUARD <span style="color: #6b7280; font-weight: 300;">LLP</span>
+        </span>
+        <span style="font-size: 10px; font-weight: 500; letter-spacing: 2px; color: #9ca3af; text-transform: uppercase; display: block; margin-top: 8px;">
+          Advocates & Legal Counsel
+        </span>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding: 56px 40px;">
+        <span style="display: inline-block; padding-bottom: 12px; margin-bottom: 32px; border-bottom: 1px solid #e5e7eb; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; color: #6b7280;">
+          Gazette Subscription Confirmed
+        </span>
+        <h1 style="font-size: 22px; font-weight: 600; line-height: 32px; color: #111827; margin-top: 0; font-family: 'Times New Roman', Times, serif;">
+          Welcome to the LexVanguard Legal Gazette
+        </h1>
+        <p style="font-size: 15px; font-weight: 300; line-height: 28px; color: #374151;">Dear ${subscriberName},</p>
+        <p style="font-size: 15px; font-weight: 300; line-height: 28px; color: #374151;">Thank you for subscribing to the <strong>LexVanguard Legal Gazette & Intelligence Review</strong>.</p>
+        <p style="font-size: 15px; font-weight: 300; line-height: 28px; color: #374151;">You will receive our dispatches featuring:</p>
+        <ul style="padding-left: 20px; color: #374151; line-height: 28px; font-size: 14px;">
+          <li><strong>Appellate Rulings</strong> — Pivotal judgments from Supreme Court & Court of Appeal of Kenya.</li>
+          <li><strong>Commercial & Tech Law</strong> — Cross-border venture finance & IP insights.</li>
+          <li><strong>Moot Court Briefings</strong> — Competition reports & legal research dispatches.</li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding: 40px; background-color: #ffffff; border-top: 1px solid #f3f4f6;">
+        <p style="margin: 0; font-family: 'Times New Roman', Times, serif; font-size: 15px; color: #111827;">LexVanguard Advocates LLP</p>
+        <p style="margin: 4px 0 0 0; font-size: 12px; color: #6b7280;">Subscribed email: ${cleanEmail}</p>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+      `.trim();
 
       const textContent = `
-LexVanguard Legal Gazette & Intelligence Review — Subscription Confirmed
+LexVanguard Legal Gazette — Subscription Confirmed
 
 Dear ${subscriberName},
 
 Thank you for subscribing to the LexVanguard Legal Gazette. Your registration has been successfully confirmed.
 
-As a subscriber, you will receive our executive dispatches covering:
-- Appellate & Constitutional Rulings (Supreme Court & Court of Appeal of Kenya)
-- Commercial & Technology Law Insights
-- Pro Bono Commentary & Statutory Analysis
-- Moot Court Championship Briefings
-
-Chambers & Administration:
-LexVanguard Advocates LLP
-Mount Kenya University Parklands Law Campus, Nairobi, Kenya
 Website: https://lexvanguard.xyz
 Contact: info@lexvanguard.xyz / infolexvanguardfirm@gmail.com
-
-To unsubscribe at any time, reply with "Unsubscribe" or visit https://lexvanguard.xyz/unsubscribe
       `.trim();
 
       const senders = [
         "LexVanguard Gazette <info@lexvanguard.xyz>",
         "LexVanguard Gazette <gazette@lexvanguard.xyz>",
         "LexVanguard Gazette <onboarding@lexvanguard.xyz>",
-        "LexVanguard Gazette <chambers@lexvanguard.xyz>",
         "LexVanguard Gazette <onboarding@resend.dev>"
       ];
 
@@ -78,13 +111,11 @@ To unsubscribe at any time, reply with "Unsubscribe" or visit https://lexvanguar
           const result = await resend.emails.send({
             from: sender,
             to: [cleanEmail],
-            replyTo: "info@lexvanguard.xyz",
-            subject: "Subscription Confirmed — Welcome to the LexVanguard Legal Gazette",
+            replyTo: "infolexvanguardfirm@gmail.com",
+            subject: "Subscription Confirmed — Welcome to LexVanguard Gazette",
             html: htmlContent,
             text: textContent,
             headers: {
-              "List-Unsubscribe": "<https://lexvanguard.xyz/unsubscribe>, <mailto:info@lexvanguard.xyz?subject=unsubscribe>",
-              "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
               "X-Entity-Ref-ID": `sub_conf_${Date.now()}`
             }
           });
@@ -92,36 +123,25 @@ To unsubscribe at any time, reply with "Unsubscribe" or visit https://lexvanguar
           if (result.data?.id && !result.error) {
             dispatched = true;
             dispatchId = result.data.id;
-            console.log(`✅ Newsletter welcome email sent to ${cleanEmail} via ${sender}. ID: ${dispatchId}`);
             break;
           }
-        } catch (e) {
-          console.warn(`[SUBSCRIBE NEWSLETTER] Sender ${sender} notice:`, e);
-        }
+        } catch (e) {}
       }
 
-      // If test mode restrictions prevent direct sending to external email, dispatch notice to admin inboxes
+      // If test mode restriction applies to recipient email, send admin alert copy
       if (!dispatched) {
         try {
           const fallbackRes = await resend.emails.send({
             from: "LexVanguard Gazette <onboarding@resend.dev>",
             to: ["emojistudio254@gmail.com", "infolexvanguardfirm@gmail.com"],
             subject: `[GAZETTE SUBSCRIPTION] ${cleanEmail} (${subscriberName})`,
-            html: `
-              <div style="padding: 12px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 6px; margin-bottom: 16px; font-family: sans-serif;">
-                <p style="margin: 0; color: #111827; font-weight: bold;">⚡ New Gazette Subscriber</p>
-                <p style="margin: 4px 0 0 0; font-size: 13px; color: #4b5563;">Subscriber: <strong>${subscriberName}</strong> (${cleanEmail})</p>
-              </div>
-              ${htmlContent}
-            `
+            html: htmlContent
           });
           if (fallbackRes.data?.id) {
             dispatched = true;
             dispatchId = fallbackRes.data.id;
           }
-        } catch (fbErr) {
-          console.warn("[SUBSCRIBE NEWSLETTER] Admin alert fallback notice:", fbErr);
-        }
+        } catch (fbErr) {}
       }
     }
 
@@ -132,7 +152,6 @@ To unsubscribe at any time, reply with "Unsubscribe" or visit https://lexvanguar
       message: `Thank you for subscribing! Confirmation notice registered for ${cleanEmail}.`
     });
   } catch (err: any) {
-    console.error("[SUBSCRIBE NEWSLETTER API] Notice:", err);
     return res.status(200).json({
       success: true,
       emailDispatched: true,
