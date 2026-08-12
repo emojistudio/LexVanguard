@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "wouter";
+import { Calendar, MapPin, ArrowRight } from "lucide-react";
 import { subscribeEvents, getEventRegistrationUrl, type FirmEvent } from "@/lib/events-store";
 import { RsvpModal } from "./RsvpModal";
 import { EventGalleryModal } from "./EventGalleryModal";
@@ -64,29 +65,46 @@ export default function EventsSection() {
           </div>
         ) : (
           <div className="space-y-12">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 text-left">
-              {events.slice(0, 4).map((evt) => (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10 text-left">
+              {events.slice(0, 3).map((evt) => (
                 <div
                   key={evt.id}
                   onClick={() => handleCardClick(evt)}
-                  className="group cursor-pointer space-y-3"
+                  className="group cursor-pointer bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-2xl hover:border-yellow-500/50 transition-all duration-300 flex flex-col"
                 >
-                  <div className="aspect-[4/3] w-full bg-neutral-100 overflow-hidden">
+                  <div className="relative aspect-[16/10] w-full bg-neutral-900 overflow-hidden">
                     <img
                       src={evt.image}
                       alt={evt.title}
                       onError={(e) => {
                         (e.target as HTMLImageElement).src = "/default.png";
                       }}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                     />
+                    <div className="absolute top-4 left-4">
+                      <span className="bg-black/80 backdrop-blur-md text-yellow-400 border border-yellow-500/30 text-[10px] sm:text-xs font-mono font-bold uppercase tracking-wider px-3 py-1 rounded-full shadow-md">
+                        {evt.category || "Symposium"}
+                      </span>
+                    </div>
                   </div>
-                  <div className="space-y-1">
-                    <p className="text-[11px] font-mono text-gray-500 uppercase tracking-widest">{evt.displayDate}</p>
-                    <h3 className="font-extrabold text-black text-sm group-hover:text-yellow-600 transition-colors leading-snug line-clamp-2">
-                      {evt.title}
-                    </h3>
-                    <p className="text-xs text-gray-500 truncate">{evt.location}</p>
+                  <div className="p-6 sm:p-7 flex flex-col justify-between flex-1 space-y-4">
+                    <div className="space-y-2">
+                      <p className="text-xs sm:text-sm font-mono font-bold text-yellow-600 uppercase tracking-widest flex items-center gap-2">
+                        <Calendar className="w-4 h-4 text-yellow-500 shrink-0" />
+                        {evt.displayDate}
+                      </p>
+                      <h3 className="font-extrabold text-gray-900 text-lg sm:text-xl group-hover:text-yellow-600 transition-colors leading-snug line-clamp-2">
+                        {evt.title}
+                      </h3>
+                      <p className="text-xs sm:text-sm text-gray-600 truncate flex items-center gap-1.5 pt-1">
+                        <MapPin className="w-4 h-4 text-gray-400 shrink-0" />
+                        {evt.location}
+                      </p>
+                    </div>
+                    <div className="pt-4 border-t border-gray-100 flex items-center justify-between text-xs font-bold text-black uppercase tracking-wider group-hover:text-yellow-600 transition-colors">
+                      <span>{evt.status === "Past Event" ? "View Past Gallery" : "Event Details"}</span>
+                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </div>
                   </div>
                 </div>
               ))}
