@@ -16,7 +16,7 @@ export default async function handler(req: any, res: any) {
     } catch {}
   }
 
-  const { name, email, phone, cvFileName } = body || {};
+  const { name, email, phone, cvFileName, cvUrl } = body || {};
   const cleanEmail = (email || "").trim().toLowerCase();
   const cleanName = (name || "Applicant").trim();
   const cleanPhone = phone || "N/A";
@@ -73,7 +73,7 @@ export default async function handler(req: any, res: any) {
           Application Confirmation, ${cleanName}
         </h1>
         <p style="font-size: 15px; font-weight: 300; line-height: 28px; color: #374151;">Dear <strong>${cleanName}</strong>,</p>
-        <p style="font-size: 15px; font-weight: 300; line-height: 28px; color: #374151;">Thank you for applying to join <strong>LexVanguard Advocates LLP</strong>. We have received your application dossier.</p>
+        <p style="font-size: 15px; font-weight: 300; line-height: 28px; color: #374151;">Thank you for applying to join <strong>LexVanguard Advocates LLP</strong>. We have received your application dossier and uploaded curriculum vitae.</p>
         <div style="margin: 24px 0; padding: 20px; background-color: #f9fafb; border-left: 3px solid #111827; border-radius: 4px;">
           <p style="margin: 0; font-size: 13px; font-weight: 600; color: #111827;">Dossier Summary:</p>
           <p style="margin: 4px 0 0 0; font-size: 12px; color: #6b7280;">Full Name: ${cleanName}</p>
@@ -107,7 +107,10 @@ export default async function handler(req: any, res: any) {
     <p><strong>Phone:</strong> ${cleanPhone}</p>
     <p><strong>Attached Resume:</strong> ${resumeName}</p>
   </div>
-  <p><a href="https://lexvanguard.xyz/office" style="display: inline-block; background: #111827; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 4px; font-weight: bold; margin-top: 12px;">Open Admin Office</a></p>
+  <div style="margin-top: 16px;">
+    ${cvUrl ? `<a href="${cvUrl}" download="${resumeName}" style="display: inline-block; background: #ffc107; color: #000; padding: 10px 20px; text-decoration: none; font-weight: bold; border-radius: 4px; margin-right: 10px;">Download Applicant CV</a>` : ""}
+    <a href="https://lexvanguard.xyz/office" style="display: inline-block; background: #111827; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 4px; font-weight: bold;">Open Admin Office Panel</a>
+  </div>
 </body>
 </html>
       `.trim();

@@ -18,6 +18,9 @@ export interface ApplicationItem {
   id: string;
   name: string;
   email: string;
+  phone?: string;
+  cvFileName?: string;
+  cvUrl?: string;
   roleInterest?: string;
   statement?: string;
   status: "pending" | "accepted" | "rejected" | string;
@@ -412,7 +415,7 @@ export const UserManagementModule: React.FC<UserManagementModuleProps> = ({ onCl
                         <div className="flex items-start justify-between">
                           <div>
                             <h3 className="text-base font-bold text-gray-900">{app.name}</h3>
-                            <p className="text-xs font-mono text-gray-500">{app.email}</p>
+                            <p className="text-xs font-mono text-gray-500">{app.email} {app.phone ? `• ${app.phone}` : ""}</p>
                           </div>
                           <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
                             isAccepted ? "bg-emerald-100 text-emerald-800" :
@@ -423,9 +426,35 @@ export const UserManagementModule: React.FC<UserManagementModuleProps> = ({ onCl
                           </span>
                         </div>
 
-                        <div className="text-xs text-gray-700 bg-gray-50 p-3 rounded-xl border border-gray-100 space-y-1">
+                        <div className="text-xs text-gray-700 bg-gray-50 p-3.5 rounded-xl border border-gray-100 space-y-2.5">
                           <div className="font-bold text-gray-900">Desired Role: {app.roleInterest || "Counsel"}</div>
-                          <p className="italic text-gray-600 line-clamp-3">"{app.statement || "No statement provided."}"</p>
+                          {app.statement && (
+                            <p className="italic text-gray-600 line-clamp-3">"{app.statement}"</p>
+                          )}
+
+                          {/* Candidate CV Download / Review Button */}
+                          <div className="pt-1">
+                            {app.cvUrl ? (
+                              <a
+                                href={app.cvUrl}
+                                download={app.cvFileName || `${app.name.replace(/\s+/g, '_')}_CV.pdf`}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#1d1d1f] hover:bg-black text-white rounded-xl text-xs font-bold transition shadow-xs cursor-pointer w-full justify-center"
+                              >
+                                <FileText className="w-4 h-4 text-[#ffc107]" />
+                                Download / Review Candidate CV ({app.cvFileName || "CV.pdf"})
+                              </a>
+                            ) : (
+                              <div className="flex items-center justify-between bg-white p-2.5 rounded-lg border border-gray-200 text-xs text-gray-700">
+                                <span className="font-semibold flex items-center gap-1.5">
+                                  <FileText className="w-4 h-4 text-gray-400" />
+                                  Attached Document:
+                                </span>
+                                <span className="font-mono text-gray-600 truncate max-w-[180px]">{app.cvFileName || "Resume_Attached.pdf"}</span>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
 
