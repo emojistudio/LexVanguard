@@ -25,6 +25,7 @@ export function HostEventModal({ onClose, onCreated }: HostEventModalProps) {
   const [uploadingImg, setUploadingImg] = useState(false);
   const [description, setDescription] = useState("");
   const [fullDetails, setFullDetails] = useState("");
+  const [registrationUrl, setRegistrationUrl] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,6 +53,7 @@ export function HostEventModal({ onClose, onCreated }: HostEventModalProps) {
       image,
       description: description || "Join LexVanguard for an exclusive leadership and legal symposium.",
       fullDetails: fullDetails || description,
+      registrationUrl: registrationUrl.trim(),
       cpdCredits,
       speakers: [hostSpeaker],
       capacity: Number(capacity) || 200,
@@ -230,6 +232,20 @@ export function HostEventModal({ onClose, onCreated }: HostEventModalProps) {
               placeholder="https://i.ibb.co/..."
               className="w-full bg-white border border-stone-300 focus:border-[#0A1F44] text-slate-900 px-4 py-2.5 text-sm rounded-lg focus:outline-none"
             />
+          </div>
+
+          <div>
+            <label className="block text-xs font-serif font-bold uppercase tracking-wider text-[#0A1F44] mb-1">
+              Event Registration URL (Optional)
+            </label>
+            <input
+              type="url"
+              value={registrationUrl}
+              onChange={(e) => setRegistrationUrl(e.target.value)}
+              placeholder="e.g. https://forms.google.com/your-event-form (Leave blank if no link)"
+              className="w-full bg-white border border-stone-300 focus:border-[#0A1F44] text-slate-900 px-4 py-2.5 text-sm rounded-lg focus:outline-none"
+            />
+            <p className="text-[10px] text-slate-500 mt-1">If specified, clicking "Reserve Seat" opens this form. If left empty, the Reserve Seat button is automatically removed.</p>
           </div>
 
           <div>

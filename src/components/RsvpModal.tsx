@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { X, Calendar, MapPin, Clock, CheckCircle2, User, Mail, Building2, Download, ExternalLink } from "lucide-react";
-import { rsvpToEvent, generateIcsCalendar, isUserRegisteredForEvent, type FirmEvent } from "@/lib/events-store";
+import { rsvpToEvent, generateIcsCalendar, isUserRegisteredForEvent, getEventRegistrationUrl, type FirmEvent } from "@/lib/events-store";
 
 interface RsvpModalProps {
   event: FirmEvent;
@@ -8,6 +8,7 @@ interface RsvpModalProps {
 }
 
 export function RsvpModal({ event, onClose }: RsvpModalProps) {
+  const regUrl = getEventRegistrationUrl(event);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -64,6 +65,19 @@ export function RsvpModal({ event, onClose }: RsvpModalProps) {
               <MapPin className="w-4 h-4 text-amber-600 mr-2 shrink-0" />
               <span className="font-medium text-slate-700">{event.location}</span>
             </div>
+            {regUrl && (
+              <div className="pt-2 border-t border-amber-200/80 flex items-center justify-between">
+                <span className="text-[11px] text-[#0A1F44] font-bold">Attached Registration Link:</span>
+                <a
+                  href={regUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-[#0A1F44] text-white px-3 py-1 text-[11px] font-bold uppercase rounded flex items-center gap-1 hover:bg-amber-600 transition-colors"
+                >
+                  <ExternalLink className="w-3 h-3 text-amber-400" /> Open External Link
+                </a>
+              </div>
+            )}
           </div>
 
           {submitted ? (

@@ -217,9 +217,10 @@ export function EventGalleryModal({ event, onClose }: EventGalleryModalProps) {
             <h4 className="text-xs font-bold uppercase tracking-wider text-black mb-1">
               Event Retrospective
             </h4>
-            <p className="text-xs sm:text-sm text-neutral-700 leading-relaxed">
-              {event.fullDetails || event.description}
-            </p>
+            <div
+              className="text-xs sm:text-sm text-neutral-700 leading-relaxed prose max-w-none space-y-2"
+              dangerouslySetInnerHTML={{ __html: event.fullDetails || event.description }}
+            />
           </div>
 
         </div>

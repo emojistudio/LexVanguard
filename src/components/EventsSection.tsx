@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "wouter";
-import { subscribeEvents, type FirmEvent } from "@/lib/events-store";
+import { subscribeEvents, getEventRegistrationUrl, type FirmEvent } from "@/lib/events-store";
 import { RsvpModal } from "./RsvpModal";
 import { EventGalleryModal } from "./EventGalleryModal";
 
@@ -20,7 +20,12 @@ export default function EventsSection() {
     if (evt.status === "Past Event") {
       setActiveGalleryEvent(evt);
     } else {
-      setActiveRsvpEvent(evt);
+      const regUrl = getEventRegistrationUrl(evt);
+      if (regUrl) {
+        window.open(regUrl, "_blank", "noopener,noreferrer");
+      } else {
+        setActiveRsvpEvent(evt);
+      }
     }
   };
 

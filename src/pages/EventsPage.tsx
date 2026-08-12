@@ -1,14 +1,14 @@
 import { useState, useEffect } from "react";
 import { 
   Calendar, Clock, MapPin, Heart, Search, Plus, 
-  Download, X, Image as ImageIcon, Trash2, Sparkles 
+  Download, X, Image as ImageIcon, Trash2, Sparkles, ExternalLink 
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 import { SITE_KEYWORDS } from "@/lib/seo-data";
 import { useAuth } from "@/lib/auth-context";
-import { subscribeEvents, deleteFirmEvent, generateIcsCalendar, type FirmEvent } from "@/lib/events-store";
+import { subscribeEvents, deleteFirmEvent, generateIcsCalendar, getEventRegistrationUrl, type FirmEvent } from "@/lib/events-store";
 import { RsvpModal } from "@/components/RsvpModal";
 import { HostEventModal } from "@/components/HostEventModal";
 import { EventsAdminModule } from "@/components/EventsAdminModule";
@@ -188,9 +188,10 @@ export default function EventsPage() {
                 <h4 className="text-xs font-bold uppercase tracking-wider text-black mb-2">
                   Event Overview
                 </h4>
-                <p className="text-neutral-700 text-sm leading-relaxed">
-                  {detailedEvent.fullDetails || detailedEvent.description}
-                </p>
+                <div 
+                  className="text-neutral-700 text-sm leading-relaxed prose max-w-none space-y-2"
+                  dangerouslySetInnerHTML={{ __html: detailedEvent.fullDetails || detailedEvent.description }}
+                />
               </div>
 
               {/* Speakers Section */}
@@ -255,16 +256,16 @@ export default function EventsPage() {
                   <Download className="w-3.5 h-3.5 mr-1.5 text-black" /> Calendar
                 </a>
                 {detailedEvent.status !== "Past Event" ? (
-                  <button
-                    onClick={() => {
-                      const target = detailedEvent;
-                      setDetailedEvent(null);
-                      setActiveRsvpEvent(target);
-                    }}
-                    className="bg-black hover:bg-neutral-800 text-white px-6 py-2 text-xs font-bold uppercase tracking-widest rounded-lg transition-colors cursor-pointer shadow-xs"
-                  >
-                    Reserve Seat
-                  </button>
+                  getEventRegistrationUrl(detailedEvent) ? (
+                    <a
+                      href={getEventRegistrationUrl(detailedEvent)!}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-black hover:bg-neutral-800 text-white px-6 py-2 text-xs font-bold uppercase tracking-widest rounded-lg transition-colors cursor-pointer shadow-xs inline-flex items-center gap-1.5"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5 text-amber-400" /> Reserve Seat
+                    </a>
+                  ) : null
                 ) : (
                   <button
                     onClick={() => {

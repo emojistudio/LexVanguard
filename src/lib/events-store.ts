@@ -35,8 +35,24 @@ export interface FirmEvent {
   status: "Upcoming" | "Live Now" | "Past Event";
   gallery?: string[];
   recapUrl?: string;
+  registrationUrl?: string;
   createdAt?: string;
   createdBy?: string;
+}
+
+export function getEventRegistrationUrl(event?: Partial<FirmEvent> | null): string | null {
+  if (!event) return null;
+  const link = (
+    event.registrationUrl ||
+    (event as any).rsvpUrl ||
+    (event as any).registrationLink ||
+    (event as any).link
+  )?.trim();
+
+  if (!link || link === "#" || link === "" || link === "null" || link === "undefined") {
+    return null;
+  }
+  return link;
 }
 
 export interface EventRSVP {
