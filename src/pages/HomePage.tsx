@@ -402,51 +402,41 @@ export default function HomePage() {
             Founded in <strong className="text-yellow-400 font-semibold">September 2025</strong> at Mount Kenya University Parklands Law Campus (MKUPLC), LexVanguard Advocates LLP was established to transform legal education through student-led co-working, peer accountability, and elite moot court preparation. What began as an ambitious idea among law scholars has evolved into a nationally acknowledged student law institution.
           </p>
 
-          {/* Text-Only Founder Cards (No Images) */}
+          {/* Expanded Institutional History Milestone Cards (No Founder Profiles) */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 mb-8 sm:mb-12 text-left w-full">
             {[
               {
-                slug: "prince",
-                name: "Prince Micah",
-                role: "Co-Founder & Technology Lead",
-                desc: "Law scholar and software engineer who planned, architected, and built the digital platform (lexvanguard.xyz), introducing AI legal research tools, secure data systems, and web technology for MKUPLC law students."
+                badge: "Phase I • September 2025",
+                title: "Institutional Genesis",
+                desc: "Established at Mount Kenya University Parklands Law Campus (MKUPLC), LexVanguard Advocates LLP was created to bridge academic legal studies with live courtroom practice, rigorous peer accountability, and appellate research."
               },
               {
-                slug: "kelvin",
-                name: "Kelvin Musya",
-                role: "Co-Founder & Chief Strategist",
-                desc: "Architect of the unified-firm institutional model, driving strategic governance, partner hierarchy, operational discipline, and inter-university symposia execution."
+                badge: "Phase II • Appellate Mastery",
+                title: "Moot Court Powerhouse",
+                desc: "LexVanguard pioneered structured legal drafting masterclasses, oral advocacy drills, and constitutional law symposia—empowering student counsels to compete and lead in elite national moot court championships."
               },
               {
-                slug: "donel",
-                name: "Donel Aganyo",
-                role: "Co-Founder & Advocacy Lead",
-                desc: "Voice of oral advocacy, leading intensive moot court drills, legal rhetoric workshops, student community outreach, and competitive debate teams."
+                badge: "Phase III • Digital Tech",
+                title: "Next-Gen Legal Technology",
+                desc: "Deploying custom AI legal research tools, eLegal statutory indexes, automated case management, and open-access legal publications to modernize student legal education across East Africa and globally."
               }
-            ].map((f, i) => (
-              <Link
+            ].map((card, i) => (
+              <div
                 key={i}
-                href={`/founders/${f.slug}`}
-                title={`Read full biography of ${f.name} - Co-Founder of LexVanguard Advocates LLP`}
-                className="bg-neutral-900/90 border border-neutral-800 hover:border-[#ffc107] p-6 sm:p-8 lg:p-10 flex flex-col justify-between rounded-sm transition-all group cursor-pointer"
-                itemScope
-                itemType="http://schema.org/Person"
+                className="bg-neutral-900/90 border border-neutral-800 hover:border-[#ffc107] p-6 sm:p-8 lg:p-10 flex flex-col justify-between rounded-sm transition-all group"
               >
                 <div className="space-y-3 lg:space-y-4">
-                  <span className="text-[10px] lg:text-xs font-mono text-yellow-500 font-bold uppercase tracking-widest block" itemProp="jobTitle">
-                    {f.role}
+                  <span className="text-[10px] lg:text-xs font-mono text-yellow-500 font-bold uppercase tracking-widest block">
+                    {card.badge}
                   </span>
-                  <h3 className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-extrabold text-white uppercase font-serif group-hover:text-[#ffc107] transition-colors" itemProp="name">
-                    {f.name}
+                  <h3 className="text-lg sm:text-xl lg:text-2xl font-extrabold text-white uppercase font-serif group-hover:text-[#ffc107] transition-colors">
+                    {card.title}
                   </h3>
-                  <p className="text-xs sm:text-sm lg:text-base xl:text-lg text-gray-300 leading-relaxed font-normal" itemProp="description">
-                    {f.desc}
+                  <p className="text-xs sm:text-sm lg:text-base text-gray-300 leading-relaxed font-normal">
+                    {card.desc}
                   </p>
                 </div>
-                <div className="pt-6 text-xs lg:text-sm font-bold text-[#ffc107] uppercase tracking-wider group-hover:underline flex items-center gap-1 font-mono">
-                  <span>Read Full Story</span> →
-                </div>
-              </Link>
+              </div>
             ))}
           </div>
 
