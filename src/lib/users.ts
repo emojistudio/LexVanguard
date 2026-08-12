@@ -190,6 +190,7 @@ export interface FirestoreMember {
   phone?: string;
   education?: string;
   achievements?: string;
+  status?: string;
 }
 
 export const DEFAULT_ATTORNEY_LIST: FirestoreMember[] = [];

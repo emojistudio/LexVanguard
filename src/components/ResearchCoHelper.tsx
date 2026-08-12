@@ -618,10 +618,10 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
       )}
 
       {/* Top Header Navigation */}
-      <header className="w-full px-6 py-3 border-b border-zinc-200/80 bg-white/90 backdrop-blur-md flex items-center justify-between shrink-0 z-30">
+      <header className="w-full px-3 sm:px-6 py-2.5 sm:py-3 border-b border-zinc-200/80 bg-white/90 backdrop-blur-md flex flex-wrap md:flex-nowrap items-center justify-between gap-2.5 shrink-0 z-30">
         
         {/* Left: Branding & Back Button */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
           {onClose ? (
             <button 
               onClick={onClose} 
@@ -638,18 +638,18 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
             </button>
           )}
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-[#1d1d1f] text-white flex items-center justify-center shadow-xs">
+            <div className="w-7 h-7 rounded-lg bg-[#1d1d1f] text-white flex items-center justify-center shadow-xs shrink-0">
               <Sparkles className="w-4 h-4 text-amber-300" />
             </div>
-            <span className="font-bold text-zinc-900 tracking-tight text-sm">Research Intelligence</span>
+            <span className="font-bold text-zinc-900 tracking-tight text-xs sm:text-sm">Research Intelligence</span>
           </div>
         </div>
 
-        {/* Center: Tabs */}
-        <nav className="flex bg-zinc-100/90 p-1 rounded-xl border border-zinc-200/60 backdrop-blur-md">
+        {/* Center: Tabs (Scrollable on small mobile screens) */}
+        <nav className="flex items-center gap-1 overflow-x-auto max-w-full bg-zinc-100/90 p-1 rounded-xl border border-zinc-200/60 backdrop-blur-md shrink-0 scrollbar-none">
           <button
             onClick={() => setActiveTab('cases')}
-            className={`px-4 py-1.5 rounded-lg text-xs font-bold flex items-center gap-2 transition-all cursor-pointer ${
+            className={`px-3 sm:px-4 py-1.5 rounded-lg text-[11px] sm:text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shrink-0 ${
               activeTab === 'cases' ? 'bg-white text-zinc-900 shadow-xs border border-zinc-200/60' : 'text-zinc-500 hover:text-zinc-900'
             }`}
           >
@@ -657,7 +657,7 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
           </button>
           <button
             onClick={() => setActiveTab('search')}
-            className={`px-4 py-1.5 rounded-lg text-xs font-bold flex items-center gap-2 transition-all cursor-pointer ${
+            className={`px-3 sm:px-4 py-1.5 rounded-lg text-[11px] sm:text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shrink-0 ${
               activeTab === 'search' ? 'bg-white text-zinc-900 shadow-xs border border-zinc-200/60' : 'text-zinc-500 hover:text-zinc-900'
             }`}
           >
@@ -665,7 +665,7 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
           </button>
           <button
             onClick={() => setActiveTab('materials')}
-            className={`px-4 py-1.5 rounded-lg text-xs font-bold flex items-center gap-2 transition-all cursor-pointer ${
+            className={`px-3 sm:px-4 py-1.5 rounded-lg text-[11px] sm:text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shrink-0 ${
               activeTab === 'materials' ? 'bg-white text-zinc-900 shadow-xs border border-zinc-200/60' : 'text-zinc-500 hover:text-zinc-900'
             }`}
           >
@@ -673,7 +673,7 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
           </button>
           <button
             onClick={() => setActiveTab('ai')}
-            className={`px-4 py-1.5 rounded-lg text-xs font-bold flex items-center gap-2 transition-all cursor-pointer ${
+            className={`px-3 sm:px-4 py-1.5 rounded-lg text-[11px] sm:text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shrink-0 ${
               activeTab === 'ai' ? 'bg-white text-zinc-900 shadow-xs border border-zinc-200/60' : 'text-zinc-500 hover:text-zinc-900'
             }`}
           >
@@ -681,7 +681,7 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
           </button>
           <button
             onClick={() => setActiveTab('drafting')}
-            className={`px-4 py-1.5 rounded-lg text-xs font-bold flex items-center gap-2 transition-all cursor-pointer ${
+            className={`px-3 sm:px-4 py-1.5 rounded-lg text-[11px] sm:text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shrink-0 ${
               activeTab === 'drafting' ? 'bg-white text-zinc-900 shadow-xs border border-zinc-200/60' : 'text-zinc-500 hover:text-zinc-900'
             }`}
           >
@@ -690,12 +690,12 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
         </nav>
 
         {/* Right: Upload Button */}
-        <div>
+        <div className="shrink-0">
           <button 
             onClick={() => fileInputRef.current?.click()}
-            className="px-3 py-1.5 bg-[#1d1d1f] hover:bg-black text-white text-xs font-bold rounded-lg flex items-center gap-1.5 shadow-xs cursor-pointer"
+            className="px-2.5 sm:px-3 py-1.5 bg-[#1d1d1f] hover:bg-black text-white text-[11px] sm:text-xs font-bold rounded-lg flex items-center gap-1.5 shadow-xs cursor-pointer"
           >
-            <Upload className="w-3.5 h-3.5" /> Upload Material
+            <Upload className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Upload Material</span><span className="sm:hidden">Upload</span>
           </button>
         </div>
       </header>

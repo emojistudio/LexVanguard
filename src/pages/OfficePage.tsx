@@ -4,7 +4,7 @@ import {
   Briefcase, Plus, Calendar, Sparkles, CheckCircle2, AlertCircle, Files,
   ChevronRight, ChevronLeft, Phone, Send, Search, Scale, Check, LogOut,
   User, RefreshCw, Image as ImageIcon, Trash2, MapPin, Clock, X, Mail, Home,
-  Shield, Users, UserCheck, UserPlus, DollarSign, Lock
+  Shield, Users, UserCheck, UserPlus, DollarSign, Lock, Bell, MessageSquare
 } from "lucide-react";
 import { 
   collection, query, where, onSnapshot, addDoc, serverTimestamp, 
@@ -21,6 +21,8 @@ import { NewsletterAdminModal } from "../components/NewsletterAdminModal";
 import { EditProfileModal } from "../components/EditProfileModal";
 import { InviteModal } from "../components/InviteModal";
 import { subscribeEvents, deleteFirmEvent, type FirmEvent } from "../lib/events-store";
+import { UserManagementModule } from "../components/UserManagementModule";
+import { ChambersInboxModule } from "../components/ChambersInboxModule";
 
 export interface OfficeData {
   id: string;
@@ -59,6 +61,8 @@ export interface AuditLogItem {
   details?: string;
   timestamp?: any;
   user?: string;
+  time?: string;
+  officeId?: string;
 }
 
 export interface ChatMessageItem {
@@ -214,6 +218,8 @@ export const OfficePage: React.FC = () => {
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [isUserManagementOpen, setIsUserManagementOpen] = useState(false);
+  const [isChambersInboxOpen, setIsChambersInboxOpen] = useState(false);
+  const [isAuditLogsPanelOpen, setIsAuditLogsPanelOpen] = useState(false);
   const [galleryEvent, setGalleryEvent] = useState<FirmEvent | null>(null);
 
   // Events State
@@ -507,13 +513,22 @@ export const OfficePage: React.FC = () => {
             </div>
 
             {/* HORIZONTAL ICON-ONLY ACTION BAR (Monochrome, No Backgrounds, No Wordings) */}
-            <div className="flex items-center gap-1.5 flex-wrap justify-center">
+            <div className="flex items-center gap-1.5 flex-wrap justify-center relative">
               <button 
                 onClick={() => setLocation("/")}
                 title="Home"
                 className="w-10 h-10 border border-zinc-300 hover:border-black text-black hover:bg-black hover:text-white transition flex items-center justify-center cursor-pointer"
               >
                 <Home className="w-5 h-5 stroke-[2]" />
+              </button>
+
+              <button 
+                onClick={() => setIsChambersInboxOpen(true)}
+                title="Chambers Communications Inbox"
+                className="w-10 h-10 border border-zinc-300 hover:border-black text-black hover:bg-black hover:text-white transition flex items-center justify-center cursor-pointer relative"
+              >
+                <MessageSquare className="w-5 h-5 stroke-[2]" />
+                <span className="w-2 h-2 rounded-full bg-emerald-500 absolute top-1.5 right-1.5"></span>
               </button>
 
               {isAdmin && (
@@ -563,6 +578,21 @@ export const OfficePage: React.FC = () => {
                 className="w-10 h-10 border border-zinc-300 hover:border-black text-black hover:bg-black hover:text-white transition flex items-center justify-center cursor-pointer"
               >
                 <User className="w-5 h-5 stroke-[2]" />
+              </button>
+
+              {/* AUDIT LOG NOTIFICATION BELL ICON (Top Right Notification Stream) */}
+              <button 
+                onClick={() => setIsAuditLogsPanelOpen(true)}
+                title="System Audit Log Stream"
+                className="w-10 h-10 border border-zinc-300 hover:border-black text-black hover:bg-black hover:text-white transition flex items-center justify-center cursor-pointer relative"
+              >
+                <Bell className="w-5 h-5 stroke-[2]" />
+                {auditLogs.length > 0 && (
+                  <span className="w-2 h-2 rounded-full bg-rose-600 absolute top-1.5 right-1.5 animate-ping"></span>
+                )}
+                {auditLogs.length > 0 && (
+                  <span className="w-2 h-2 rounded-full bg-rose-600 absolute top-1.5 right-1.5"></span>
+                )}
               </button>
 
               <button 
@@ -754,16 +784,17 @@ export const OfficePage: React.FC = () => {
             
             {/* Contacts Roster */}
             <div className={`flex flex-col w-full h-full bg-white/30 transition-opacity duration-300 ${isChatOpen ? 'opacity-0 pointer-events-none' : ''}`}>
-              <div className="p-4 border-b border-black/5 bg-white/50">
-                <h2 className="text-base font-bold text-[#1d1d1f] tracking-tight mb-2">Chambers Communications</h2>
-                <div className="relative">
-                  <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
-                  <input 
-                    type="text" 
-                    placeholder="Search firm members..." 
-                    className="w-full bg-white/80 border border-white rounded-xl py-2 pl-9 pr-3 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500/20" 
-                  />
+              <div className="p-4 border-b border-black/5 bg-white/50 flex items-center justify-between flex-wrap gap-2">
+                <div>
+                  <h2 className="text-base font-bold text-[#1d1d1f] tracking-tight">Chambers Communications</h2>
+                  <p className="text-[10px] text-zinc-500 font-medium">WhatsApp-style Encrypted Network</p>
                 </div>
+                <button
+                  onClick={() => setIsChambersInboxOpen(true)}
+                  className="px-3 py-1.5 bg-[#1d1d1f] text-white rounded-xl text-xs font-bold hover:bg-black transition flex items-center gap-1.5 cursor-pointer shadow-xs"
+                >
+                  <MessageSquare className="w-3.5 h-3.5" /> Open Full Inbox
+                </button>
               </div>
 
               <div className="flex-1 overflow-y-auto p-2 space-y-1">
@@ -881,8 +912,16 @@ export const OfficePage: React.FC = () => {
           {/* 10. Activity Stream */}
           <div className="glass-card col-span-1 md:col-span-2 flex flex-col max-h-[460px]">
             <div className="p-4 border-b border-black/5 flex items-center justify-between bg-white/30 rounded-t-[24px]">
-              <h2 className="text-base font-bold text-[#1d1d1f] tracking-tight">Audit Log & Stream</h2>
-              <span className="text-xs font-bold text-blue-600">Live</span>
+              <div>
+                <h2 className="text-base font-bold text-[#1d1d1f] tracking-tight">Audit Log Stream</h2>
+                <p className="text-[10px] text-zinc-500 font-medium">Real-Time Event Stream</p>
+              </div>
+              <button
+                onClick={() => setIsAuditLogsPanelOpen(true)}
+                className="px-3 py-1.5 bg-[#1d1d1f] text-white rounded-xl text-xs font-bold hover:bg-black transition flex items-center gap-1.5 cursor-pointer shadow-xs"
+              >
+                <Bell className="w-3.5 h-3.5 text-amber-300" /> Stream Panel ({auditLogs.length})
+              </button>
             </div>
 
             <div className="flex-1 p-4 overflow-y-auto relative">
@@ -1165,11 +1204,67 @@ export const OfficePage: React.FC = () => {
         />
       )}
 
-      {/* USER MANAGEMENT MODAL */}
+      {/* USER MANAGEMENT MODULE */}
       {isUserManagementOpen && (
-        <UserManagementModal
+        <UserManagementModule
           onClose={() => setIsUserManagementOpen(false)}
         />
+      )}
+
+      {/* CHAMBERS COMMUNICATIONS FULL-SCREEN WHATSAPP INBOX */}
+      {isChambersInboxOpen && (
+        <ChambersInboxModule
+          onClose={() => setIsChambersInboxOpen(false)}
+        />
+      )}
+
+      {/* AUDIT LOG STREAM NOTIFICATION PANEL */}
+      {isAuditLogsPanelOpen && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-md flex items-center justify-end p-0 sm:p-4">
+          <div className="bg-white w-full sm:max-w-md h-full sm:h-[90vh] sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden">
+            <div className="p-5 bg-[#1d1d1f] text-white flex items-center justify-between shrink-0">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-300 flex items-center justify-center font-bold">
+                  <Bell className="w-4 h-4" />
+                </div>
+                <div>
+                  <h2 className="text-sm font-bold tracking-tight">System Audit Log Stream</h2>
+                  <p className="text-[10px] text-zinc-400">Real-time Firm Activity & Events Notification Center</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsAuditLogsPanelOpen(false)}
+                className="p-1.5 text-zinc-400 hover:text-white rounded-full hover:bg-white/10 transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="flex-1 p-4 overflow-y-auto space-y-3 bg-zinc-50">
+              {auditLogs.length === 0 ? (
+                <div className="py-20 text-center text-xs text-zinc-500 space-y-2">
+                  <Bell className="w-10 h-10 text-zinc-300 mx-auto" />
+                  <p className="font-bold">No Audit Log Activity Recorded</p>
+                  <p className="text-[11px] text-zinc-400 max-w-xs mx-auto">Actions performed across the office platform will register here dynamically.</p>
+                </div>
+              ) : (
+                auditLogs.map((log) => (
+                  <div key={log.id} className="p-3.5 bg-white rounded-2xl border border-zinc-200 shadow-xs space-y-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-zinc-900">{log.action}</span>
+                      <span className="text-[10px] font-mono text-zinc-400">{log.time}</span>
+                    </div>
+                    <p className="text-xs text-zinc-600 font-medium">{log.details}</p>
+                    <div className="pt-1 flex items-center justify-between text-[10px] text-zinc-400 font-mono">
+                      <span>Actor: {log.user || 'System'}</span>
+                      <span className="uppercase text-amber-600 font-bold">{log.officeId || 'firm'}</span>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
       )}
 
     </div>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "wouter";
-import { ChevronLeft, ChevronRight, ChevronDown, Info, Scale, Users, Globe, X, Phone, Mail, MapPin } from "lucide-react";
+import { ChevronLeft, ChevronRight, ChevronDown, Info, Scale, Users, Globe, X, Phone, Mail, MapPin, UserPlus } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import EventsSection from "@/components/EventsSection";
@@ -9,6 +9,7 @@ import { ORGANIZATIONAL_SCHEMA, SITE_KEYWORDS } from "@/lib/seo-data";
 import { handleProfileImageError } from "@/lib/profile-store";
 import { FirestoreMember, subscribeFirestoreMembers } from "@/lib/users";
 import { resolveProfileImage } from "@/lib/profile-images";
+import { AskToJoinModal } from "@/components/AskToJoinModal";
 
 // Dynamically load all hero images placed in /src/images/hero automatically
 const heroImageModules = import.meta.glob<string>(
@@ -49,6 +50,7 @@ export default function HomePage() {
   const [expanded, setExpanded] = useState<number | null>(null);
   const [members, setMembers] = useState<FirestoreMember[]>([]);
   const [infoModalOpen, setInfoModalOpen] = useState(false);
+  const [askToJoinOpen, setAskToJoinOpen] = useState(false);
 
   // Preload slide images in browser cache to eliminate lag/flicker during slide transitions
   useEffect(() => {
@@ -144,15 +146,23 @@ export default function HomePage() {
 
         {/* Bottom Controls Area */}
         <footer className="absolute bottom-0 left-0 w-full p-6 md:px-12 flex justify-between items-end z-20">
-          {/* Left info button */}
-          <button
-            onClick={() => setInfoModalOpen(true)}
-            className="border border-[#ffc107] text-[#ffc107] w-10 h-10 flex items-center justify-center cursor-pointer hover:bg-[#ffc107] hover:text-black transition-all focus:outline-none"
-            title="LexVanguard Advocates LLP Firm Details & Overview"
-            aria-label="Firm Details"
-          >
-            <Info className="w-5 h-5 italic" />
-          </button>
+          {/* Left info & ask to join buttons */}
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setInfoModalOpen(true)}
+              className="border border-[#ffc107] text-[#ffc107] w-10 h-10 flex items-center justify-center cursor-pointer hover:bg-[#ffc107] hover:text-black transition-all focus:outline-none"
+              title="LexVanguard Advocates LLP Firm Details & Overview"
+              aria-label="Firm Details"
+            >
+              <Info className="w-5 h-5 italic" />
+            </button>
+            <button
+              onClick={() => setAskToJoinOpen(true)}
+              className="bg-[#ffc107] text-black font-extrabold text-xs uppercase tracking-wider px-3.5 sm:px-5 h-10 flex items-center justify-center gap-1.5 cursor-pointer hover:bg-yellow-400 transition-all shadow-md font-mono"
+            >
+              <UserPlus className="w-4 h-4" /> <span className="hidden sm:inline">Ask to Join</span><span className="sm:hidden">Apply</span>
+            </button>
+          </div>
 
           {/* Center Explore Button */}
           <div
@@ -518,6 +528,8 @@ export default function HomePage() {
           </Link>
         </div>
       </section>
+
+      {askToJoinOpen && <AskToJoinModal onClose={() => setAskToJoinOpen(false)} />}
 
       <Footer />
     </div>
