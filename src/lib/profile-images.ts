@@ -33,11 +33,16 @@ export function resolveProfileImage(name?: string, currentImg?: string): string 
   if (currentImg && typeof currentImg === "string" && currentImg.trim() !== "") {
     const trimmed = currentImg.trim();
     const isDicebear = trimmed.includes("dicebear");
-    const isUnsplashFake = trimmed.includes("unsplash.com");
     const is37Signals = trimmed.includes("37signals.com");
-    const isGenericPlaceholder = trimmed.includes("placeholder");
+    const isGenericPlaceholder = trimmed.includes("placeholder.com") || trimmed.includes("via.placeholder");
 
-    if (!isDicebear && !isUnsplashFake && !is37Signals && !isGenericPlaceholder) {
+    if (!isDicebear && !is37Signals && !isGenericPlaceholder) {
+      // Fix ibb.co viewer URL to direct image URL if needed
+      if (trimmed.includes("ibb.co/") && !trimmed.includes("i.ibb.co/")) {
+        const parts = trimmed.split("ibb.co/")[1]?.split("/");
+        const code = parts?.[0];
+        if (code) return `https://i.ibb.co/${code}/image.jpg`;
+      }
       return trimmed;
     }
   }

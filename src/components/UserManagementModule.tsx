@@ -9,6 +9,7 @@ import {
 import { db } from "../lib/firebase";
 import { subscribeFirestoreMembers, updateUserOfficeRole, type FirestoreMember } from "../lib/users";
 import { resolveProfileImage } from "../lib/profile-images";
+import { handleProfileImageError } from "../lib/profile-store";
 
 interface UserManagementModuleProps {
   onClose: () => void;
@@ -323,6 +324,7 @@ export const UserManagementModule: React.FC<UserManagementModuleProps> = ({ onCl
                         <td className="p-4 font-semibold text-gray-900 flex items-center gap-3">
                           <img 
                             src={resolveProfileImage(m.name, m.profilePhoto || m.image)} 
+                            onError={(e) => handleProfileImageError(e, m.name)}
                             className="w-9 h-9 rounded-full object-cover border border-gray-200" 
                           />
                           <div>

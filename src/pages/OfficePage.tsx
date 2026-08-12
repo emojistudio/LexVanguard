@@ -13,6 +13,7 @@ import {
 import { db } from "../lib/firebase";
 import { useAuth } from "../lib/auth-context";
 import { resolveProfileImage } from "../lib/profile-images";
+import { handleProfileImageError } from "../lib/profile-store";
 import { subscribeFirestoreMembers, updateUserOfficeRole, type FirestoreMember } from "../lib/users";
 import { ResearchCoHelper } from "../components/ResearchCoHelper";
 import { HostEventModal } from "../components/HostEventModal";
@@ -139,7 +140,11 @@ function UserManagementModal({ onClose }: { onClose: () => void }) {
                   return (
                     <tr key={m.uid} className="hover:bg-gray-50/80 transition-colors">
                       <td className="p-3 font-semibold text-gray-900 flex items-center gap-2">
-                        <img src={resolveProfileImage(m.name, m.profilePhoto || m.image)} className="w-7 h-7 rounded-full object-cover border" />
+                        <img 
+                          src={resolveProfileImage(m.name, m.profilePhoto || m.image)} 
+                          onError={(e) => handleProfileImageError(e, m.name)}
+                          className="w-7 h-7 rounded-full object-cover border" 
+                        />
                         <div>
                           <div>{m.name}</div>
                           <div className="text-[10px] text-gray-500 font-normal">{m.title || "Counsel"}</div>
