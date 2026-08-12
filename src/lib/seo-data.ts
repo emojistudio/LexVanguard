@@ -20,87 +20,138 @@ export interface MemberSEO {
 }
 
 export const SITE_KEYWORDS = [
-  "Mooting",
-  "Student law firms",
-  "Law firms",
+  // Primary Entity Keywords
+  "LexVanguard",
+  "LexVanguard Advocates LLP",
+  "LexVanguard Chambers",
+  "LexVanguard Advocates",
+  "lexvanguard.xyz",
+  
+  // Key Founders & Executive Leadership
+  "Prince Micah",
+  "Prince Micah Law",
+  "Prince Micah MKU",
+  "Prince Micah Founder",
+  "Prince Micah LexVanguard",
+  "Prince Micah Managing Partner",
+  "Kelvin Musya",
+  "Kelvin Musya Law",
+  "Kelvin Musya MKU",
+  "Kelvin Musya Founder",
+  "Kelvin Musya LexVanguard",
+  "Kelvin Musya Senior Partner",
+  "Donel Aganyo",
+  "Donel Aganyo Law",
+  "Donel Aganyo MKU",
+  "Donel Aganyo Founder",
+  "Donel Aganyo LexVanguard",
+  "Linet Njeri",
+  
+  // Institution & Location Terms
   "Mount Kenya University",
   "Mount Kenya University Parklands Law Campus",
   "MKUPLC",
-  "Student organizations",
-  "Youth in law",
-  "LexVanguard Advocates LLP",
-  "Prince Micah",
-  "Kelvin Musya",
-  "Donel Aganyo",
-  "Linet Njeri",
-  "Legal Research Kenya",
+  "MKU",
+  "MKU Law School",
+  "Mount Kenya University Law Students",
+  "Parklands Law Campus Nairobi",
+  "Kenya Law Schools",
+  
+  // Student Organizations & Student Law Firms
+  "Student Law Firms",
+  "Student Led Law Firms",
+  "Student Organizations",
+  "Student Led Groups",
+  "Student Led Initiatives",
+  "Youth in Law",
+  "Youth in Law Initiative",
+  "Student Advocacy Groups",
+  "Law Student Association Kenya",
+  "Kenyan Student Legal Organizations",
+  "Global Student Law Firms",
+  "African Student Legal Network",
+  
+  // Practice & Competitions
+  "Mooting",
+  "Moot Court",
+  "Moot Court Kenya",
+  "Mooting Champions",
+  "Appellate Advocacy",
   "Supreme Court Mooting",
-  "Kenyan Law Students Association",
-  "African Moot Court Championship"
+  "All Africa Moot Court Championship",
+  "International Law Mooting",
+  "Legal Research Kenya",
+  "Corporate Law Kenya",
+  "Intellectual Property Kenya",
+  "Legal Tech Strategy",
+  "Law Firms",
+  "Law Firms Kenya",
+  "Kenyan Jurisprudence"
 ];
 
 export const FOUNDING_MEMBERS: MemberSEO[] = [
   {
     slug: "prince-micah",
     name: "Prince Micah",
-    title: "Founding Partner & Co-Owner (Managing Partner)",
+    title: "Co-Founder & Managing Partner (Co-Owner)",
     isFoundingMember: true,
     roleName: "Managing Partner",
     officeId: "admin",
-    practice: "Corporate & Tech Law, Mergers & Acquisitions, Legal Tech Strategy",
+    practice: "Corporate & Commercial Law, Mergers & Acquisitions, Legal Tech Strategy & System Infrastructure",
     campus: "Mount Kenya University Parklands Law Campus (MKUPLC)",
     organization: "LexVanguard Advocates LLP & Youth in Law Initiative",
-    bio: "Prince Micah is a Founding Partner, Managing Partner, and Co-Owner of LexVanguard Advocates LLP at Mount Kenya University Parklands Law Campus (MKUPLC). A recognized champion in student law firm innovation, moot court advocacy, and youth in law initiatives across Kenya.",
+    bio: "Prince Micah is a Co-Founder, Managing Partner, and Co-Owner of LexVanguard Advocates LLP at Mount Kenya University Parklands Law Campus (MKUPLC). Architect and developer of the global LexVanguard digital platform (lexvanguard.xyz), Prince Micah is a celebrated visionary in student law firm innovation, appellate moot court advocacy, and youth legal empowerment across Africa.",
     achievements: [
       "Co-Founder & Managing Partner of LexVanguard Advocates LLP",
+      "Architect and Developer of lexvanguard.xyz legal platform & LexAI Research Engine",
       "Pioneer of Youth in Law student organization leadership at MKUPLC",
-      "Moot Court National Finalist & Appellate Advocate",
-      "Developer of LexAI Legal Research Engine for Kenyan jurisprudence"
+      "Moot Court National Finalist & Senior Appellate Advocate",
+      "Strategist for Student Law Firm Institutional Governance"
     ],
-    skills: ["Corporate Law", "Mooting Strategy", "Tech Law", "Mergers & Acquisitions", "Firm Governance"],
-    image: "/images/profiles/prince.jpeg",
+    skills: ["Corporate Law", "Mooting Strategy", "Legal Tech Infrastructure", "Mergers & Acquisitions", "Firm Governance", "Systemic Advocacy"],
+    image: "https://www.lexvanguard.xyz/images/profiles/prince.jpeg",
     email: "prince@lexvanguard.xyz"
   },
   {
     slug: "kelvin-musya",
     name: "Kelvin Musya",
-    title: "Founding Partner & Co-Owner (Senior Partner)",
+    title: "Co-Founder & Chief Strategist (Co-Owner)",
     isFoundingMember: true,
     roleName: "Senior Partner",
     officeId: "admin",
-    practice: "Appellate Advocacy, Supreme Court Litigation, Constitutional Law",
+    practice: "Appellate Advocacy, Supreme Court Litigation, Constitutional Law & Institutional Strategy",
     campus: "Mount Kenya University Parklands Law Campus (MKUPLC)",
     organization: "LexVanguard Advocates LLP & MKUPLC Mooting Society",
-    bio: "Kelvin Musya is a Founding Partner, Senior Partner, and Co-Owner of LexVanguard Advocates LLP. Renowned for constitutional legal briefs and appellate advocacy at Mount Kenya University Parklands Law Campus (MKUPLC), guiding law students to national mooting victories.",
+    bio: "Kelvin Musya is a Co-Founder, Chief Strategist, and Co-Owner of LexVanguard Advocates LLP. Renowned for constitutional legal briefs, appellate oral advocacy, and strategic leadership at Mount Kenya University Parklands Law Campus (MKUPLC), Kelvin guides emerging advocates to national moot court triumphs and institutional impact.",
     achievements: [
-      "Co-Founder & Senior Partner of LexVanguard Advocates LLP",
+      "Co-Founder & Chief Strategist of LexVanguard Advocates LLP",
       "Lead Counsel in MKUPLC Appellate Moot Court Competitions",
       "Constitutional Law & Supreme Court Litigation Researcher",
-      "Senior Mentor for Youth in Law & Law Student Organizations"
+      "Senior Mentor for Youth in Law & Law Student Organizations across Kenya"
     ],
-    skills: ["Appellate Advocacy", "Constitutional Law", "Supreme Court Briefs", "Mooting Coaching", "Litigation"],
-    image: "/images/profiles/kelvin.jpeg",
+    skills: ["Appellate Advocacy", "Constitutional Law", "Supreme Court Briefs", "Mooting Coaching", "Strategic Planning", "Litigation"],
+    image: "https://www.lexvanguard.xyz/images/profiles/kelvin.jpeg",
     email: "kelvin@lexvanguard.xyz"
   },
   {
     slug: "donel-aganyo",
     name: "Donel Aganyo",
-    title: "Founding Partner & Co-Owner (Head of IP & Tech Law)",
+    title: "Co-Founder & Head of Intellectual Property (Co-Owner)",
     isFoundingMember: true,
     roleName: "Head of IP",
     officeId: "admin",
-    practice: "Intellectual Property, Patent Litigation, Digital Law & AI Policy",
+    practice: "Intellectual Property, Patent Litigation, Advocacy Training & Community Outreach",
     campus: "Mount Kenya University Parklands Law Campus (MKUPLC)",
     organization: "LexVanguard Advocates LLP & Student Law Firm Network",
-    bio: "Donel Aganyo is a Founding Partner, Co-Owner, and Head of Intellectual Property at LexVanguard Advocates LLP. Spearheading tech innovation, patent litigation, and student IP advisories at Mount Kenya University Parklands Law Campus (MKUPLC).",
+    bio: "Donel Aganyo is a Co-Founder, Co-Owner, and Head of Intellectual Property at LexVanguard Advocates LLP. Leading advocacy training, IP enforcement, and student community outreach at Mount Kenya University Parklands Law Campus (MKUPLC), Donel ensures law students master real-world courtroom delivery.",
     achievements: [
       "Co-Founder & Head of Intellectual Property at LexVanguard",
+      "Director of Advocacy Training & Mooting Excellence Workshops",
       "Pioneer in Technology & Patent Litigation for Youth in Law",
-      "Architect of LexVanguard Digital Case Management Infrastructure",
       "MKU Parklands Law Campus Student Organization Strategist"
     ],
-    skills: ["Intellectual Property", "Patent Litigation", "Cyber Law", "Student Law Firm Management"],
-    image: "/images/profiles/don.jpeg",
+    skills: ["Intellectual Property", "Patent Litigation", "Advocacy Training", "Public Speaking", "Student Law Firm Management"],
+    image: "https://www.lexvanguard.xyz/images/profiles/don.jpeg",
     email: "donel@lexvanguard.xyz"
   },
   {
@@ -120,87 +171,178 @@ export const FOUNDING_MEMBERS: MemberSEO[] = [
       "Financial Auditor for MKUPLC Student Organization Symposia"
     ],
     skills: ["Financial Strategy", "Escrow Accounting", "Legal Billing", "Compliance Auditing"],
-    image: "/images/profiles/linet.jpeg",
+    image: "https://www.lexvanguard.xyz/images/profiles/linet.jpeg",
     email: "linet@lexvanguard.xyz"
   }
 ];
 
 export const ORGANIZATIONAL_SCHEMA = {
   "@context": "https://schema.org",
-  "@type": "LegalService",
-  "name": "LexVanguard Advocates LLP",
-  "alternateName": ["LexVanguard Chambers", "MKUPLC Student Law Firm", "LexVanguard Youth in Law"],
-  "url": "https://www.lexvanguard.xyz",
-  "logo": "https://www.lexvanguard.xyz/brand-logo.svg",
-  "image": "https://www.lexvanguard.xyz/og-preview.png",
-  "description": "LexVanguard Advocates LLP is Kenya's premier student law firm, based at Mount Kenya University Parklands Law Campus (MKUPLC). Specializing in mooting, corporate law, appellate advocacy, tech law, and youth in law initiatives.",
-  "address": {
-    "@type": "PostalAddress",
-    "streetAddress": "Parklands Campus, Parklands Road",
-    "addressLocality": "Nairobi",
-    "addressRegion": "Nairobi County",
-    "postalCode": "00100",
-    "addressCountry": "KE"
-  },
-  "parentOrganization": {
-    "@type": "EducationalOrganization",
-    "name": "Mount Kenya University Parklands Law Campus (MKUPLC)",
-    "url": "https://mku.ac.ke"
-  },
-  "founder": [
+  "@graph": [
     {
-      "@type": "Person",
-      "name": "Prince Micah",
-      "jobTitle": "Founding Partner & Co-Owner (Managing Partner)",
-      "url": "https://www.lexvanguard.xyz/attorneys/prince-micah"
-    },
-    {
-      "@type": "Person",
-      "name": "Kelvin Musya",
-      "jobTitle": "Founding Partner & Co-Owner (Senior Partner)",
-      "url": "https://www.lexvanguard.xyz/attorneys/kelvin-musya"
-    },
-    {
-      "@type": "Person",
-      "name": "Donel Aganyo",
-      "jobTitle": "Founding Partner & Co-Owner (Head of IP)",
-      "url": "https://www.lexvanguard.xyz/attorneys/donel-aganyo"
+      "@type": "LegalService",
+      "@id": "https://www.lexvanguard.xyz/#organization",
+      "name": "LexVanguard Advocates LLP",
+      "alternateName": [
+        "LexVanguard",
+        "LexVanguard Chambers",
+        "MKUPLC Student Law Firm",
+        "LexVanguard Youth in Law",
+        "Mount Kenya University Student Law Firm"
+      ],
+      "url": "https://www.lexvanguard.xyz",
+      "logo": {
+        "@type": "ImageObject",
+        "@id": "https://www.lexvanguard.xyz/#logo",
+        "url": "https://www.lexvanguard.xyz/brand-logo.svg",
+        "contentUrl": "https://www.lexvanguard.xyz/brand-logo.svg",
+        "caption": "LexVanguard Advocates LLP Official Seal and Crest",
+        "width": "512",
+        "height": "512"
+      },
+      "image": [
+        {
+          "@type": "ImageObject",
+          "url": "https://www.lexvanguard.xyz/images/profiles/prince.jpeg",
+          "caption": "Prince Micah - Co-Founder & Managing Partner at LexVanguard Advocates LLP, MKUPLC",
+          "creditText": "LexVanguard Advocates LLP",
+          "copyrightNotice": "© LexVanguard Advocates LLP"
+        },
+        {
+          "@type": "ImageObject",
+          "url": "https://www.lexvanguard.xyz/images/profiles/kelvin.jpeg",
+          "caption": "Kelvin Musya - Co-Founder & Chief Strategist at LexVanguard Advocates LLP, MKUPLC",
+          "creditText": "LexVanguard Advocates LLP",
+          "copyrightNotice": "© LexVanguard Advocates LLP"
+        },
+        {
+          "@type": "ImageObject",
+          "url": "https://www.lexvanguard.xyz/images/profiles/don.jpeg",
+          "caption": "Donel Aganyo - Co-Founder & Head of IP at LexVanguard Advocates LLP, MKUPLC",
+          "creditText": "LexVanguard Advocates LLP",
+          "copyrightNotice": "© LexVanguard Advocates LLP"
+        }
+      ],
+      "description": "LexVanguard Advocates LLP is Africa's premier student-led law firm and moot court powerhouse based at Mount Kenya University Parklands Law Campus (MKUPLC). Founded by Prince Micah, Kelvin Musya, and Donel Aganyo. Championing mooting excellence, legal research, youth in law, and systemic advocacy globally.",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Mount Kenya University Parklands Law Campus, Parklands Road",
+        "addressLocality": "Nairobi",
+        "addressRegion": "Nairobi County",
+        "postalCode": "00100",
+        "addressCountry": "KE"
+      },
+      "parentOrganization": {
+        "@type": "EducationalOrganization",
+        "name": "Mount Kenya University Parklands Law Campus (MKUPLC)",
+        "alternateName": ["MKUPLC", "Mount Kenya University Law School"],
+        "url": "https://mku.ac.ke"
+      },
+      "founder": [
+        {
+          "@type": "Person",
+          "@id": "https://www.lexvanguard.xyz/attorneys/prince-micah#person",
+          "name": "Prince Micah",
+          "alternateName": ["Prince Micah MKU", "Prince Micah LexVanguard"],
+          "jobTitle": "Co-Founder & Managing Partner (Co-Owner)",
+          "url": "https://www.lexvanguard.xyz/attorneys/prince-micah",
+          "image": {
+            "@type": "ImageObject",
+            "url": "https://www.lexvanguard.xyz/images/profiles/prince.jpeg",
+            "caption": "Prince Micah - Co-Founder & Managing Partner of LexVanguard Advocates LLP"
+          },
+          "worksFor": { "@id": "https://www.lexvanguard.xyz/#organization" },
+          "alumniOf": {
+            "@type": "EducationalOrganization",
+            "name": "Mount Kenya University Parklands Law Campus (MKUPLC)"
+          }
+        },
+        {
+          "@type": "Person",
+          "@id": "https://www.lexvanguard.xyz/attorneys/kelvin-musya#person",
+          "name": "Kelvin Musya",
+          "alternateName": ["Kelvin Musya MKU", "Kelvin Musya LexVanguard"],
+          "jobTitle": "Co-Founder & Chief Strategist (Co-Owner)",
+          "url": "https://www.lexvanguard.xyz/attorneys/kelvin-musya",
+          "image": {
+            "@type": "ImageObject",
+            "url": "https://www.lexvanguard.xyz/images/profiles/kelvin.jpeg",
+            "caption": "Kelvin Musya - Co-Founder & Chief Strategist of LexVanguard Advocates LLP"
+          },
+          "worksFor": { "@id": "https://www.lexvanguard.xyz/#organization" },
+          "alumniOf": {
+            "@type": "EducationalOrganization",
+            "name": "Mount Kenya University Parklands Law Campus (MKUPLC)"
+          }
+        },
+        {
+          "@type": "Person",
+          "@id": "https://www.lexvanguard.xyz/attorneys/donel-aganyo#person",
+          "name": "Donel Aganyo",
+          "alternateName": ["Donel Aganyo MKU", "Donel Aganyo LexVanguard"],
+          "jobTitle": "Co-Founder & Head of Intellectual Property (Co-Owner)",
+          "url": "https://www.lexvanguard.xyz/attorneys/donel-aganyo",
+          "image": {
+            "@type": "ImageObject",
+            "url": "https://www.lexvanguard.xyz/images/profiles/don.jpeg",
+            "caption": "Donel Aganyo - Co-Founder & Head of IP at LexVanguard Advocates LLP"
+          },
+          "worksFor": { "@id": "https://www.lexvanguard.xyz/#organization" },
+          "alumniOf": {
+            "@type": "EducationalOrganization",
+            "name": "Mount Kenya University Parklands Law Campus (MKUPLC)"
+          }
+        }
+      ],
+      "knowsAbout": [
+        "Mooting",
+        "Moot Court Competitions",
+        "Student Law Firms",
+        "Youth in Law",
+        "Mount Kenya University Parklands Law Campus",
+        "MKUPLC",
+        "Appellate Advocacy",
+        "Intellectual Property",
+        "Corporate Law Kenya",
+        "Legal Tech Infrastructure"
+      ],
+      "sameAs": [
+        "https://www.lexvanguard.xyz",
+        "https://facebook.com/LexVanguardLLP",
+        "https://twitter.com/LexVanguardLLP",
+        "https://linkedin.com/company/lexvanguard-advocates-llp"
+      ]
     }
-  ],
-  "knowsAbout": [
-    "Mooting",
-    "Student Law Firms",
-    "Youth in Law",
-    "Mount Kenya University Parklands Law Campus",
-    "Appellate Advocacy",
-    "Intellectual Property",
-    "Corporate Law Kenya"
-  ],
-  "sameAs": [
-    "https://www.lexvanguard.xyz",
-    "https://www.lexvanguard.xyz",
-    "https://facebook.com/LexVanguardLLP",
-    "https://twitter.com/LexVanguardLLP",
-    "https://linkedin.com/company/lexvanguard-advocates-llp"
   ]
 };
 
 export function getMemberSchema(member: MemberSEO) {
+  const imageUrl = member.image.startsWith("http") ? member.image : `https://www.lexvanguard.xyz${member.image}`;
   return {
     "@context": "https://schema.org",
     "@type": "Person",
+    "@id": `https://www.lexvanguard.xyz/attorneys/${member.slug}#person`,
     "name": member.name,
     "jobTitle": member.title,
     "worksFor": {
       "@type": "LegalService",
       "name": "LexVanguard Advocates LLP",
+      "url": "https://www.lexvanguard.xyz",
       "parentOrganization": {
         "@type": "EducationalOrganization",
-        "name": "Mount Kenya University Parklands Law Campus (MKUPLC)"
+        "name": "Mount Kenya University Parklands Law Campus (MKUPLC)",
+        "url": "https://mku.ac.ke"
       }
     },
     "description": member.bio,
-    "image": member.image,
+    "image": {
+      "@type": "ImageObject",
+      "url": imageUrl,
+      "contentUrl": imageUrl,
+      "caption": `${member.name} - ${member.title} at LexVanguard Advocates LLP, MKUPLC`,
+      "creditText": "LexVanguard Advocates LLP",
+      "copyrightNotice": "© LexVanguard Advocates LLP"
+    },
     "email": member.email,
     "alumniOf": {
       "@type": "EducationalOrganization",
@@ -214,155 +356,83 @@ export function getMemberSchema(member: MemberSEO) {
 export const SITEMAP_PAGES = [
   {
     path: "/",
-    title: "LexVanguard Advocates LLP - Premier Student Law Firm & Mooting Hub",
-    description: "Official homepage of LexVanguard Advocates LLP at Mount Kenya University Parklands Law Campus (MKUPLC). Excellence in mooting, youth in law, and student legal practice.",
+    title: "LexVanguard Advocates LLP | Premier Student Law Firm & Mooting Powerhouse",
+    description: "Official portal of LexVanguard Advocates LLP at Mount Kenya University Parklands Law Campus (MKUPLC). Founded by Prince Micah, Kelvin Musya, and Donel Aganyo. Global leaders in student law firm practice, moot court championships, and youth in law initiatives.",
     category: "Main",
     changefreq: "daily",
     priority: "1.0",
-    thumbnail: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&q=80&w=600"
+    thumbnail: "https://www.lexvanguard.xyz/images/profiles/prince.jpeg"
   },
   {
     path: "/attorneys",
-    title: "Our Attorneys & Members - Founding Partners & Counsel Directory",
-    description: "Meet the founding members Prince Micah, Kelvin Musya, Donel Aganyo, and counsel members of LexVanguard Advocates LLP at Mount Kenya University Parklands Law Campus.",
+    title: "Our Counsel & Founding Partners - Prince Micah, Kelvin Musya, Donel Aganyo | LexVanguard",
+    description: "Discover the founding partners Prince Micah, Kelvin Musya, Donel Aganyo, and elite legal scholars of LexVanguard Advocates LLP at Mount Kenya University Parklands Law Campus (MKUPLC).",
     category: "Team Directory",
     changefreq: "weekly",
-    priority: "0.9",
-    thumbnail: "/images/profiles/prince.jpeg"
+    priority: "0.95",
+    thumbnail: "https://www.lexvanguard.xyz/images/profiles/prince.jpeg"
   },
   {
     path: "/attorneys/prince-micah",
-    title: "Prince Micah - Founding Partner & Co-Owner | LexVanguard",
-    description: "Profile of Prince Micah, Founding Partner & Managing Partner at LexVanguard Advocates LLP, MKUPLC. Champion of corporate law, mooting, and youth in law initiatives.",
+    title: "Prince Micah - Co-Founder & Managing Partner | LexVanguard Advocates LLP",
+    description: "Profile of Prince Micah, Co-Founder and Managing Partner of LexVanguard Advocates LLP at Mount Kenya University Parklands Law Campus (MKUPLC). Architect of the LexVanguard platform, moot court advocate, and corporate legal tech leader.",
     category: "Founding Member Profile",
     changefreq: "weekly",
-    priority: "0.95",
-    thumbnail: "/images/profiles/prince.jpeg"
+    priority: "0.98",
+    thumbnail: "https://www.lexvanguard.xyz/images/profiles/prince.jpeg"
   },
   {
     path: "/attorneys/kelvin-musya",
-    title: "Kelvin Musya - Founding Partner & Co-Owner | LexVanguard",
-    description: "Profile of Kelvin Musya, Founding Partner & Senior Litigation Partner at LexVanguard Advocates LLP, MKUPLC. Leader in appellate advocacy and Supreme Court mooting.",
+    title: "Kelvin Musya - Co-Founder & Chief Strategist | LexVanguard Advocates LLP",
+    description: "Profile of Kelvin Musya, Co-Founder and Chief Strategist of LexVanguard Advocates LLP at Mount Kenya University Parklands Law Campus (MKUPLC). Lead appellate counsel and mentor in Supreme Court mooting.",
     category: "Founding Member Profile",
     changefreq: "weekly",
-    priority: "0.95",
-    thumbnail: "/images/profiles/kelvin.jpeg"
+    priority: "0.98",
+    thumbnail: "https://www.lexvanguard.xyz/images/profiles/kelvin.jpeg"
   },
   {
     path: "/attorneys/donel-aganyo",
-    title: "Donel Aganyo - Founding Partner & Co-Owner | LexVanguard",
-    description: "Profile of Donel Aganyo, Founding Partner & Head of IP at LexVanguard Advocates LLP, MKUPLC. Specialist in intellectual property, patent litigation, and legal tech.",
+    title: "Donel Aganyo - Co-Founder & Head of IP | LexVanguard Advocates LLP",
+    description: "Profile of Donel Aganyo, Co-Founder and Head of Intellectual Property at LexVanguard Advocates LLP, Mount Kenya University Parklands Law Campus (MKUPLC). Specialist in IP litigation and advocacy training.",
     category: "Founding Member Profile",
     changefreq: "weekly",
-    priority: "0.95",
-    thumbnail: "/images/profiles/don.jpeg"
-  },
-  {
-    path: "/events",
-    title: "Events & Symposia - Moot Court Competitions & Conferences",
-    description: "Explore upcoming moot court championships, legal symposia, and youth in law workshops hosted by LexVanguard Advocates LLP and Mount Kenya University Parklands Law Campus.",
-    category: "Events",
-    changefreq: "daily",
-    priority: "0.85",
-    thumbnail: "https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&q=80&w=600"
-  },
-  {
-    path: "/research",
-    title: "LexAI Legal Research Co-Helper - Kenyan Law Engine",
-    description: "LexAI search-grounded legal research portal powered by Gemini for Kenyan statutes, Constitution of Kenya 2010, High Court & Supreme Court precedents.",
-    category: "Tools & Portals",
-    changefreq: "weekly",
-    priority: "0.9",
-    thumbnail: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=600"
+    priority: "0.98",
+    thumbnail: "https://www.lexvanguard.xyz/images/profiles/don.jpeg"
   },
   {
     path: "/history",
     title: "Firm History & Legacy - Mount Kenya University Parklands Law Campus",
-    description: "The founding journey of LexVanguard Advocates LLP at Mount Kenya University Parklands Law Campus (MKUPLC) and the rise of student law firm excellence in Kenya.",
+    description: "Explore the historic founding journey of LexVanguard Advocates LLP at Mount Kenya University Parklands Law Campus (MKUPLC), established by Prince Micah, Kelvin Musya, and Donel Aganyo.",
     category: "About & History",
     changefreq: "monthly",
-    priority: "0.8",
-    thumbnail: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=600"
+    priority: "0.90",
+    thumbnail: "https://www.lexvanguard.xyz/images/profiles/prince.jpeg"
   },
   {
-    path: "/services",
-    title: "Practice Areas - Corporate Law, Appellate Advocacy & IP",
-    description: "Comprehensive list of practice areas at LexVanguard Advocates LLP including appellate advocacy, corporate law, intellectual property, and moot court training.",
+    path: "/events",
+    title: "Moot Court Symposia & Conferences | LexVanguard Advocates LLP",
+    description: "National moot court competitions, legal research workshops, and youth in law conferences hosted by LexVanguard Advocates LLP at Mount Kenya University Parklands Law Campus.",
+    category: "Events",
+    changefreq: "daily",
+    priority: "0.90",
+    thumbnail: "https://www.lexvanguard.xyz/brand-logo.svg"
+  },
+  {
+    path: "/research",
+    title: "LexAI Legal Research Co-Helper - Search Grounded Kenya Law Portal",
+    description: "Search-grounded legal research portal powered by Gemini for Kenyan statutes, Constitution 2010, High Court & Supreme Court rulings developed by LexVanguard Advocates LLP.",
+    category: "Tools & Portals",
+    changefreq: "weekly",
+    priority: "0.95",
+    thumbnail: "https://www.lexvanguard.xyz/brand-logo.svg"
+  },
+  {
+    path: "/practice-areas",
+    title: "Practice Areas & Legal Specializations | LexVanguard Advocates LLP",
+    description: "Appellate advocacy, corporate law, intellectual property, constitutional petitions, and tech law practice areas at LexVanguard Advocates LLP.",
     category: "Services",
     changefreq: "monthly",
-    priority: "0.8",
-    thumbnail: "https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&q=80&w=600"
-  },
-  {
-    path: "/sitemap",
-    title: "Comprehensive Sitemap & Search Engine Index Directory",
-    description: "Complete indexed visual sitemap and navigation directory of all pages, member profiles, research portals, and event archives for LexVanguard Advocates LLP.",
-    category: "SEO & Indexing",
-    changefreq: "daily",
-    priority: "0.7",
-    thumbnail: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&q=80&w=600"
-  },
-  {
-    path: "/research/ai-assistant",
-    title: "LexAI Legal Research Assistant - Search Grounded AI Engine",
-    description: "AI-powered legal research assistant search-grounded for Kenyan statutes, East African precedents, and constitutional jurisprudence.",
-    category: "AI Legal Tools",
-    changefreq: "daily",
-    priority: "0.99",
-    thumbnail: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=600"
-  },
-  {
-    path: "/research/ai-case-analyzer",
-    title: "AI Case Law Analyzer & Judicial Holding Summarizer",
-    description: "Automated AI digest tool extracting Ratio Decidendi and Obiter Dicta from High Court and Supreme Court of Kenya rulings.",
-    category: "AI Legal Tools",
-    changefreq: "daily",
-    priority: "0.95",
-    thumbnail: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&q=80&w=600"
-  },
-  {
-    path: "/research/ai-contract-reviewer",
-    title: "AI Contract & Agreement Reviewer - Legal Risk Auditor",
-    description: "AI clause analyzer evaluating legal liability, indemnity risks, and regulatory compliance for commercial contracts.",
-    category: "AI Legal Tools",
-    changefreq: "daily",
-    priority: "0.95",
-    thumbnail: "https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&q=80&w=600"
-  },
-  {
-    path: "/research/ai-brief-generator",
-    title: "AI Legal Brief & Pleadings Generator - Draft Suite",
-    description: "Instant AI drafting engine for court pleadings, appellate briefs, and formal legal memoranda.",
-    category: "AI Legal Tools",
-    changefreq: "daily",
-    priority: "0.96",
-    thumbnail: "https://images.unsplash.com/photo-1505664194779-8beaceb93744?auto=format&fit=crop&q=80&w=600"
-  },
-  {
-    path: "/research/ai-statute-search",
-    title: "AI Kenya Statutes & Constitution Search Engine",
-    description: "Search and cross-reference Acts of Parliament, Laws of Kenya, and statutory amendments.",
-    category: "AI Legal Tools",
-    changefreq: "daily",
-    priority: "0.94",
-    thumbnail: "https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&q=80&w=600"
-  },
-  {
-    path: "/login",
-    title: "Counsel Portal Login - LexVanguard Chambers",
-    description: "Secure login portal for authenticated LexVanguard Advocates LLP counsel members and administrative officers.",
-    category: "Portal",
-    changefreq: "monthly",
-    priority: "0.5",
-    thumbnail: "https://images.unsplash.com/photo-1557597774-9d273605dfa9?auto=format&fit=crop&q=80&w=600"
-  },
-  {
-    path: "/register",
-    title: "Counsel Activation & Member Onboarding",
-    description: "Invitation-based counsel activation and onboarding portal for new members of LexVanguard Advocates LLP.",
-    category: "Portal",
-    changefreq: "monthly",
-    priority: "0.5",
-    thumbnail: "https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&q=80&w=600"
+    priority: "0.85",
+    thumbnail: "https://www.lexvanguard.xyz/brand-logo.svg"
   }
 ];

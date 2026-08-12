@@ -183,6 +183,8 @@ async function sendNewsletterViaResendDirectly({
     contentHtml: content
   });
 
+  const plainText = `${title}\n\n${content.replace(/<[^>]*>?/gm, "")}\n\nLexVanguard Gazette — https://lexvanguard.xyz`;
+
   try {
     for (const email of targetEmails) {
       await fetch("https://api.resend.com/emails", {
@@ -192,10 +194,17 @@ async function sendNewsletterViaResendDirectly({
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          from: "LexVanguard Gazette <onboarding@resend.dev>",
+          from: "LexVanguard Gazette <info@lexvanguard.xyz>",
           to: [email],
+          reply_to: "info@lexvanguard.xyz",
           subject: `${title} — LexVanguard Legal Gazette`,
-          html: htmlContent
+          html: htmlContent,
+          text: plainText,
+          headers: {
+            "List-Unsubscribe": "<https://lexvanguard.xyz/unsubscribe>, <mailto:info@lexvanguard.xyz?subject=unsubscribe>",
+            "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+            "X-Entity-Ref-ID": `direct_gazette_${Date.now()}`
+          }
         })
       });
     }

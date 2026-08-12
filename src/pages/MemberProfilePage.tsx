@@ -54,11 +54,12 @@ export default function MemberProfilePage() {
 
           <div className="flex flex-col lg:flex-row gap-8 items-center lg:items-start relative z-10">
             {/* Member Thumbnail Image */}
-            <div className="relative shrink-0 w-48 h-48 sm:w-64 sm:h-64 rounded-2xl overflow-hidden border-2 border-yellow-500/50 shadow-xl group">
+            <div className="relative shrink-0 w-48 h-48 sm:w-64 sm:h-64 rounded-2xl overflow-hidden border-2 border-yellow-500/50 shadow-xl group" itemScope itemType="http://schema.org/Person">
               <img
                 src={member.image}
-                alt={`${member.name} - ${member.title} at Mount Kenya University Parklands Law Campus`}
-                title={`${member.name} - ${member.title}`}
+                alt={`${member.name} - ${member.title} at LexVanguard Advocates LLP, Mount Kenya University Parklands Law Campus (MKUPLC)`}
+                title={`${member.name} | LexVanguard Advocates LLP`}
+                itemProp="image"
                 loading="eager"
                 decoding="async"
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
@@ -196,7 +197,10 @@ export default function MemberProfilePage() {
               >
                 <img
                   src={m.image}
-                  alt={m.name}
+                  alt={`${m.name} - ${m.roleName} at LexVanguard Advocates LLP, Mount Kenya University Parklands Law Campus (MKUPLC)`}
+                  title={`${m.name} | LexVanguard Advocates LLP`}
+                  itemProp="image"
+                  loading="lazy"
                   className="w-12 h-12 rounded-lg object-cover border border-yellow-500/30"
                 />
                 <div className="min-w-0">

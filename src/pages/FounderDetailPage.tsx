@@ -111,17 +111,55 @@ const FOUNDERS_DATA: Record<string, FounderDetail> = {
   }
 };
 
+import { SITE_KEYWORDS } from "@/lib/seo-data";
+
 export default function FounderDetailPage() {
   const [match, params] = useRoute<{ slug: string }>("/founders/:slug");
   const slug = params?.slug?.toLowerCase() || "prince";
   const founder = FOUNDERS_DATA[slug] || FOUNDERS_DATA.prince;
+  const imageUrl = founder.image.startsWith("http") ? founder.image : `https://www.lexvanguard.xyz${founder.image}`;
 
   return (
     <div className="w-full bg-white text-black min-h-screen flex flex-col font-sans">
       <SEOHead
-        title={`${founder.name} — Detailed Founder Biography | LexVanguard Advocates LLP`}
-        description={founder.summary}
-        url={`https://lexvanguard.xyz/founders/${founder.slug}`}
+        title={`${founder.name} — Co-Founder Biography | LexVanguard Advocates LLP, MKUPLC`}
+        description={`${founder.name} is a Co-Founder of LexVanguard Advocates LLP at Mount Kenya University Parklands Law Campus (MKUPLC). ${founder.summary}`}
+        keywords={[
+          founder.name,
+          `${founder.name} MKU`,
+          `${founder.name} Law`,
+          `${founder.name} LexVanguard`,
+          `${founder.name} Founder`,
+          "Mount Kenya University Parklands Law Campus",
+          "MKUPLC",
+          "Mooting",
+          "Student Law Firms",
+          ...SITE_KEYWORDS
+        ]}
+        url={`https://www.lexvanguard.xyz/founders/${founder.slug}`}
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "Person",
+          "name": founder.name,
+          "jobTitle": founder.role,
+          "worksFor": {
+            "@type": "LegalService",
+            "name": "LexVanguard Advocates LLP",
+            "url": "https://www.lexvanguard.xyz"
+          },
+          "alumniOf": {
+            "@type": "EducationalOrganization",
+            "name": "Mount Kenya University Parklands Law Campus (MKUPLC)"
+          },
+          "description": founder.summary,
+          "image": {
+            "@type": "ImageObject",
+            "url": imageUrl,
+            "contentUrl": imageUrl,
+            "caption": `${founder.name} - Co-Founder of LexVanguard Advocates LLP at Mount Kenya University Parklands Law Campus`
+          },
+          "url": `https://www.lexvanguard.xyz/founders/${founder.slug}`
+        }}
       />
 
       <Header />
@@ -152,10 +190,13 @@ export default function FounderDetailPage() {
 
       <main className="w-[90vw] max-w-[90vw] mx-auto px-2 sm:px-6 py-12 sm:py-16 space-y-12 flex-1 text-left">
         {/* Profile Card & Overview (No heavy borders, Square Image) */}
-        <div className="flex flex-col md:flex-row gap-8 items-start bg-gray-50/60 p-6 sm:p-10">
+        <div className="flex flex-col md:flex-row gap-8 items-start bg-gray-50/60 p-6 sm:p-10" itemScope itemType="http://schema.org/Person">
           <img
             src={founder.image}
-            alt={founder.name}
+            alt={`${founder.name} - Co-Founder of LexVanguard Advocates LLP, Mount Kenya University Parklands Law Campus (MKUPLC)`}
+            title={`${founder.name} | LexVanguard Co-Founder`}
+            itemProp="image"
+            loading="eager"
             className="w-full md:w-72 h-72 aspect-square object-cover shrink-0"
           />
 

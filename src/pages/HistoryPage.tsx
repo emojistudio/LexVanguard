@@ -61,23 +61,26 @@ export default function HistoryPage() {
           <div className="flex flex-col lg:flex-row gap-6 items-stretch justify-center w-full text-left">
             
             {/* PRINCE MICAH SUMMARY CARD */}
-            <div className="flex-1 bg-white border border-gray-200 p-6 sm:p-8 flex flex-col justify-between hover:border-yellow-500 transition-colors shadow-xs group">
+            <div className="flex-1 bg-white border border-gray-200 p-6 sm:p-8 flex flex-col justify-between hover:border-yellow-500 transition-colors shadow-xs group" itemScope itemType="http://schema.org/Person">
               <div className="space-y-4">
                 <img
                   src="/images/profiles/prince.jpeg"
-                  alt="Prince Micah"
+                  alt="Prince Micah - Co-Founder of LexVanguard Advocates LLP at Mount Kenya University Parklands Law Campus (MKUPLC)"
+                  title="Prince Micah | Co-Founder & Partner at LexVanguard Advocates LLP"
+                  itemProp="image"
+                  loading="eager"
                   className="w-full aspect-square object-cover"
                 />
                 <div>
-                  <span className="text-[10px] font-mono text-yellow-600 font-bold uppercase tracking-widest block">Co-Founder</span>
-                  <h3 className="text-xl font-extrabold text-black uppercase font-serif group-hover:text-yellow-600 transition-colors">
+                  <span className="text-[10px] font-mono text-yellow-600 font-bold uppercase tracking-widest block" itemProp="jobTitle">Co-Founder</span>
+                  <h3 className="text-xl font-extrabold text-black uppercase font-serif group-hover:text-yellow-600 transition-colors" itemProp="name">
                     Prince Micah
                   </h3>
                   <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider mt-0.5">
                     Technology & Innovation Lead
                   </p>
                 </div>
-                <p className="text-xs text-gray-600 leading-relaxed">
+                <p className="text-xs text-gray-600 leading-relaxed" itemProp="description">
                   Law scholar and software engineer who led the digital architecture and web development of the LexVanguard platform (lexvanguard.xyz), driving legal tech, digital security, and AI research tools.
                 </p>
               </div>
@@ -92,23 +95,26 @@ export default function HistoryPage() {
             </div>
 
             {/* KELVIN MUSYA SUMMARY CARD */}
-            <div className="flex-1 bg-white border border-gray-200 p-6 sm:p-8 flex flex-col justify-between hover:border-yellow-500 transition-colors shadow-xs group">
+            <div className="flex-1 bg-white border border-gray-200 p-6 sm:p-8 flex flex-col justify-between hover:border-yellow-500 transition-colors shadow-xs group" itemScope itemType="http://schema.org/Person">
               <div className="space-y-4">
                 <img
                   src="/images/profiles/kelvin.jpeg"
-                  alt="Kelvin Musya"
+                  alt="Kelvin Musya - Co-Founder of LexVanguard Advocates LLP at Mount Kenya University Parklands Law Campus (MKUPLC)"
+                  title="Kelvin Musya | Co-Founder & Partner at LexVanguard Advocates LLP"
+                  itemProp="image"
+                  loading="eager"
                   className="w-full aspect-square object-cover"
                 />
                 <div>
-                  <span className="text-[10px] font-mono text-yellow-600 font-bold uppercase tracking-widest block">Co-Founder</span>
-                  <h3 className="text-xl font-extrabold text-black uppercase font-serif group-hover:text-yellow-600 transition-colors">
+                  <span className="text-[10px] font-mono text-yellow-600 font-bold uppercase tracking-widest block" itemProp="jobTitle">Co-Founder</span>
+                  <h3 className="text-xl font-extrabold text-black uppercase font-serif group-hover:text-yellow-600 transition-colors" itemProp="name">
                     Kelvin Musya
                   </h3>
                   <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider mt-0.5">
                     Chief Strategist & Organising Director
                   </p>
                 </div>
-                <p className="text-xs text-gray-600 leading-relaxed">
+                <p className="text-xs text-gray-600 leading-relaxed" itemProp="description">
                   Architect of the unified-firm concept. Strategic force behind institutional structure, discipline, partner governance, and execution.
                 </p>
               </div>
@@ -123,23 +129,26 @@ export default function HistoryPage() {
             </div>
 
             {/* DONEL AGANYO SUMMARY CARD */}
-            <div className="flex-1 bg-white border border-gray-200 p-6 sm:p-8 flex flex-col justify-between hover:border-yellow-500 transition-colors shadow-xs group">
+            <div className="flex-1 bg-white border border-gray-200 p-6 sm:p-8 flex flex-col justify-between hover:border-yellow-500 transition-colors shadow-xs group" itemScope itemType="http://schema.org/Person">
               <div className="space-y-4">
                 <img
                   src="/images/profiles/don.jpeg"
-                  alt="Donel Aganyo"
+                  alt="Donel Aganyo - Co-Founder of LexVanguard Advocates LLP at Mount Kenya University Parklands Law Campus (MKUPLC)"
+                  title="Donel Aganyo | Co-Founder & Partner at LexVanguard Advocates LLP"
+                  itemProp="image"
+                  loading="eager"
                   className="w-full aspect-square object-cover"
                 />
                 <div>
-                  <span className="text-[10px] font-mono text-yellow-600 font-bold uppercase tracking-widest block">Co-Founder</span>
-                  <h3 className="text-xl font-extrabold text-black uppercase font-serif group-hover:text-yellow-600 transition-colors">
+                  <span className="text-[10px] font-mono text-yellow-600 font-bold uppercase tracking-widest block" itemProp="jobTitle">Co-Founder</span>
+                  <h3 className="text-xl font-extrabold text-black uppercase font-serif group-hover:text-yellow-600 transition-colors" itemProp="name">
                     Donel Aganyo
                   </h3>
                   <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider mt-0.5">
                     Advocacy Partner & Outreach Lead
                   </p>
                 </div>
-                <p className="text-xs text-gray-600 leading-relaxed">
+                <p className="text-xs text-gray-600 leading-relaxed" itemProp="description">
                   Voice of member engagement, oral advocacy drills, moot court preparation, legal debates, and youth-in-law community outreach.
                 </p>
               </div>

@@ -15,7 +15,7 @@ export default async function handler(req: any, res: any) {
   if (req.method !== "POST") return res.status(405).json({ success: false, error: "Method not allowed. Use POST." });
 
   try {
-    const { title, category, issueNumber, content, targetEmails } = req.body || {};
+    const { title, category, issueNumber, content, targetEmails, authorName } = req.body || {};
     if (!title || !content) {
       return res.status(400).json({ success: false, error: "Title and content are required." });
     }
@@ -24,6 +24,7 @@ export default async function handler(req: any, res: any) {
     const apiKey = process.env.RESEND_API_KEY || process.env.VITE_RESEND_API_KEY || FALLBACK_KEY;
 
     let successCount = 0;
+
     if (apiKey && Array.isArray(targetEmails) && targetEmails.length > 0) {
       const resend = new Resend(apiKey);
       const htmlContent = renderNewsletterEditionEmailHtml({
@@ -33,30 +34,62 @@ export default async function handler(req: any, res: any) {
         contentHtml: content
       });
 
-      const sender = "LexVanguard Gazette <onboarding@lexvanguard.xyz>";
+      // Strip HTML for anti-spam plain text alternative
+      const plainTextContent = `
+LexVanguard Legal Gazette & Intelligence Review
+Category: ${category || "Gazette Edition"} ${issueNumber ? `| Issue ${issueNumber}` : ""}
+
+${title}
+${authorName ? `By ${authorName}` : ""}
+
+${content.replace(/<[^>]*>?/gm, "")}
+
+---
+LexVanguard Advocates LLP
+Mount Kenya University Parklands Law Campus, Nairobi, Kenya
+Website: https://lexvanguard.xyz
+Unsubscribe: https://lexvanguard.xyz/unsubscribe or reply "Unsubscribe"
+      `.trim();
+
+      const senders = [
+        "LexVanguard Gazette <gazette@lexvanguard.xyz>",
+        "LexVanguard Gazette <info@lexvanguard.xyz>",
+        "LexVanguard Gazette <onboarding@lexvanguard.xyz>",
+        "LexVanguard Gazette <chambers@lexvanguard.xyz>",
+        "LexVanguard Gazette <onboarding@resend.dev>"
+      ];
 
       for (const email of targetEmails) {
-        try {
-          const r = await resend.emails.send({
-            from: sender,
-            to: [email],
-            subject: `${title} — LexVanguard Legal Gazette`,
-            html: htmlContent
-          });
-          if (r.data?.id) successCount++;
-        } catch (e) {
-          // Fallback to resend.dev if custom domain is unverified
+        const recipient = (email || "").trim();
+        if (!recipient || !recipient.includes("@")) continue;
+
+        let sent = false;
+        for (const sender of senders) {
           try {
-            const fallbackRes = await resend.emails.send({
-              from: "LexVanguard Gazette <onboarding@resend.dev>",
-              to: [email],
+            const r = await resend.emails.send({
+              from: sender,
+              to: [recipient],
+              replyTo: "info@lexvanguard.xyz",
               subject: `${title} — LexVanguard Legal Gazette`,
-              html: htmlContent
+              html: htmlContent,
+              text: plainTextContent,
+              headers: {
+                "List-Unsubscribe": "<https://lexvanguard.xyz/unsubscribe>, <mailto:info@lexvanguard.xyz?subject=unsubscribe>",
+                "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+                "X-Entity-Ref-ID": `gazette_${Date.now()}`
+              }
             });
-            if (fallbackRes.data?.id) successCount++;
-          } catch (err2) {
-            console.warn("Newsletter dispatch failed for recipient:", email, err2);
+            if (r.data?.id && !r.error) {
+              successCount++;
+              sent = true;
+              break;
+            }
+          } catch (e) {
+            // Try next sender alias
           }
+        }
+        if (!sent) {
+          console.warn(`[SEND NEWSLETTER] Delivery warning for recipient: ${recipient}`);
         }
       }
     }

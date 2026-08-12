@@ -273,6 +273,8 @@ export function subscribeFirestoreMembers(callback: (members: FirestoreMember[])
           combinedMap.set(key, {
             uid: uid.toString().trim(),
             name,
+            rank: data.rank || existing?.rank || "0",
+            role: data.role || data.roleName || existing?.role || "Counsel",
             title: data.title || data.roleName || existing?.title || "Counsel",
             practice: data.practice || existing?.practice || "Legal Counsel & Advisory",
             email: data.email || existing?.email,

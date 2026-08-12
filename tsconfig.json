@@ -19,6 +19,9 @@
     "paths": {
       "@/*": [
         "./src/*"
+      ],
+      "@images/*": [
+        "./src/images/*"
       ]
     },
     "allowImportingTsExtensions": true,

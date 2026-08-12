@@ -7,7 +7,7 @@ import { makeAvatarSvg } from "@/lib/avatar";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
-import { SITE_KEYWORDS, FOUNDING_MEMBERS } from "@/lib/seo-data";
+import { SITE_KEYWORDS, FOUNDING_MEMBERS, getMemberSchema } from "@/lib/seo-data";
 import { InviteModal } from "@/components/InviteModal";
 import { Pencil, X, Check, Phone, Mail, BookOpen, Star, ChevronDown, Loader2, ExternalLink, Users } from "lucide-react";
 
@@ -338,9 +338,11 @@ function AttorneyCard({
       >
         <img
           src={profile.image}
-          alt={profile.name}
+          alt={`${profile.name} - ${profile.title || 'Counsel'} at LexVanguard Advocates LLP, Mount Kenya University Parklands Law Campus (MKUPLC)`}
+          title={`${profile.name} | LexVanguard Advocates LLP`}
           loading="lazy"
           decoding="async"
+          itemProp="image"
           onError={(e) => handleProfileImageError(e, member.name)}
           className="w-full h-[200px] object-cover grayscale-0 brightness-100 md:grayscale md:brightness-95 md:group-hover:grayscale-0 md:group-hover:brightness-100 group-focus:grayscale-0 group-focus:brightness-105 group-active:grayscale-0 group-active:brightness-105 transition-all duration-500 transform group-hover:scale-105 group-focus:scale-105"
         />
@@ -464,17 +466,7 @@ export default function AttorneysPage() {
           ...SITE_KEYWORDS
         ]}
         url="https://lexvanguard.xyz/attorneys"
-        jsonLd={FOUNDING_MEMBERS.map((m) => ({
-          "@context": "https://schema.org",
-          "@type": "Person",
-          "name": m.name,
-          "jobTitle": m.title,
-          "worksFor": {
-            "@type": "LegalService",
-            "name": "LexVanguard Advocates LLP"
-          },
-          "url": `https://lexvanguard.xyz/attorneys/${m.slug}`
-        }))}
+        jsonLd={FOUNDING_MEMBERS.map((m) => getMemberSchema(m))}
       />
       {showInviteModal && <InviteModal onClose={() => setShowInviteModal(false)} />}
       {activeProfile && (

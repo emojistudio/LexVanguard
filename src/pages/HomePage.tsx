@@ -4,40 +4,44 @@ import { ChevronLeft, ChevronRight, ChevronDown, Info, Scale, Users, Globe, X, P
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import EventsSection from "@/components/EventsSection";
-import PracticeAreasSection from "@/components/PracticeAreasSection";
 import SEOHead from "@/components/SEOHead";
 import { ORGANIZATIONAL_SCHEMA, SITE_KEYWORDS } from "@/lib/seo-data";
-import { loadProfile, handleProfileImageError } from "@/lib/profile-store";
+import { handleProfileImageError } from "@/lib/profile-store";
 import { FirestoreMember, subscribeFirestoreMembers } from "@/lib/users";
 import { resolveProfileImage } from "@/lib/profile-images";
 
+// Dynamically load all hero images placed in /src/images/hero automatically
+const heroImageModules = import.meta.glob<string>(
+  '/src/images/hero/*.{png,jpg,jpeg,webp,avif,svg,PNG,JPG,JPEG,WEBP,AVIF,SVG}',
+  { eager: true, import: 'default' }
+);
+
+const DYNAMIC_SLIDE_IMAGES: string[] = Object.keys(heroImageModules)
+  .sort()
+  .map((path) => heroImageModules[path]);
+
+const FALLBACK_HERO_IMAGE = "/brand-logo.svg";
+const SLIDE_IMAGES = DYNAMIC_SLIDE_IMAGES.length > 0 ? DYNAMIC_SLIDE_IMAGES : [FALLBACK_HERO_IMAGE];
+
 const PHILOSOPHY = [
   {
-    icon: <Scale className="w-10 h-10 text-yellow-500 mx-auto" />,
+    icon: <Scale className="w-10 h-10 lg:w-12 lg:h-12 text-yellow-500 mx-auto" aria-hidden="true" />,
     title: "A Vision for Lasting Change",
     short: "LexVanguard stands at the forefront of modern advocacy, driven by a relentless commitment to systemic change.",
     full: "LexVanguard stands at the forefront of modern advocacy, driven by a relentless commitment to systemic change. We don't just react to the legal landscape — we actively reshape it to ensure a more equitable future. By combining strategic foresight with a passion for justice, the firm serves as a powerful engine for progress, turning ambitious ideals into tangible societal shifts. Our ambition is to scale the heights of international legal education, standing shoulder to shoulder with the finest law firms and institutions globally."
   },
   {
-    icon: <Users className="w-10 h-10 text-yellow-500 mx-auto" />,
+    icon: <Users className="w-10 h-10 lg:w-12 lg:h-12 text-yellow-500 mx-auto" aria-hidden="true" />,
     title: "Inclusivity & Teamwork",
     short: "LexVanguard operates on the belief that the pursuit of justice is not the exclusive domain of the privileged few.",
     full: "LexVanguard operates on the belief that the pursuit of justice is not the exclusive domain of the privileged few, but a calling that requires only spirit and tenacity. The doors of LexVanguard are open to all who possess the visceral urge to see justice persevere. The firm's pillars — co-working, professionalism, friendship, respect, and teamwork — elevate the group from a simple club to a professional entity. Every member is acknowledged and respected as intrinsically valuable to the whole."
   },
   {
-    icon: <Globe className="w-10 h-10 text-yellow-500 mx-auto" />,
+    icon: <Globe className="w-10 h-10 lg:w-12 lg:h-12 text-yellow-500 mx-auto" aria-hidden="true" />,
     title: "Open Doors, Open Solutions",
     short: "High-level advocacy should be available to everyone. LexVanguard is an accessible, always-on resource for the community.",
     full: "At the heart of our mission is the belief that high-level advocacy should be available to everyone, regardless of background or circumstance. LexVanguard prides itself on being an accessible, 'always-on' resource for the community. We bridge the gap between complex legal structures and the people who need them most, ensuring that our doors remain open and our experts remain ready to serve whenever change is needed — from legal research and litigation, to mooting, negotiation, and client advisory."
   }
-];
-
-const SLIDE_IMAGES = [
-  "https://i.ibb.co/3Yf3BzVB/Whats-App-Image-2026-08-11-at-14-37-59.jpg",
-  "https://i.ibb.co/k2tP1823/Whats-App-Image-2026-08-11-at-14-37-58.jpg",
-  "https://i.ibb.co/m524x61g/Whats-App-Image-2026-08-11-at-14-37-57-1.jpg",
-  "https://i.ibb.co/C3vgF6X4/Whats-App-Image-2026-08-11-at-14-37-57.jpg",
-  "https://i.ibb.co/ccjKrf8Q/Whats-App-Image-2026-08-11-at-14-37-56.jpg"
 ];
 
 export default function HomePage() {
@@ -46,7 +50,16 @@ export default function HomePage() {
   const [members, setMembers] = useState<FirestoreMember[]>([]);
   const [infoModalOpen, setInfoModalOpen] = useState(false);
 
+  // Preload slide images in browser cache to eliminate lag/flicker during slide transitions
   useEffect(() => {
+    SLIDE_IMAGES.forEach((src) => {
+      const img = new Image();
+      img.src = src;
+    });
+  }, []);
+
+  useEffect(() => {
+    if (SLIDE_IMAGES.length <= 1) return;
     const timer = setInterval(() => setSlide(s => (s + 1) % SLIDE_IMAGES.length), 5000);
     return () => clearInterval(timer);
   }, []);
@@ -62,7 +75,7 @@ export default function HomePage() {
   const next = () => setSlide(s => (s + 1) % SLIDE_IMAGES.length);
 
   return (
-    <div className="w-full max-w-full overflow-x-hidden bg-black text-white font-sans">
+    <div className="w-full max-w-full overflow-x-hidden bg-black text-white font-sans selection:bg-yellow-500 selection:text-black">
       <SEOHead
         title="Premier Student Law Firm & Mooting Powerhouse"
         description="Official homepage of LexVanguard Advocates LLP at Mount Kenya University Parklands Law Campus (MKUPLC). Founded by Prince Micah, Kelvin Musya, and Donel Aganyo. Championing youth in law, moot court excellence, and legal research."
@@ -74,8 +87,8 @@ export default function HomePage() {
       {/* Top Fixed Header */}
       <Header />
 
-      {/* Hero Container with Slideshow (Height reduced by 20% on wider screens to 80vh) */}
-      <div className="relative h-[55vh] md:h-[80vh] min-h-[55vh] md:min-h-[80vh] w-full max-w-full flex flex-col justify-between items-center overflow-hidden bg-gradient-to-b from-neutral-950 via-neutral-900 to-black">
+      {/* Hero Container with Slideshow */}
+      <section aria-label="Hero Slideshow" className="relative h-[55vh] md:h-[80vh] min-h-[55vh] md:min-h-[80vh] w-full max-w-full flex flex-col justify-between items-center overflow-hidden bg-gradient-to-b from-neutral-950 via-neutral-900 to-black">
         <style>{`
           .slideshow-container {
             position: absolute;
@@ -96,11 +109,15 @@ export default function HomePage() {
             transition: opacity 1s ease-in-out, transform 1.5s ease-in-out;
             background-size: cover;
             background-position: center;
-            transform: scale(1.05);
+            transform: scale(1.02) translateZ(0);
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            will-change: opacity, transform;
+            image-rendering: -webkit-optimize-contrast;
           }
           .slide.active {
             opacity: 1;
-            transform: scale(1);
+            transform: scale(1) translateZ(0);
           }
           .slide-overlay {
             position: absolute;
@@ -108,7 +125,7 @@ export default function HomePage() {
             left: 0;
             width: 100%;
             height: 100%;
-            background: radial-gradient(circle at center, rgba(5,5,5,0.4) 0%, rgba(5,5,5,0.85) 100%);
+            background: radial-gradient(circle at center, rgba(5,5,5,0.25) 0%, rgba(5,5,5,0.75) 100%);
           }
         `}</style>
 
@@ -123,7 +140,6 @@ export default function HomePage() {
 
         {/* Main Content Area / Hero Spacer */}
         <main className="flex-grow flex items-center justify-center relative z-10 w-full px-4 pointer-events-none min-h-[25vh] md:min-h-[45vh]">
-          {/* Central text removed as background images provide visual focus */}
         </main>
 
         {/* Bottom Controls Area */}
@@ -132,7 +148,7 @@ export default function HomePage() {
           <button
             onClick={() => setInfoModalOpen(true)}
             className="border border-[#ffc107] text-[#ffc107] w-10 h-10 flex items-center justify-center cursor-pointer hover:bg-[#ffc107] hover:text-black transition-all focus:outline-none"
-            title="Firm Details"
+            title="LexVanguard Advocates LLP Firm Details & Overview"
             aria-label="Firm Details"
           >
             <Info className="w-5 h-5 italic" />
@@ -144,21 +160,25 @@ export default function HomePage() {
               document.getElementById('intro-section')?.scrollIntoView({ behavior: 'smooth' });
             }}
             className="flex flex-col items-center cursor-pointer group pb-2"
+            role="button"
+            tabIndex={0}
+            aria-label="Scroll to introduction section"
           >
             <ChevronDown className="w-4 h-4 text-[#ffc107] mb-2 group-hover:translate-y-1 transition-transform" />
-            <span className="text-white text-xs font-bold tracking-widest uppercase group-hover:text-[#ffc107] transition-colors">
+            <span className="text-white text-xs lg:text-sm font-bold tracking-widest uppercase group-hover:text-[#ffc107] transition-colors font-mono">
               Explore
             </span>
           </div>
 
           {/* Right Pagination / Slider Controls */}
-          <div className="flex items-center space-x-4 text-[#ffc107] font-bold text-sm">
+          <div className="flex items-center space-x-4 text-[#ffc107] font-bold text-sm lg:text-base">
             <button
               onClick={prev}
               className="hover:text-white transition-colors focus:outline-none p-2 cursor-pointer"
               aria-label="Previous Slide"
+              title="Previous Hero Image"
             >
-              <ChevronLeft className="w-4 h-4" />
+              <ChevronLeft className="w-4 h-4 lg:w-5 lg:h-5" />
             </button>
             <div className="flex items-center font-mono">
               <span>{String(slide + 1).padStart(2, '0')}</span>
@@ -169,51 +189,53 @@ export default function HomePage() {
               onClick={next}
               className="hover:text-white transition-colors focus:outline-none p-2 cursor-pointer"
               aria-label="Next Slide"
+              title="Next Hero Image"
             >
-              <ChevronRight className="w-4 h-4" />
+              <ChevronRight className="w-4 h-4 lg:w-5 lg:h-5" />
             </button>
           </div>
         </footer>
-      </div>
+      </section>
 
       {/* Info Modal */}
       {infoModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-          <div className="bg-neutral-900 border border-[#ffc107]/40 max-w-lg w-full p-6 sm:p-8 rounded-lg shadow-2xl relative text-white">
+          <div className="bg-neutral-900 border border-[#ffc107]/40 max-w-lg lg:max-w-xl w-full p-6 sm:p-8 lg:p-10 rounded-lg shadow-2xl relative text-white">
             <button
               onClick={() => setInfoModalOpen(false)}
               className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors p-1"
+              aria-label="Close Firm Information Modal"
             >
               <X className="w-6 h-6" />
             </button>
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-1 bg-[#ffc107] h-8" />
+              <div className="w-1 bg-[#ffc107] h-8 lg:h-10" />
               <div>
-                <h3 className="text-xl font-extrabold tracking-wider text-white">LEXVANGUARD ADVOCATES LLP</h3>
-                <p className="text-xs text-[#ffc107] uppercase tracking-widest font-semibold">Counsels at Law</p>
+                <h3 className="text-xl lg:text-2xl font-extrabold tracking-wider text-white font-serif">LEXVANGUARD ADVOCATES LLP</h3>
+                <p className="text-xs lg:text-sm text-[#ffc107] uppercase tracking-widest font-semibold font-mono">Counsels at Law | MKUPLC</p>
               </div>
             </div>
-            <p className="text-gray-300 text-xs sm:text-sm leading-relaxed mb-6">
+            <p className="text-gray-300 text-xs sm:text-sm lg:text-base leading-relaxed mb-6 font-normal">
               LexVanguard is Mount Kenya University Parklands Law Campus's premier student-led law firm and moot court powerhouse, established to cultivate elite legal talent, systemic advocacy, and scholarly legal research.
             </p>
-            <div className="space-y-3 text-xs sm:text-sm border-t border-white/10 pt-4">
+            <div className="space-y-3 text-xs sm:text-sm lg:text-base border-t border-white/10 pt-4">
               <div className="flex items-center gap-3 text-gray-300">
-                <Phone className="w-4 h-4 text-[#ffc107]" />
+                <Phone className="w-4 h-4 text-[#ffc107] shrink-0" />
                 <span>+254 116 171 396</span>
               </div>
               <div className="flex items-center gap-3 text-gray-300">
-                <Mail className="w-4 h-4 text-[#ffc107]" />
+                <Mail className="w-4 h-4 text-[#ffc107] shrink-0" />
                 <span>lexvanguardadvocatesllp@gmail.com</span>
               </div>
               <div className="flex items-center gap-3 text-gray-300">
-                <MapPin className="w-4 h-4 text-[#ffc107]" />
-                <span>MKU Parklands Law Campus, Nairobi, Kenya</span>
+                <MapPin className="w-4 h-4 text-[#ffc107] shrink-0" />
+                <span>Mount Kenya University Parklands Law Campus, Nairobi, Kenya</span>
               </div>
             </div>
             <div className="mt-6 flex justify-end">
               <button
                 onClick={() => setInfoModalOpen(false)}
-                className="bg-[#ffc107] text-black px-5 py-2 text-xs font-extrabold uppercase tracking-widest hover:bg-yellow-400 transition-colors rounded-sm cursor-pointer"
+                className="bg-[#ffc107] text-black px-5 py-2 lg:px-6 lg:py-2.5 text-xs lg:text-sm font-extrabold uppercase tracking-widest hover:bg-yellow-400 transition-colors rounded-sm cursor-pointer"
               >
                 Close Window
               </button>
@@ -222,51 +244,69 @@ export default function HomePage() {
         </div>
       )}
 
-
       {/* Intro Section */}
-      <div id="intro-section" className="py-12 sm:py-20 bg-white w-full max-w-full overflow-x-hidden">
-        <div className="w-full max-w-7xl mx-auto px-4 sm:px-10 lg:px-16 text-center">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 sm:mb-6 text-black uppercase tracking-wider">Welcome to LexVanguard</h2>
-          <div className="h-1 w-12 sm:w-16 bg-yellow-500 mx-auto mb-6 sm:mb-8" />
-          <p className="text-gray-700 leading-relaxed sm:leading-loose text-sm sm:text-base md:text-lg mb-4 sm:mb-6 max-w-5xl mx-auto">
-            Recognized as one of the most prestigious student-led law firms at Mount Kenya University, LexVanguard's reputation extends across the country. We are not merely a university society — we are a formidable incubator for legal talent, providing hands-on experience that bridges the gap between academic theory and real-world legal practice.
-          </p>
-          <p className="text-gray-600 leading-relaxed sm:leading-loose text-xs sm:text-base mb-8 sm:mb-10 max-w-5xl mx-auto">
-            In an environment where students often feel underprepared for the rigors of legal practice, LexVanguard offers a structured, professional space where emerging legal minds are equipped with the skills, networks, and confidence to succeed. Our members engage in rigorous legal research, litigation training, moot court advocacy, legal writing, and client advisory — developing the full spectrum of skills demanded by the modern legal profession.
-          </p>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mt-8 sm:mt-10">
+      <section id="intro-section" className="py-12 sm:py-20 lg:py-28 bg-white w-full max-w-full overflow-x-hidden text-black" itemScope itemType="http://schema.org/AboutPage">
+        <div className="w-full max-w-7xl xl:max-w-[92vw] mx-auto px-4 sm:px-10 lg:px-16 text-center">
+          <span className="text-yellow-600 uppercase tracking-[0.3em] text-xs lg:text-sm font-bold font-mono block mb-2">
+            Premier Student Law Firm & Academic Powerhouse
+          </span>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 sm:mb-6 text-black uppercase tracking-wider font-serif">
+            Welcome to LexVanguard Advocates LLP
+          </h1>
+          <div className="h-1 w-12 sm:w-16 lg:w-24 bg-yellow-500 mx-auto mb-6 sm:mb-8 lg:mb-12" />
+          
+          <div className="space-y-6 max-w-5xl lg:max-w-6xl xl:max-w-7xl mx-auto text-gray-700 leading-relaxed sm:leading-loose text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl font-normal">
+            <p>
+              Recognized as the premier student-led law firm at <strong className="text-black">Mount Kenya University Parklands Law Campus (MKUPLC)</strong>, LexVanguard's institutional authority extends across Kenya and the wider legal education realm. We are not merely a university society — we are a formidable legal incubator and appellate mooting powerhouse, bridging the critical divide between classroom jurisprudence and real-world advocate practice.
+            </p>
+            <p className="text-gray-600 text-xs sm:text-base md:text-lg lg:text-xl xl:text-2xl">
+              Established in <strong className="text-black font-semibold">September 2025</strong> by founding scholars <strong className="text-black font-semibold">Prince Micah, Kelvin Musya, and Donel Aganyo</strong>, LexVanguard provides an elite, structured environment where emerging legal minds master oral advocacy, statutory interpretation, legal technology, AI-assisted legal research, and corporate advisory. Our members engage in rigorous litigation drills, moot court championships, and pro bono community dispatches — developing the exact competencies demanded by top-tier law firms and international judicial institutions.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 lg:gap-10 mt-10 sm:mt-12 lg:mt-16 max-w-5xl lg:max-w-6xl xl:max-w-7xl mx-auto">
             {[
-              { value: "50+", label: "Members" },
-              { value: "10+", label: "Competitions" },
-              { value: "5+", label: "Practice Areas" },
-              { value: "1", label: "University" }
+              { value: "50+", label: "Active Student Counsel", desc: "Dedicated advocates at MKUPLC" },
+              { value: "10+", label: "Moot Court Symposia", desc: "National & regional championships" },
+              { value: "5+", label: "Core Practice Areas", desc: "Appellate, Corporate, IP & Tech" },
+              { value: "1", label: "Unified Law Campus", desc: "Parklands Law Campus, Nairobi" }
             ].map((stat, i) => (
-              <div key={i} className="border-t-2 sm:border-t-4 border-yellow-500 pt-3 sm:pt-4">
-                <span className="block text-2xl sm:text-4xl font-extrabold text-black mb-1">{stat.value}</span>
-                <span className="text-[10px] sm:text-xs text-gray-500 uppercase tracking-widest font-semibold">{stat.label}</span>
+              <div key={i} className="border-t-2 sm:border-t-4 border-yellow-500 pt-3 sm:pt-6">
+                <span className="block text-2xl sm:text-4xl lg:text-5xl xl:text-6xl font-extrabold text-black mb-1">{stat.value}</span>
+                <span className="text-[10px] sm:text-xs lg:text-sm text-black uppercase tracking-widest font-bold block">{stat.label}</span>
+                <span className="hidden lg:block text-xs text-gray-500 mt-1 font-medium">{stat.desc}</span>
               </div>
             ))}
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Attorneys / Members Teaser (Filtered for Admin & Finance) */}
-      <div className="py-12 sm:py-20 bg-white w-full max-w-full overflow-x-hidden border-t border-gray-100">
-        <div className="w-full max-w-7xl mx-auto px-4 sm:px-10 lg:px-16 flex flex-col md:flex-row items-center justify-between gap-8">
-          <div className="w-full md:w-2/3 pr-0 md:pr-8 text-center md:text-left">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-black mb-2 uppercase tracking-wider">Our Members</h2>
-            <div className="h-1 w-10 bg-yellow-500 mb-4 sm:mb-6 mx-auto md:mx-0" />
-            <p className="text-gray-600 leading-relaxed text-sm sm:text-base md:text-lg mb-6 sm:mb-8">
-              Our team comprises distinguished legal professionals, leading academics, and national moot court champions dedicated to providing strategic, result-oriented representation. Every member is acknowledged and respected as intrinsically valuable to the whole.
+      {/* Attorneys / Members Teaser */}
+      <section className="py-12 sm:py-20 lg:py-28 bg-white w-full max-w-full overflow-x-hidden border-t border-gray-100 text-black" itemScope itemType="http://schema.org/Organization">
+        <div className="w-full max-w-7xl xl:max-w-[92vw] mx-auto px-4 sm:px-10 lg:px-16 flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-16">
+          <div className="w-full lg:w-3/5 text-center lg:text-left">
+            <span className="text-yellow-600 uppercase tracking-[0.25em] text-xs lg:text-sm font-bold font-mono block mb-2">
+              Chambers & Leadership Directory
+            </span>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-black mb-2 uppercase tracking-wider font-serif">
+              Our Members & Counsel
+            </h2>
+            <div className="h-1 w-10 sm:w-16 lg:w-24 bg-yellow-500 mb-4 sm:mb-6 lg:mb-8 mx-auto lg:mx-0" />
+            <p className="text-gray-700 leading-relaxed text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl mb-6 sm:mb-8 lg:mb-10 font-normal">
+              LexVanguard is powered by a cadre of distinguished law scholars, legal researchers, and national moot court champions at Mount Kenya University Parklands Law Campus. Under the strategic direction of founding partners <strong className="text-black">Prince Micah</strong> (Tech & Innovation Lead), <strong className="text-black">Kelvin Musya</strong> (Chief Strategist & Organising Director), and <strong className="text-black">Donel Aganyo</strong> (Advocacy Partner & Outreach Lead), our chambers foster disciplined legal practice, constitutional debate, and professional excellence.
             </p>
-            <Link href="/attorneys" className="bg-yellow-500 text-black px-6 py-2.5 sm:px-8 sm:py-3 font-extrabold text-xs sm:text-sm uppercase tracking-widest hover:bg-yellow-600 transition-colors inline-block shadow-sm">
-              SEE ALL MEMBERS
+            <Link
+              href="/attorneys"
+              title="View LexVanguard Members Directory"
+              className="bg-yellow-500 text-black px-6 py-2.5 sm:px-8 sm:py-3.5 lg:px-10 lg:py-4 font-extrabold text-xs sm:text-sm lg:text-base uppercase tracking-widest hover:bg-yellow-600 transition-colors inline-block shadow-sm"
+            >
+              EXPLORE FULL MEMBERS DIRECTORY
             </Link>
           </div>
-          <div className="w-full md:w-1/3">
-            <div className="grid grid-cols-2 gap-2.5 sm:gap-3.5 w-full max-w-xs sm:max-w-none mx-auto">
-              {(
-                members.filter((m) => {
+          <div className="w-full lg:w-2/5">
+            <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:gap-6 w-full max-w-sm sm:max-w-md lg:max-w-none mx-auto">
+              {members
+                .filter((m) => {
                   const r = (m.role || "").toLowerCase().trim();
                   const rk = (m.rank || "").toLowerCase().trim();
                   const t = (m.title || "").toLowerCase().trim();
@@ -287,75 +327,88 @@ export default function HomePage() {
                     t.includes("chief strategist")
                   );
                 })
-              ).slice(0, 4).map((p, i) => (
-                <div key={i} className="relative group overflow-hidden border-2 border-yellow-500 shadow-sm rounded-xs">
-                  <img
-                    src={resolveProfileImage(p.name, p.profilePhoto || p.image)}
-                    alt={p.name}
-                    onError={(e) => handleProfileImageError(e, p.name)}
-                    className="w-full h-28 sm:h-32 md:h-36 object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/70 to-transparent p-1.5 sm:p-2 text-white">
-                    <p className="font-extrabold text-[10px] sm:text-xs uppercase tracking-wider text-yellow-500 truncate">{p.name}</p>
-                    <p className="text-[9px] sm:text-[10px] text-gray-300 truncate">{p.title || "Counsel"}</p>
+                .slice(0, 4)
+                .map((p, i) => (
+                  <div key={i} className="relative group overflow-hidden border-2 border-yellow-500 shadow-sm rounded-xs" itemScope itemType="http://schema.org/Person">
+                    <img
+                      src={resolveProfileImage(p.name, p.profilePhoto || p.image)}
+                      alt={`${p.name} - ${p.title || 'Counsel'} at LexVanguard Advocates LLP, Mount Kenya University Parklands Law Campus (MKUPLC)`}
+                      title={`${p.name} | LexVanguard Advocates LLP Member & Counsel`}
+                      itemProp="image"
+                      loading="lazy"
+                      onError={(e) => handleProfileImageError(e, p.name)}
+                      className="w-full h-28 sm:h-36 md:h-44 lg:h-52 xl:h-60 object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/75 to-transparent p-2 sm:p-3 text-white">
+                      <p className="font-extrabold text-[10px] sm:text-xs lg:text-sm uppercase tracking-wider text-yellow-500 truncate" itemProp="name">{p.name}</p>
+                      <p className="text-[9px] sm:text-[10px] lg:text-xs text-gray-300 truncate" itemProp="jobTitle">{p.title || "Counsel"}</p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* History Teaser (Compact Founders Teasers: Image, Name, and One Line Description) */}
-      <div className="py-12 sm:py-16 bg-black text-white w-full max-w-full overflow-x-hidden border-t-4 border-[#ffc107]">
-        <div className="w-[90vw] max-w-[90vw] mx-auto text-center">
-          <span className="text-[#ffc107] uppercase tracking-[0.3em] text-xs font-bold font-mono block mb-1.5">
-            Origin & Leadership
+      {/* History Teaser (Text-Only Founder & History Cards - No Founder Images) */}
+      <section className="py-12 sm:py-20 lg:py-28 bg-black text-white w-full max-w-full overflow-x-hidden border-t-4 border-[#ffc107]">
+        <div className="w-[90vw] max-w-7xl xl:max-w-[92vw] mx-auto text-center">
+          <span className="text-[#ffc107] uppercase tracking-[0.3em] text-xs lg:text-sm font-bold font-mono block mb-2">
+            Origin Story & Institutional Vision
           </span>
-          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2 text-white uppercase tracking-wider font-serif">
-            History
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-3 text-white uppercase tracking-wider font-serif">
+            The History of LexVanguard
           </h2>
-          <div className="h-1 w-10 sm:w-12 bg-[#ffc107] mx-auto mb-8 sm:mb-10" />
+          <div className="h-1 w-10 sm:w-16 lg:w-24 bg-[#ffc107] mx-auto mb-6 sm:mb-10 lg:mb-12" />
 
-          {/* Compact Founder Teasers (Horizontal flex covering 90% width, minimal & non-conspicuous) */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 text-left w-full">
+          {/* Expository Overview Paragraphs for Wide Screens */}
+          <p className="text-gray-300 text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl leading-relaxed max-w-5xl lg:max-w-6xl mx-auto mb-8 sm:mb-12 font-normal">
+            Founded in <strong className="text-yellow-400 font-semibold">September 2025</strong> at Mount Kenya University Parklands Law Campus (MKUPLC), LexVanguard Advocates LLP was established to transform legal education through student-led co-working, peer accountability, and elite moot court preparation. What began as an ambitious idea among law scholars has evolved into a nationally acknowledged student law institution.
+          </p>
+
+          {/* Text-Only Founder Cards (No Images) */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 mb-8 sm:mb-12 text-left w-full">
             {[
               {
                 slug: "prince",
                 name: "Prince Micah",
-                oneLiner: "Co-Founder who planned, architected, and built the entire LexVanguard platform (lexvanguard.xyz).",
-                img: "/images/profiles/prince.jpeg"
+                role: "Co-Founder & Technology Lead",
+                desc: "Law scholar and software engineer who planned, architected, and built the digital platform (lexvanguard.xyz), introducing AI legal research tools, secure data systems, and web technology for MKUPLC law students."
               },
               {
                 slug: "kelvin",
                 name: "Kelvin Musya",
-                oneLiner: "Co-Founder and Chief Strategist guiding firm execution and institutional structure.",
-                img: "/images/profiles/kelvin.jpeg"
+                role: "Co-Founder & Chief Strategist",
+                desc: "Architect of the unified-firm institutional model, driving strategic governance, partner hierarchy, operational discipline, and inter-university symposia execution."
               },
               {
                 slug: "donel",
                 name: "Donel Aganyo",
-                oneLiner: "Co-Founder leading advocacy training, mooting excellence, and community outreach.",
-                img: "/images/profiles/don.jpeg"
+                role: "Co-Founder & Advocacy Lead",
+                desc: "Voice of oral advocacy, leading intensive moot court drills, legal rhetoric workshops, student community outreach, and competitive debate teams."
               }
             ].map((f, i) => (
               <Link
                 key={i}
                 href={`/founders/${f.slug}`}
-                className="bg-neutral-900/90 border border-neutral-800 hover:border-[#ffc107] p-3.5 sm:p-4 flex items-center space-x-3.5 rounded-sm transition-all group cursor-pointer"
+                title={`Read full biography of ${f.name} - Co-Founder of LexVanguard Advocates LLP`}
+                className="bg-neutral-900/90 border border-neutral-800 hover:border-[#ffc107] p-6 sm:p-8 lg:p-10 flex flex-col justify-between rounded-sm transition-all group cursor-pointer"
+                itemScope
+                itemType="http://schema.org/Person"
               >
-                <img
-                  src={f.img}
-                  alt={f.name}
-                  className="w-14 h-14 sm:w-16 sm:h-16 aspect-square object-cover shrink-0 rounded-xs border border-white/10 group-hover:border-[#ffc107] transition-colors"
-                />
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-xs sm:text-sm font-bold text-white uppercase font-serif group-hover:text-[#ffc107] transition-colors truncate">
+                <div className="space-y-3 lg:space-y-4">
+                  <span className="text-[10px] lg:text-xs font-mono text-yellow-500 font-bold uppercase tracking-widest block" itemProp="jobTitle">
+                    {f.role}
+                  </span>
+                  <h3 className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-extrabold text-white uppercase font-serif group-hover:text-[#ffc107] transition-colors" itemProp="name">
                     {f.name}
                   </h3>
-                  <p className="text-[11px] sm:text-xs text-gray-400 mt-1 line-clamp-2 leading-relaxed">
-                    {f.oneLiner}
+                  <p className="text-xs sm:text-sm lg:text-base xl:text-lg text-gray-300 leading-relaxed font-normal" itemProp="description">
+                    {f.desc}
                   </p>
+                </div>
+                <div className="pt-6 text-xs lg:text-sm font-bold text-[#ffc107] uppercase tracking-wider group-hover:underline flex items-center gap-1 font-mono">
+                  <span>Read Full Story</span> →
                 </div>
               </Link>
             ))}
@@ -364,87 +417,107 @@ export default function HomePage() {
           <div>
             <Link
               href="/history"
-              className="border border-[#ffc107] text-[#ffc107] hover:bg-[#ffc107] hover:text-black px-6 py-2.5 font-extrabold text-xs uppercase tracking-widest transition-colors inline-block"
+              title="Explore complete history of LexVanguard Advocates LLP"
+              className="border-2 border-[#ffc107] text-[#ffc107] hover:bg-[#ffc107] hover:text-black px-8 py-3.5 sm:px-10 sm:py-4 lg:px-12 lg:py-4.5 font-extrabold text-xs sm:text-sm lg:text-base uppercase tracking-widest transition-colors inline-block"
             >
-              EXPLORE OUR HISTORY
+              EXPLORE OUR COMPLETE HISTORY & ORIGIN
             </Link>
           </div>
         </div>
-      </div>
+      </section>
 
       {/* Core Philosophy */}
-      <div className="bg-gray-50 py-12 sm:py-20 w-full max-w-full overflow-x-hidden">
-        <div className="w-full max-w-7xl mx-auto px-4 sm:px-10 lg:px-16">
-          <div className="text-center mb-10 sm:mb-16">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4 text-black uppercase tracking-wider">Our Core Philosophy</h2>
-            <div className="h-1 w-12 sm:w-16 bg-yellow-500 mx-auto" />
+      <section className="bg-gray-50 py-12 sm:py-20 lg:py-28 w-full max-w-full overflow-x-hidden text-black">
+        <div className="w-full max-w-7xl xl:max-w-[92vw] mx-auto px-4 sm:px-10 lg:px-16">
+          <div className="text-center mb-10 sm:mb-16 lg:mb-20">
+            <span className="text-yellow-600 uppercase tracking-[0.25em] text-xs lg:text-sm font-bold font-mono block mb-2">
+              Foundational Values & Ethics
+            </span>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-3 sm:mb-4 text-black uppercase tracking-wider font-serif">
+              Our Core Philosophy
+            </h2>
+            <div className="h-1 w-12 sm:w-16 lg:w-24 bg-yellow-500 mx-auto" />
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 lg:gap-12">
             {PHILOSOPHY.map((box, i) => (
-              <div key={i} className="bg-white border-t-4 border-black p-6 sm:p-10 text-center hover:shadow-lg transition-all duration-300 text-gray-800 flex flex-col rounded-sm">
+              <div key={i} className="bg-white border-t-4 border-black p-6 sm:p-10 lg:p-12 text-center hover:shadow-xl transition-all duration-300 text-gray-800 flex flex-col rounded-sm">
                 {box.icon}
-                <h3 className="uppercase text-base sm:text-lg font-extrabold mt-4 sm:mt-5 mb-3 sm:mb-4 text-black tracking-wide">{box.title}</h3>
-                <p className="text-xs sm:text-sm text-gray-600 mb-4 sm:mb-5 leading-relaxed flex-1">
+                <h3 className="uppercase text-base sm:text-lg lg:text-xl xl:text-2xl font-extrabold mt-4 sm:mt-5 mb-3 sm:mb-4 text-black tracking-wide font-serif">{box.title}</h3>
+                <p className="text-xs sm:text-sm lg:text-base xl:text-lg text-gray-600 mb-4 sm:mb-6 leading-relaxed flex-1 font-normal">
                   {expanded === i ? box.full : box.short}
                 </p>
                 <button
                   onClick={() => setExpanded(expanded === i ? null : i)}
-                  className="text-black font-bold uppercase text-[11px] sm:text-xs tracking-widest hover:text-yellow-500 transition-colors bg-transparent border-b-2 border-black hover:border-yellow-500 pb-1 cursor-pointer self-center">
+                  className="text-black font-bold uppercase text-[11px] sm:text-xs lg:text-sm tracking-widest hover:text-yellow-500 transition-colors bg-transparent border-b-2 border-black hover:border-yellow-500 pb-1 cursor-pointer self-center"
+                >
                   {expanded === i ? 'Show Less «' : 'Learn More »'}
                 </button>
               </div>
             ))}
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Minimalist Practice Areas Section — White Background, Black Text, No Borders, No Icons, One Golden Button */}
-      <div className="py-16 sm:py-24 bg-white w-full max-w-full overflow-x-hidden">
-        <div className="w-full max-w-7xl mx-auto px-4 sm:px-10 lg:px-16 text-center">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 text-black uppercase tracking-wider">Practice Areas</h2>
-          <div className="h-1 w-12 sm:w-16 bg-[#ffc107] mx-auto mb-10 sm:mb-14" />
+      {/* Practice Areas Section */}
+      <section className="py-16 sm:py-24 lg:py-32 bg-white w-full max-w-full overflow-x-hidden text-black">
+        <div className="w-full max-w-7xl xl:max-w-[92vw] mx-auto px-4 sm:px-10 lg:px-16 text-center">
+          <span className="text-yellow-600 uppercase tracking-[0.25em] text-xs lg:text-sm font-bold font-mono block mb-2">
+            Legal Expertise & Advisory
+          </span>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-3 text-black uppercase tracking-wider font-serif">
+            Practice Areas
+          </h2>
+          <div className="h-1 w-12 sm:w-16 lg:w-24 bg-[#ffc107] mx-auto mb-10 sm:mb-14 lg:mb-20" />
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 sm:gap-10 mb-12 sm:mb-16 text-left">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 sm:gap-10 lg:gap-12 mb-12 sm:mb-16 lg:mb-20 text-left">
             {[
-              { title: "Appellate & Dispute Resolution", desc: "Supreme Court litigation, appellate briefs, and constitutional advocacy." },
-              { title: "Corporate & Commercial Law", desc: "Transaction advisory, statutory compliance, and fintech governance." },
-              { title: "Property & Family Practice", desc: "Real estate conveyancing, asset trusts, and family law resolution." },
-              { title: "Constitutional & Administrative Law", desc: "Judicial review petitions, fundamental rights, and public law." },
-              { title: "IP & Emerging Technology Law", desc: "Trademark registration, digital privacy, AI policy, and IP enforcement." }
+              { title: "Appellate & Dispute Resolution", desc: "Supreme Court litigation, appellate briefs, constitutional petitions, and oral advocacy championships." },
+              { title: "Corporate & Commercial Law", desc: "Transaction advisory, company compliance, merger due diligence, and fintech regulatory governance." },
+              { title: "Property & Conveyancing", desc: "Real estate conveyancing, asset management, land ownership advisory, and commercial lease drafting." },
+              { title: "Constitutional & Administrative Law", desc: "Judicial review applications, fundamental human rights litigation, and public policy advocacy." },
+              { title: "IP & Emerging Technology Law", desc: "Trademark registration, digital privacy compliance, AI governance, and software IP protection." }
             ].map((area, i) => (
-              <div key={i} className="space-y-2">
-                <h3 className="text-sm sm:text-base font-extrabold text-black uppercase tracking-wide">{area.title}</h3>
-                <p className="text-xs sm:text-sm text-gray-600 leading-relaxed font-normal">{area.desc}</p>
+              <div key={i} className="space-y-2 lg:space-y-3">
+                <h3 className="text-sm sm:text-base lg:text-lg xl:text-xl font-extrabold text-black uppercase tracking-wide font-serif">{area.title}</h3>
+                <p className="text-xs sm:text-sm lg:text-base text-gray-600 leading-relaxed font-normal">{area.desc}</p>
               </div>
             ))}
           </div>
 
           <div>
-            <Link href="/practice-areas" className="bg-[#ffc107] text-black px-8 py-3.5 font-extrabold text-xs sm:text-sm uppercase tracking-widest hover:bg-yellow-400 transition-colors inline-block shadow-xs">
+            <Link
+              href="/practice-areas"
+              title="Explore all legal practice areas at LexVanguard Advocates LLP"
+              className="bg-[#ffc107] text-black px-8 py-3.5 sm:px-10 sm:py-4 lg:px-12 lg:py-4.5 font-extrabold text-xs sm:text-sm lg:text-base uppercase tracking-widest hover:bg-yellow-400 transition-colors inline-block shadow-xs"
+            >
               EXPLORE ALL PRACTICE AREAS
             </Link>
           </div>
         </div>
-      </div>
+      </section>
 
       {/* Events Section */}
       <EventsSection />
 
       {/* Vision Banner */}
-      <div className="bg-black border-t-4 border-yellow-500 py-16 px-6 text-center">
-        <div className="w-full max-w-5xl mx-auto px-4">
-          <p className="text-yellow-500 uppercase tracking-[0.3em] text-xs font-bold mb-4">Our Vision</p>
-          <h2 className="text-3xl md:text-4xl font-extrabold text-white leading-tight mb-6">
-            To become a world-class pillar of justice
+      <section className="bg-black border-t-4 border-yellow-500 py-16 sm:py-24 lg:py-32 px-6 text-center">
+        <div className="w-full max-w-5xl lg:max-w-6xl xl:max-w-7xl mx-auto px-4">
+          <p className="text-yellow-500 uppercase tracking-[0.3em] text-xs lg:text-sm font-bold mb-4 font-mono">Our Vision for Global Excellence</p>
+          <h2 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-extrabold text-white leading-tight mb-6 font-serif">
+            To Become a World-Class Pillar of Legal Education & Justice
           </h2>
-          <p className="text-gray-400 text-base leading-relaxed mb-8">
-            This is not merely a slogan but a guiding star for every initiative LexVanguard undertakes. The ambition is to scale the heights of international legal education, standing shoulder to shoulder with the finest law firms and institutions globally — while remaining intrinsically tied to the mission of ensuring equal access to justice.
+          <p className="text-gray-300 text-base sm:text-lg lg:text-xl xl:text-2xl leading-relaxed mb-8 sm:mb-12 font-normal">
+            This is not merely a slogan, but the guiding beacon for every legal dispatch, moot court competition, and scholarly publication produced by LexVanguard Advocates LLP. We aim to scale the heights of international legal education — standing shoulder to shoulder with top-tier law firms and university law faculties across Africa and globally — while remaining fiercely dedicated to equal access to justice.
           </p>
-          <Link href="/history" className="border-2 border-yellow-500 text-yellow-500 hover:bg-yellow-500 hover:text-black px-8 py-3 font-extrabold text-xs uppercase tracking-widest transition-colors inline-block">
-            Our Story
+          <Link
+            href="/history"
+            title="Read the full story of LexVanguard Advocates LLP"
+            className="border-2 border-yellow-500 text-yellow-500 hover:bg-yellow-500 hover:text-black px-8 py-3.5 sm:px-10 sm:py-4 lg:px-12 lg:py-4.5 font-extrabold text-xs sm:text-sm lg:text-base uppercase tracking-widest transition-colors inline-block"
+          >
+            OUR FULL INSTITUTIONAL STORY
           </Link>
         </div>
-      </div>
+      </section>
 
       <Footer />
     </div>

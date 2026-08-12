@@ -1,12 +1,19 @@
 User-agent: *
 Allow: /
+Allow: /images/
 Allow: /attorneys
 Allow: /attorneys/*
+Allow: /founders/
+Allow: /founders/*
 Allow: /events
 Allow: /history
 Allow: /research
 Allow: /services
 Allow: /sitemap
 Disallow: /office/
+
+User-agent: Googlebot-Image
+Allow: /
+Allow: /images/
 
 Sitemap: https://www.lexvanguard.xyz/sitemap.xml

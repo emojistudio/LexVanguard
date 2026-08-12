@@ -9,6 +9,7 @@ import fs from "fs";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
 import { Resend } from "resend";
+import { renderInvitationEmailHtml, renderNewsletterWelcomeEmailHtml, renderNewsletterEditionEmailHtml } from "./src/lib/email-templates";
 
 // Load .env file into process.env if present
 try {
