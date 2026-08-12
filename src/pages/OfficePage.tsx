@@ -461,245 +461,240 @@ export const OfficePage: React.FC = () => {
         <div className="orb bg-indigo-200/60 w-[300px] md:w-[550px] h-[300px] md:h-[550px] bottom-[-20%] left-[20%] animate-blob" style={{ animationDelay: "4s" }}></div>
       </div>
 
-      <main className="max-w-[1500px] mx-auto z-10 relative mt-2 md:mt-4">
+      <main className="max-w-[1500px] mx-auto z-10 relative mt-2 md:mt-4 space-y-6">
         
-        {/* TOP BENTO BOX GRID */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-5">
-
-          {/* 1. Profile & Controls Bar (Monochrome & Icon-Only) */}
-          <div className="glass-card col-span-1 md:col-span-3 p-5 sm:p-6 lg:p-7 flex flex-col lg:flex-row items-center justify-between gap-5 shadow-sm">
-            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 lg:gap-5 text-center sm:text-left">
-              <div 
-                onClick={() => setIsEditProfileOpen(true)}
-                title="Edit Profile Photo"
-                className="relative group cursor-pointer w-16 h-16 sm:w-20 sm:h-20 rounded-full p-0.5 bg-black shrink-0 transition transform hover:scale-105"
-              >
-                <img 
-                  src={currentUserAvatar} 
-                  alt={currentUserName} 
-                  className="w-full h-full rounded-full object-cover border-2 border-white bg-zinc-900" 
-                />
-                <div className="absolute inset-0 bg-black/60 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white text-[9px] font-bold uppercase tracking-wider">
-                  <span>Edit</span>
-                </div>
-              </div>
-              <div className="flex flex-col justify-center">
-                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-1">
-                  <h1 
-                    onClick={() => setIsEditProfileOpen(true)}
-                    title="Click to Edit Profile"
-                    className="text-xl sm:text-2xl font-bold tracking-tight text-[#1d1d1f] hover:text-black cursor-pointer transition-colors"
-                  >
-                    {currentUserName}
-                  </h1>
-                  {isAdmin ? (
-                    <span className="px-2 py-0.5 bg-black text-white text-[10px] font-mono font-bold uppercase tracking-wider flex items-center gap-1 border border-black">
-                      <Shield className="w-3 h-3 text-white" /> Admin
-                    </span>
-                  ) : isFinance ? (
-                    <span className="px-2 py-0.5 bg-black text-white text-[10px] font-mono font-bold uppercase tracking-wider flex items-center gap-1 border border-black">
-                      <DollarSign className="w-3 h-3 text-white" /> Finance
-                    </span>
-                  ) : (
-                    <span className="px-2 py-0.5 bg-black text-white text-[10px] font-mono font-bold uppercase tracking-wider flex items-center gap-1 border border-black">
-                      <Briefcase className="w-3 h-3 text-white" /> Counsel
-                    </span>
-                  )}
-                </div>
-                <p className="text-xs font-medium text-zinc-500 flex items-center justify-center sm:justify-start gap-1.5">
-                  <Briefcase className="w-3.5 h-3.5 text-zinc-700 shrink-0" /> {currentUserPractice}
-                </p>
+        {/* 1. TOP PROFILE & NAVIGATION HEADER BAR */}
+        <div className="glass-card p-5 sm:p-6 lg:p-7 flex flex-col lg:flex-row items-center justify-between gap-5 shadow-sm">
+          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 lg:gap-5 text-center sm:text-left">
+            <div 
+              onClick={() => setIsEditProfileOpen(true)}
+              title="Edit Profile Photo"
+              className="relative group cursor-pointer w-16 h-16 sm:w-20 sm:h-20 rounded-full p-0.5 bg-black shrink-0 transition transform hover:scale-105"
+            >
+              <img 
+                src={currentUserAvatar} 
+                alt={currentUserName} 
+                className="w-full h-full rounded-full object-cover border-2 border-white bg-zinc-900" 
+              />
+              <div className="absolute inset-0 bg-black/60 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white text-[9px] font-bold uppercase tracking-wider">
+                <span>Edit</span>
               </div>
             </div>
-
-            {/* TOP NAVIGATION CONTROLS (Words only: HOME, EDIT PROFILE, LOG OUT, plus Bell notification icon) */}
-            <div className="flex items-center gap-2.5 flex-wrap justify-center">
-              <button 
-                onClick={() => setLocation("/")}
-                className="px-4 py-2 border border-zinc-300 hover:border-black text-[#1d1d1f] hover:bg-black hover:text-white font-bold text-xs uppercase tracking-widest transition-all rounded-xl cursor-pointer shadow-xs"
-              >
-                HOME
-              </button>
-
-              <button 
-                onClick={() => setIsEditProfileOpen(true)}
-                className="px-4 py-2 border border-zinc-300 hover:border-black text-[#1d1d1f] hover:bg-black hover:text-white font-bold text-xs uppercase tracking-widest transition-all rounded-xl cursor-pointer shadow-xs"
-              >
-                EDIT PROFILE
-              </button>
-
-              <button 
-                onClick={() => setIsAuditLogsPanelOpen(true)}
-                title="System Audit Log Stream"
-                className="w-10 h-10 border border-zinc-300 hover:border-black text-black hover:bg-black hover:text-white transition flex items-center justify-center rounded-xl cursor-pointer relative shadow-xs"
-              >
-                <Bell className="w-5 h-5 stroke-[2]" />
-                {auditLogs.length > 0 && (
-                  <span className="w-2.5 h-2.5 rounded-full bg-rose-600 absolute top-1.5 right-1.5 animate-ping"></span>
+            <div className="flex flex-col justify-center">
+              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-1">
+                <h1 
+                  onClick={() => setIsEditProfileOpen(true)}
+                  title="Click to Edit Profile"
+                  className="text-xl sm:text-2xl font-bold tracking-tight text-[#1d1d1f] hover:text-black cursor-pointer transition-colors"
+                >
+                  {currentUserName}
+                </h1>
+                {isAdmin ? (
+                  <span className="px-2 py-0.5 bg-black text-white text-[10px] font-mono font-bold uppercase tracking-wider flex items-center gap-1 border border-black">
+                    <Shield className="w-3 h-3 text-white" /> Admin
+                  </span>
+                ) : isFinance ? (
+                  <span className="px-2 py-0.5 bg-black text-white text-[10px] font-mono font-bold uppercase tracking-wider flex items-center gap-1 border border-black">
+                    <DollarSign className="w-3 h-3 text-white" /> Finance
+                  </span>
+                ) : (
+                  <span className="px-2 py-0.5 bg-black text-white text-[10px] font-mono font-bold uppercase tracking-wider flex items-center gap-1 border border-black">
+                    <Briefcase className="w-3 h-3 text-white" /> Counsel
+                  </span>
                 )}
-                {auditLogs.length > 0 && (
-                  <span className="w-2.5 h-2.5 rounded-full bg-rose-600 absolute top-1.5 right-1.5"></span>
-                )}
-              </button>
-
-              <button 
-                onClick={logout}
-                className="px-4 py-2 border border-zinc-300 hover:border-rose-600 text-rose-700 hover:bg-rose-600 hover:text-white font-bold text-xs uppercase tracking-widest transition-all rounded-xl cursor-pointer shadow-xs"
-              >
-                LOG OUT
-              </button>
+              </div>
+              <p className="text-xs font-medium text-zinc-500 flex items-center justify-center sm:justify-start gap-1.5">
+                <Briefcase className="w-3.5 h-3.5 text-zinc-700 shrink-0" /> {currentUserPractice}
+              </p>
             </div>
           </div>
 
-          {/* MAIN AREA CONCRETE MOSAIC GRID LAYOUT */}
-          <div className="space-y-4">
-            <h2 className="text-xs font-bold uppercase tracking-widest text-zinc-500 font-mono">Firm Operations & Modules Mosaic</h2>
-            
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3 sm:gap-4">
-              
-              {/* 1. BIG SQUARE CHAMBERS INBOX ICON TILE (No text, opens WhatsApp Inbox) */}
-              <div 
-                onClick={() => setIsChambersInboxOpen(true)}
-                title="Open Chambers Communications Inbox"
-                className="aspect-square bg-[#1d1d1f] hover:bg-black text-white rounded-3xl p-5 flex flex-col items-center justify-center gap-2 group cursor-pointer hover:scale-[1.03] transition-all shadow-md relative overflow-hidden border border-zinc-800"
-              >
-                <div className="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center text-white group-hover:scale-110 transition-transform">
-                  <Mail className="w-8 h-8 text-amber-300" />
-                </div>
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 absolute top-4 right-4 animate-pulse"></span>
-              </div>
+          {/* TOP NAVIGATION CONTROLS (Words only: HOME, EDIT PROFILE, LOG OUT, plus Bell notification icon) */}
+          <div className="flex items-center gap-2.5 flex-wrap justify-center">
+            <button 
+              onClick={() => setLocation("/")}
+              className="px-4 py-2 border border-zinc-300 hover:border-black text-[#1d1d1f] hover:bg-black hover:text-white font-bold text-xs uppercase tracking-widest transition-all rounded-xl cursor-pointer shadow-xs"
+            >
+              HOME
+            </button>
 
-              {/* 2. RESEARCH AI ENGINE TILE */}
-              <div 
-                onClick={() => setIsResearchModalOpen(true)}
-                title="AI Legal Research & eLegal Intelligence Engine"
-                className="aspect-square bg-white border border-zinc-200 rounded-3xl p-4 flex flex-col items-center justify-center text-center gap-2 group cursor-pointer hover:scale-[1.03] hover:border-black transition-all shadow-xs"
-              >
-                <div className="w-11 h-11 rounded-2xl bg-amber-50 text-amber-700 flex items-center justify-center border border-amber-200 group-hover:scale-110 transition-transform">
-                  <Sparkles className="w-5 h-5" />
-                </div>
-                <span className="text-[11px] font-bold text-zinc-900 leading-tight">AI Research Engine</span>
-              </div>
+            <button 
+              onClick={() => setIsEditProfileOpen(true)}
+              className="px-4 py-2 border border-zinc-300 hover:border-black text-[#1d1d1f] hover:bg-black hover:text-white font-bold text-xs uppercase tracking-widest transition-all rounded-xl cursor-pointer shadow-xs"
+            >
+              EDIT PROFILE
+            </button>
 
-              {/* 3. USER MANAGEMENT TILE (Admin) */}
-              {isAdmin && (
-                <div 
-                  onClick={() => setIsUserManagementOpen(true)}
-                  title="User Roster, Promotions & Admissions Directorate"
-                  className="aspect-square bg-white border border-zinc-200 rounded-3xl p-4 flex flex-col items-center justify-center text-center gap-2 group cursor-pointer hover:scale-[1.03] hover:border-black transition-all shadow-xs"
-                >
-                  <div className="w-11 h-11 rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center border border-blue-200 group-hover:scale-110 transition-transform">
-                    <UserCheck className="w-5 h-5" />
-                  </div>
-                  <span className="text-[11px] font-bold text-zinc-900 leading-tight">User Directorate</span>
-                </div>
+            <button 
+              onClick={() => setIsAuditLogsPanelOpen(true)}
+              title="System Audit Log Stream"
+              className="w-10 h-10 border border-zinc-300 hover:border-black text-black hover:bg-black hover:text-white transition flex items-center justify-center rounded-xl cursor-pointer relative shadow-xs"
+            >
+              <Bell className="w-5 h-5 stroke-[2]" />
+              {auditLogs.length > 0 && (
+                <span className="w-2.5 h-2.5 rounded-full bg-rose-600 absolute top-1.5 right-1.5 animate-ping"></span>
               )}
-
-              {/* 4. EVENTS & GALLERY TILE (Admin) */}
-              {isAdmin && (
-                <div 
-                  onClick={() => setIsEventsManagerOpen(true)}
-                  title="Firm Announcements & Photo Gallery Suite"
-                  className="aspect-square bg-white border border-zinc-200 rounded-3xl p-4 flex flex-col items-center justify-center text-center gap-2 group cursor-pointer hover:scale-[1.03] hover:border-black transition-all shadow-xs"
-                >
-                  <div className="w-11 h-11 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center border border-emerald-200 group-hover:scale-110 transition-transform">
-                    <Calendar className="w-5 h-5" />
-                  </div>
-                  <span className="text-[11px] font-bold text-zinc-900 leading-tight">Events Suite</span>
-                </div>
+              {auditLogs.length > 0 && (
+                <span className="w-2.5 h-2.5 rounded-full bg-rose-600 absolute top-1.5 right-1.5"></span>
               )}
+            </button>
 
-              {/* 5. GAZETTE NEWSLETTER TILE (Admin) */}
-              {isAdmin && (
-                <div 
-                  onClick={() => setIsNewsletterModalOpen(true)}
-                  title="Gazette Newsletter Broadcast Suite"
-                  className="aspect-square bg-white border border-zinc-200 rounded-3xl p-4 flex flex-col items-center justify-center text-center gap-2 group cursor-pointer hover:scale-[1.03] hover:border-black transition-all shadow-xs"
-                >
-                  <div className="w-11 h-11 rounded-2xl bg-purple-50 text-purple-700 flex items-center justify-center border border-purple-200 group-hover:scale-110 transition-transform">
-                    <Send className="w-5 h-5" />
-                  </div>
-                  <span className="text-[11px] font-bold text-zinc-900 leading-tight">Gazette Broadcast</span>
-                </div>
-              )}
-
-              {/* 6. NEW LEGAL MATTER TILE */}
-              <div 
-                onClick={() => setIsNewMatterModalOpen(true)}
-                title="Register New Legal Matter"
-                className="aspect-square bg-white border border-zinc-200 rounded-3xl p-4 flex flex-col items-center justify-center text-center gap-2 group cursor-pointer hover:scale-[1.03] hover:border-black transition-all shadow-xs"
-              >
-                <div className="w-11 h-11 rounded-2xl bg-zinc-100 text-zinc-900 flex items-center justify-center border border-zinc-300 group-hover:scale-110 transition-transform">
-                  <Plus className="w-5 h-5 stroke-[2.5]" />
-                </div>
-                <span className="text-[11px] font-bold text-zinc-900 leading-tight">New Matter</span>
-              </div>
-
-              {/* 7. INVITE MEMBER TILE (Admin) */}
-              {isAdmin && (
-                <div 
-                  onClick={() => setIsInviteModalOpen(true)}
-                  title="Invite New Counsel or Team Member"
-                  className="aspect-square bg-white border border-zinc-200 rounded-3xl p-4 flex flex-col items-center justify-center text-center gap-2 group cursor-pointer hover:scale-[1.03] hover:border-black transition-all shadow-xs"
-                >
-                  <div className="w-11 h-11 rounded-2xl bg-rose-50 text-rose-700 flex items-center justify-center border border-rose-200 group-hover:scale-110 transition-transform">
-                    <UserPlus className="w-5 h-5" />
-                  </div>
-                  <span className="text-[11px] font-bold text-zinc-900 leading-tight">Invite Counsel</span>
-                </div>
-              )}
-
-            </div>
+            <button 
+              onClick={logout}
+              className="px-4 py-2 border border-zinc-300 hover:border-rose-600 text-rose-700 hover:bg-rose-600 hover:text-white font-bold text-xs uppercase tracking-widest transition-all rounded-xl cursor-pointer shadow-xs"
+            >
+              LOG OUT
+            </button>
           </div>
-
-          {/* Key Metrics Row */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mt-2">
-            <div className="glass-card p-4 flex flex-col justify-between hover:scale-[1.02] transition-transform cursor-pointer">
-              <div className="flex justify-between items-start">
-                <Briefcase className="w-4 h-4 text-[#1d1d1f]" />
-              </div>
-              <div className="mt-2">
-                <h3 className="text-2xl font-bold text-[#1d1d1f] leading-none">{activeMattersCount}</h3>
-                <p className="text-[11px] font-semibold text-[#86868b] mt-1">Active Matters</p>
-              </div>
-            </div>
-
-            <div className="glass-card p-4 flex flex-col justify-between hover:scale-[1.02] transition-transform cursor-pointer">
-              <div className="flex justify-between items-start">
-                <CheckCircle2 className="w-4 h-4 text-[#1d1d1f]" />
-              </div>
-              <div className="mt-2">
-                <h3 className="text-2xl font-bold text-[#1d1d1f] leading-none">{pendingTasksCount}</h3>
-                <p className="text-[11px] font-semibold text-[#86868b] mt-1">Pending Tasks</p>
-              </div>
-            </div>
-
-            <div className="glass-card p-4 flex flex-col justify-between hover:scale-[1.02] transition-transform cursor-pointer">
-              <div className="flex justify-between items-start">
-                <AlertCircle className="w-4 h-4 text-rose-600" />
-                <span className="w-2 h-2 rounded-full bg-rose-600 animate-pulse"></span>
-              </div>
-              <div className="mt-2">
-                <h3 className="text-2xl font-bold text-rose-600 leading-none">{highPriorityTasksCount}</h3>
-                <p className="text-[11px] font-semibold text-[#86868b] mt-1">High Priority</p>
-              </div>
-            </div>
-
-            <div className="glass-card p-4 flex flex-col justify-between hover:scale-[1.02] transition-transform cursor-pointer">
-              <div className="flex justify-between items-start">
-                <Files className="w-4 h-4 text-[#1d1d1f]" />
-              </div>
-              <div className="mt-2">
-                <h3 className="text-2xl font-bold text-[#1d1d1f] leading-none">{documentCount}</h3>
-                <p className="text-[11px] font-semibold text-[#86868b] mt-1">Filed Documents</p>
-              </div>
-            </div>
-          </div>
-
         </div>
 
-        {/* WORKSPACE & TASK QUEUE ROW */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-5 mt-4">
+        {/* 2. MAIN AREA CONCRETE MOSAIC GRID LAYOUT */}
+        <div className="space-y-3">
+          <h2 className="text-xs font-bold uppercase tracking-widest text-zinc-500 font-mono">Firm Operations & Modules Mosaic</h2>
+          
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3 sm:gap-4">
+            
+            {/* 1. BIG SQUARE CHAMBERS INBOX ICON TILE (No text, opens WhatsApp Inbox) */}
+            <div 
+              onClick={() => setIsChambersInboxOpen(true)}
+              title="Open Chambers Communications Inbox"
+              className="aspect-square bg-[#1d1d1f] hover:bg-black text-white rounded-3xl p-5 flex flex-col items-center justify-center gap-2 group cursor-pointer hover:scale-[1.03] transition-all shadow-md relative overflow-hidden border border-zinc-800"
+            >
+              <div className="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center text-white group-hover:scale-110 transition-transform">
+                <Mail className="w-8 h-8 text-amber-300" />
+              </div>
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 absolute top-4 right-4 animate-pulse"></span>
+            </div>
+
+            {/* 2. RESEARCH AI ENGINE TILE */}
+            <div 
+              onClick={() => setIsResearchModalOpen(true)}
+              title="AI Legal Research & eLegal Intelligence Engine"
+              className="aspect-square bg-white border border-zinc-200 rounded-3xl p-4 flex flex-col items-center justify-center text-center gap-2 group cursor-pointer hover:scale-[1.03] hover:border-black transition-all shadow-xs"
+            >
+              <div className="w-11 h-11 rounded-2xl bg-amber-50 text-amber-700 flex items-center justify-center border border-amber-200 group-hover:scale-110 transition-transform">
+                <Sparkles className="w-5 h-5" />
+              </div>
+              <span className="text-[11px] font-bold text-zinc-900 leading-tight">AI Research Engine</span>
+            </div>
+
+            {/* 3. USER MANAGEMENT TILE (Admin) */}
+            {isAdmin && (
+              <div 
+                onClick={() => setIsUserManagementOpen(true)}
+                title="User Roster, Promotions & Admissions Directorate"
+                className="aspect-square bg-white border border-zinc-200 rounded-3xl p-4 flex flex-col items-center justify-center text-center gap-2 group cursor-pointer hover:scale-[1.03] hover:border-black transition-all shadow-xs"
+              >
+                <div className="w-11 h-11 rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center border border-blue-200 group-hover:scale-110 transition-transform">
+                  <UserCheck className="w-5 h-5" />
+                </div>
+                <span className="text-[11px] font-bold text-zinc-900 leading-tight">User Directorate</span>
+              </div>
+            )}
+
+            {/* 4. EVENTS & GALLERY TILE (Admin) */}
+            {isAdmin && (
+              <div 
+                onClick={() => setIsEventsManagerOpen(true)}
+                title="Firm Announcements & Photo Gallery Suite"
+                className="aspect-square bg-white border border-zinc-200 rounded-3xl p-4 flex flex-col items-center justify-center text-center gap-2 group cursor-pointer hover:scale-[1.03] hover:border-black transition-all shadow-xs"
+              >
+                <div className="w-11 h-11 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center border border-emerald-200 group-hover:scale-110 transition-transform">
+                  <Calendar className="w-5 h-5" />
+                </div>
+                <span className="text-[11px] font-bold text-zinc-900 leading-tight">Events Suite</span>
+              </div>
+            )}
+
+            {/* 5. GAZETTE NEWSLETTER TILE (Admin) */}
+            {isAdmin && (
+              <div 
+                onClick={() => setIsNewsletterModalOpen(true)}
+                title="Gazette Newsletter Broadcast Suite"
+                className="aspect-square bg-white border border-zinc-200 rounded-3xl p-4 flex flex-col items-center justify-center text-center gap-2 group cursor-pointer hover:scale-[1.03] hover:border-black transition-all shadow-xs"
+              >
+                <div className="w-11 h-11 rounded-2xl bg-purple-50 text-purple-700 flex items-center justify-center border border-purple-200 group-hover:scale-110 transition-transform">
+                  <Send className="w-5 h-5" />
+                </div>
+                <span className="text-[11px] font-bold text-zinc-900 leading-tight">Gazette Broadcast</span>
+              </div>
+            )}
+
+            {/* 6. NEW LEGAL MATTER TILE */}
+            <div 
+              onClick={() => setIsNewMatterModalOpen(true)}
+              title="Register New Legal Matter"
+              className="aspect-square bg-white border border-zinc-200 rounded-3xl p-4 flex flex-col items-center justify-center text-center gap-2 group cursor-pointer hover:scale-[1.03] hover:border-black transition-all shadow-xs"
+            >
+              <div className="w-11 h-11 rounded-2xl bg-zinc-100 text-zinc-900 flex items-center justify-center border border-zinc-300 group-hover:scale-110 transition-transform">
+                <Plus className="w-5 h-5 stroke-[2.5]" />
+              </div>
+              <span className="text-[11px] font-bold text-zinc-900 leading-tight">New Matter</span>
+            </div>
+
+            {/* 7. INVITE MEMBER TILE (Admin) */}
+            {isAdmin && (
+              <div 
+                onClick={() => setIsInviteModalOpen(true)}
+                title="Invite New Counsel or Team Member"
+                className="aspect-square bg-white border border-zinc-200 rounded-3xl p-4 flex flex-col items-center justify-center text-center gap-2 group cursor-pointer hover:scale-[1.03] hover:border-black transition-all shadow-xs"
+              >
+                <div className="w-11 h-11 rounded-2xl bg-rose-50 text-rose-700 flex items-center justify-center border border-rose-200 group-hover:scale-110 transition-transform">
+                  <UserPlus className="w-5 h-5" />
+                </div>
+                <span className="text-[11px] font-bold text-zinc-900 leading-tight">Invite Counsel</span>
+              </div>
+            )}
+
+          </div>
+        </div>
+
+        {/* 3. KEY METRICS ROW */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+          <div className="glass-card p-4 flex flex-col justify-between hover:scale-[1.02] transition-transform cursor-pointer">
+            <div className="flex justify-between items-start">
+              <Briefcase className="w-4 h-4 text-[#1d1d1f]" />
+            </div>
+            <div className="mt-2">
+              <h3 className="text-2xl font-bold text-[#1d1d1f] leading-none">{activeMattersCount}</h3>
+              <p className="text-[11px] font-semibold text-[#86868b] mt-1">Active Matters</p>
+            </div>
+          </div>
+
+          <div className="glass-card p-4 flex flex-col justify-between hover:scale-[1.02] transition-transform cursor-pointer">
+            <div className="flex justify-between items-start">
+              <CheckCircle2 className="w-4 h-4 text-[#1d1d1f]" />
+            </div>
+            <div className="mt-2">
+              <h3 className="text-2xl font-bold text-[#1d1d1f] leading-none">{pendingTasksCount}</h3>
+              <p className="text-[11px] font-semibold text-[#86868b] mt-1">Pending Tasks</p>
+            </div>
+          </div>
+
+          <div className="glass-card p-4 flex flex-col justify-between hover:scale-[1.02] transition-transform cursor-pointer">
+            <div className="flex justify-between items-start">
+              <AlertCircle className="w-4 h-4 text-rose-600" />
+              <span className="w-2 h-2 rounded-full bg-rose-600 animate-pulse"></span>
+            </div>
+            <div className="mt-2">
+              <h3 className="text-2xl font-bold text-rose-600 leading-none">{highPriorityTasksCount}</h3>
+              <p className="text-[11px] font-semibold text-[#86868b] mt-1">High Priority</p>
+            </div>
+          </div>
+
+          <div className="glass-card p-4 flex flex-col justify-between hover:scale-[1.02] transition-transform cursor-pointer">
+            <div className="flex justify-between items-start">
+              <Files className="w-4 h-4 text-[#1d1d1f]" />
+            </div>
+            <div className="mt-2">
+              <h3 className="text-2xl font-bold text-[#1d1d1f] leading-none">{documentCount}</h3>
+              <p className="text-[11px] font-semibold text-[#86868b] mt-1">Filed Documents</p>
+            </div>
+          </div>
+        </div>
+
+        {/* 4. WORKSPACE & TASK QUEUE ROW */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-5">
           <div className="glass-card col-span-1 md:col-span-2 flex flex-col max-h-[460px]">
             <div className="p-4 border-b border-black/5 flex items-center justify-between bg-white/30 rounded-t-[24px]">
               <div className="flex items-center gap-2.5">
@@ -815,137 +810,7 @@ export const OfficePage: React.FC = () => {
             </div>
           </div>
 
-          {/* 9. Real-Time Chambers Chat (Connected to Firebase & Attorney Roster) */}
-          <div className="glass-card col-span-1 md:col-span-2 flex flex-col overflow-hidden max-h-[460px] relative">
-            
-            {/* Contacts Roster */}
-            <div className={`flex flex-col w-full h-full bg-white/30 transition-opacity duration-300 ${isChatOpen ? 'opacity-0 pointer-events-none' : ''}`}>
-              <div className="p-4 border-b border-black/5 bg-white/50 flex items-center justify-between flex-wrap gap-2">
-                <div>
-                  <h2 className="text-base font-bold text-[#1d1d1f] tracking-tight">Chambers Communications</h2>
-                  <p className="text-[10px] text-zinc-500 font-medium">WhatsApp-style Encrypted Network</p>
-                </div>
-                <button
-                  onClick={() => setIsChambersInboxOpen(true)}
-                  className="px-3 py-1.5 bg-[#1d1d1f] text-white rounded-xl text-xs font-bold hover:bg-black transition flex items-center gap-1.5 cursor-pointer shadow-xs"
-                >
-                  <MessageSquare className="w-3.5 h-3.5" /> Open Full Inbox
-                </button>
-              </div>
-
-              <div className="flex-1 overflow-y-auto p-2 space-y-1">
-                {/* General Channel */}
-                <div 
-                  onClick={() => {
-                    setActiveChatContact({
-                      id: "chambers_all",
-                      name: "Chambers General Workspace",
-                      title: "Firm-wide Communications",
-                      avatar: "https://ui-avatars.com/api/?name=Chambers+General&background=1d1d1f&color=fff",
-                      initials: "ALL"
-                    });
-                    setIsChatOpen(true);
-                  }}
-                  className="flex items-center gap-3 p-3 bg-white shadow-xs border border-white rounded-2xl cursor-pointer hover:shadow-md transition-all"
-                >
-                  <div className="w-10 h-10 rounded-full bg-[#1d1d1f] text-white flex items-center justify-center text-xs font-bold shrink-0">ALL</div>
-                  <div className="overflow-hidden flex-1">
-                    <div className="flex justify-between items-center mb-0.5">
-                      <h4 className="text-xs font-bold text-[#1d1d1f] truncate">Chambers General</h4>
-                      <span className="text-[10px] font-bold text-blue-600">Active</span>
-                    </div>
-                    <p className="text-xs text-[#86868b] truncate">Firm-wide counsel communication channel</p>
-                  </div>
-                </div>
-
-                {/* Team Roster */}
-                {rosterMembers.map((attorney) => (
-                  <div 
-                    key={attorney.uid}
-                    onClick={() => {
-                      setActiveChatContact({
-                        id: attorney.uid,
-                        name: attorney.name,
-                        title: attorney.title || "Counsel",
-                        avatar: attorney.profilePhoto || attorney.image || resolveProfileImage(attorney.name),
-                        initials: attorney.name.split(" ").map(n => n[0]).join("")
-                      });
-                      setIsChatOpen(true);
-                    }}
-                    className="flex items-center gap-3 p-2.5 hover:bg-black/5 rounded-2xl cursor-pointer transition-colors"
-                  >
-                    <img src={attorney.profilePhoto || resolveProfileImage(attorney.name)} className="w-9 h-9 rounded-full object-cover border border-black/10 shrink-0" />
-                    <div className="overflow-hidden flex-1">
-                      <div className="flex justify-between items-center mb-0.5">
-                        <h4 className="text-xs font-bold text-[#1d1d1f] truncate">{attorney.name}</h4>
-                        <span className="text-[10px] font-medium text-[#86868b]">Direct</span>
-                      </div>
-                      <p className="text-xs text-[#86868b] truncate">{attorney.title || 'Counsel'}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Chat Conversation View */}
-            {isChatOpen && (
-              <div className="flex flex-col w-full h-full absolute inset-0 bg-[#f5f5f7]/95 backdrop-blur-2xl z-10 animate-fade-in">
-                <div className="p-3 border-b border-black/5 flex items-center gap-3 bg-white/70 shrink-0">
-                  <button 
-                    onClick={() => setIsChatOpen(false)}
-                    className="w-8 h-8 rounded-full hover:bg-black/10 flex items-center justify-center text-[#1d1d1f] cursor-pointer"
-                  >
-                    <ChevronLeft className="w-5 h-5 font-bold" />
-                  </button>
-                  <img src={activeChatContact.avatar} className="w-8 h-8 rounded-full object-cover shrink-0" />
-                  <div className="overflow-hidden flex-1">
-                    <h3 className="text-xs font-bold text-[#1d1d1f] truncate">{activeChatContact.name}</h3>
-                    <p className="text-[10px] font-medium text-[#86868b] truncate">{activeChatContact.title}</p>
-                  </div>
-                </div>
-
-                <div className="flex-1 p-3 overflow-y-auto flex flex-col gap-3">
-                  {chatMessages.map((msg) => (
-                    <div key={msg.id} className={`flex items-end gap-2 ${msg.isMe ? 'justify-end' : ''}`}>
-                      {!msg.isMe && (
-                        <div className="w-7 h-7 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-[10px] font-bold shrink-0">
-                          {msg.senderInitials}
-                        </div>
-                      )}
-                      <div className="max-w-[85%]">
-                        {!msg.isMe && (
-                          <span className="text-[10px] font-bold text-[#1d1d1f] block mb-0.5 pl-1">{msg.senderName}</span>
-                        )}
-                        <div className={`p-3 rounded-2xl text-xs font-medium leading-relaxed ${
-                          msg.isMe ? 'bg-[#0071e3] text-white rounded-br-none shadow-xs' : 'bg-white text-[#1d1d1f] border border-black/5 rounded-bl-none shadow-xs'
-                        }`}>
-                          {msg.text}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <form onSubmit={handleSendChatMessage} className="p-3 border-t border-black/5 bg-white/70 shrink-0">
-                  <div className="flex items-center gap-2">
-                    <input 
-                      type="text"
-                      value={chatInput}
-                      onChange={e => setChatInput(e.target.value)}
-                      placeholder="Type a message..."
-                      className="flex-1 bg-white border border-zinc-200 rounded-full py-2 px-4 text-xs font-medium focus:outline-none focus:border-blue-500"
-                    />
-                    <button type="submit" className="w-8 h-8 bg-[#0071e3] text-white rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors shadow-xs shrink-0 cursor-pointer">
-                      <Send className="w-4 h-4" />
-                    </button>
-                  </div>
-                </form>
-              </div>
-            )}
-
-          </div>
-
-          {/* 10. Activity Stream */}
+          {/* Audit Log Stream */}
           <div className="glass-card col-span-1 md:col-span-2 flex flex-col max-h-[460px]">
             <div className="p-4 border-b border-black/5 flex items-center justify-between bg-white/30 rounded-t-[24px]">
               <div>
