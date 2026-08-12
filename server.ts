@@ -499,70 +499,7 @@ Sitemap: ${baseUrl}/sitemap.xml`;
       const resend = new Resend(apiKey);
       const recipientName = name || "Legal Scholar";
 
-      const htmlContent = `
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body style="margin:0; padding:0; background-color:#0F172A; font-family:'Segoe UI', Arial, sans-serif; color:#E2E8F0;">
-<table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#0F172A; padding:40px 10px;">
-  <tr>
-    <td align="center">
-      <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:600px; background-color:#1E293B; border-radius:8px; border:1px solid #334155; overflow:hidden;">
-        <tr>
-          <td style="background-color:#0A192F; padding:35px 40px; border-bottom:2px solid #C9A55C;">
-            <div style="font-size:24px; font-weight:800; letter-spacing:2px; color:#FFFFFF; text-transform:uppercase; font-family:Georgia, serif;">
-              LEX <span style="color:#C9A55C;">VANGUARD</span> ADVOCATES
-            </div>
-            <div style="font-size:11px; color:#94A3B8; margin-top:6px; letter-spacing:1.5px; text-transform:uppercase;">
-              Chambers &bull; Mount Kenya University Parklands Law Campus
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td style="padding:40px; line-height:1.8; font-size:15px; color:#E2E8F0;">
-            <h1 style="font-size:20px; font-weight:700; color:#FFFFFF; margin-top:0; margin-bottom:20px; font-family:Georgia, serif;">
-              Subscription Confirmed: Welcome to LexVanguard Insights
-            </h1>
-            <p style="margin-top:0; margin-bottom:16px;">
-              Dear <strong>${recipientName}</strong>,
-            </p>
-            <p style="margin-bottom:16px;">
-              Thank you for subscribing to <strong>LexVanguard Legal Insights</strong>. Your registration has been successfully confirmed, and you are now part of our legal intelligence network.
-            </p>
-            <p style="margin-bottom:16px;">
-              As a subscriber, you will receive our executive dispatches covering:
-            </p>
-            <ul style="padding-left:20px; margin-bottom:24px; color:#CBD5E1;">
-              <li style="margin-bottom:8px;">Appellate & High Court Case Law Summaries</li>
-              <li style="margin-bottom:8px;">Statutory & Constitutional Analysis across the Laws of Kenya</li>
-              <li style="margin-bottom:8px;">Mooting Championship Briefings & Legal Tech Developments</li>
-              <li style="margin-bottom:8px;">Special Invitations to Public Law Colloquiums & Webinars</li>
-            </ul>
-            <div style="background-color:#0F172A; border-left:4px solid #C9A55C; padding:16px 20px; margin-bottom:24px; border-radius:4px; font-size:14px; color:#CBD5E1;">
-              <em>"Championing Appellate Litigation, Statutory Research & Systemic Advocacy."</em>
-            </div>
-            <p style="margin-bottom:0;">
-              If you have any specific legal research inquiries or feedback, feel free to reply directly to this notice or contact our Chambers desk at <a href="mailto:infolexvanguardfirm@gmail.com" style="color:#C9A55C; text-decoration:none; font-weight:600;">infolexvanguardfirm@gmail.com</a>.
-            </p>
-          </td>
-        </tr>
-        <tr>
-          <td style="padding:25px 40px; background-color:#0A192F; border-top:1px solid #334155; font-size:12px; color:#94A3B8;">
-            <p style="margin:0; font-weight:600; color:#E2E8F0;">LexVanguard Advocates LLP</p>
-            <p style="margin:4px 0 0 0;">Parklands Campus, Parklands Road, Nairobi, Kenya</p>
-            <p style="margin:4px 0 0 0;">Website: <a href="https://lexvanguard.xyz" style="color:#C9A55C; text-decoration:none;">www.lexvanguard.xyz</a></p>
-          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-</body>
-</html>
-`;
+      const htmlContent = renderNewsletterWelcomeEmailHtml({ email: cleanEmail, name: recipientName });
 
       let sendResult: any = null;
       let targetEmails = [cleanEmail];

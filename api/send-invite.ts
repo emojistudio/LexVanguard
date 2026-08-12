@@ -70,8 +70,10 @@ Website: https://lexvanguard.xyz
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
           <tr>
             <td align="center">
-              <img src="https://lexvanguard.xyz/assets/logo.png" width="48" height="48" alt="LexVanguard Advocates LLP Logo" style="display: block; width: 48px; height: 48px; border: 0; outline: none; border-radius: 4px; margin: 0 auto 12px auto;" />
-              <span style="font-family: 'Times New Roman', Times, serif; font-size: 26px; font-weight: 400; letter-spacing: 3px; color: #111827; text-transform: uppercase; display: block;">
+              <a href="https://lexvanguard.xyz" target="_blank" style="text-decoration: none;">
+                <img src="https://lexvanguard.xyz/logo.png" width="48" height="48" alt="LexVanguard Advocates LLP Logo" style="display: block; width: 48px; height: 48px; border: 0; outline: none; border-radius: 4px; margin: 0 auto 12px auto;" />
+              </a>
+              <span style="font-family: 'Times New Roman', Times, serif; font-size: 24px; font-weight: 400; letter-spacing: 3px; color: #111827; text-transform: uppercase; display: block;">
                 LEXVANGUARD <span style="color: #6b7280; font-weight: 300;">LLP</span>
               </span>
               <span style="font-size: 10px; font-weight: 500; letter-spacing: 2px; color: #9ca3af; text-transform: uppercase; display: block; margin-top: 8px;">
@@ -84,7 +86,7 @@ Website: https://lexvanguard.xyz
     </tr>
 
     <tr>
-      <td style="padding: 64px 40px;">
+      <td style="padding: 56px 40px;">
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
           <tr>
             <td align="left">
@@ -101,27 +103,31 @@ Website: https://lexvanguard.xyz
                 We are writing to you on behalf of the Partners at <strong>LexVanguard Advocates LLP</strong>. By direction of <strong>${senderName}</strong>, it is our pleasure to formally extend an offer of appointment to the position of <strong>${roleName}</strong>.
               </p>
 
-              <div style="margin: 40px 0; padding: 32px 0; border-top: 1px solid #f9fafb; border-bottom: 1px solid #f9fafb;">
-                <p style="margin: 0 0 16px 0; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: #9ca3af;">
+              <div style="margin: 32px 0; padding: 24px 0; border-top: 1px solid #f9fafb; border-bottom: 1px solid #f9fafb;">
+                <p style="margin: 0 0 12px 0; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: #9ca3af;">
                   Associated Privileges
                 </p>
-                <ul style="margin: 0; padding-left: 20px; color: #4b5563; font-weight: 300; line-height: 32px; font-size: 15px;">
-                  <li style="padding-left: 8px;">Access to the LexVanguard Research Intelligence & Case Workspaces</li>
-                  <li style="padding-left: 8px;">Official Firm Member Directory Listing</li>
-                  <li style="padding-left: 8px;">Client Representation & Case Assignment Briefs</li>
+                <ul style="margin: 0; padding-left: 20px; color: #4b5563; font-weight: 300; line-height: 30px; font-size: 15px;">
+                  <li style="padding-left: 4px;">Access to the LexVanguard Research Intelligence & Case Workspaces</li>
+                  <li style="padding-left: 4px;">Official Firm Member Directory Listing</li>
+                  <li style="padding-left: 4px;">Client Representation & Case Assignment Briefs</li>
                 </ul>
               </div>
               
-              <p style="font-size: 15px; font-weight: 300; line-height: 26px; color: #6b7280; margin-bottom: 40px;">
+              <p style="font-size: 15px; font-weight: 300; line-height: 26px; color: #6b7280; margin-bottom: 36px;">
                 To formalize this appointment and activate your institutional profile, please proceed via the secure link below.
               </p>
 
-              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top: 32px; margin-bottom: 24px;">
                 <tr>
-                  <td align="left">
-                    <a href="${targetInviteUrl}" target="_blank" style="display: inline-block; background-color: #111827; color: #ffffff; font-size: 13px; font-weight: 500; text-transform: uppercase; letter-spacing: 2px; padding: 18px 48px; text-decoration: none; border-radius: 2px;">
+                  <td align="center" style="text-align: center;">
+                    <a href="${targetInviteUrl}" target="_blank" style="display: inline-block; background-color: #111827; color: #ffffff; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; padding: 12px 28px; text-decoration: none; border-radius: 4px;">
                       Accept & Activate
                     </a>
+                    <p style="font-size: 12px; color: #6b7280; margin-top: 16px; margin-bottom: 0; text-align: center; font-weight: 300;">
+                      If the button above does not work, copy and paste this link into your browser:<br/>
+                      <a href="${targetInviteUrl}" style="color: #111827; word-break: break-all; text-decoration: underline; font-weight: 400;">${targetInviteUrl}</a>
+                    </p>
                   </td>
                 </tr>
               </table>
@@ -133,18 +139,18 @@ Website: https://lexvanguard.xyz
     </tr>
 
     <tr>
-      <td style="padding: 48px 40px; background-color: #f9fafb; text-align: left;">
+      <td style="padding: 40px; background-color: #ffffff; border-top: 1px solid #f3f4f6; text-align: left;">
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
           <tr>
             <td align="left">
-              <p style="margin: 0 0 8px 0; font-family: 'Times New Roman', Times, serif; font-size: 16px; font-weight: 400; color: #111827;">
+              <p style="margin: 0 0 8px 0; font-family: 'Times New Roman', Times, serif; font-size: 15px; font-weight: 400; color: #111827;">
                 LexVanguard Advocates LLP
               </p>
               <p style="margin: 0; font-size: 12px; font-weight: 300; line-height: 20px; color: #6b7280;">
                 Mount Kenya University Parklands Law Campus<br>
                 Third Parklands Avenue, Nairobi, Kenya
               </p>
-              <p style="margin: 24px 0 0 0; font-size: 10px; font-weight: 300; color: #9ca3af; text-transform: uppercase; letter-spacing: 1px;">
+              <p style="margin: 20px 0 0 0; font-size: 10px; font-weight: 300; color: #9ca3af; text-transform: uppercase; letter-spacing: 1px;">
                 Intended for ${cleanEmail}
               </p>
             </td>
@@ -203,7 +209,7 @@ Website: https://lexvanguard.xyz
             replyTo: "infolexvanguardfirm@gmail.com",
             subject: `[INVITATION] Counsel Onboarding Link for ${cleanEmail}`,
             html: `
-              <div style="padding: 15px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; margin-bottom: 20px; font-family: sans-serif;">
+              <div style="padding: 15px; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 6px; margin-bottom: 20px; font-family: sans-serif;">
                 <p style="margin: 0; color: #111827; font-weight: bold;">Counsel Invitation Created</p>
                 <p style="margin: 5px 0 0 0; font-size: 13px; color: #4b5563;">Invitation link generated for <strong>${cleanEmail}</strong>. Link: <a href="${targetInviteUrl}">${targetInviteUrl}</a></p>
               </div>

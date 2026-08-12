@@ -4,6 +4,7 @@ try {
 } catch {}
 
 import { Resend } from "resend";
+import { wrapInBaseEmailLayout } from "../src/lib/email-templates";
 
 export default async function handler(req: any, res: any) {
   // CORS headers
@@ -46,6 +47,27 @@ Message Details:
 ${message}
         `.trim();
 
+        const htmlContent = wrapInBaseEmailLayout({
+          preheaderText: `New client inquiry from ${name} regarding ${practiceArea || "Legal Counsel"}.`,
+          titleBadge: "Client Consultation Inquiry",
+          headline: `Inquiry from ${name}`,
+          bodyHtml: `
+            <p style="margin-top: 0;"><strong>Client Details:</strong></p>
+            <ul style="padding-left: 20px; color: #374151; line-height: 28px;">
+              <li><strong>Name:</strong> ${name}</li>
+              <li><strong>Email:</strong> <a href="mailto:${cleanEmail}" style="color: #111827;">${cleanEmail}</a></li>
+              <li><strong>Phone:</strong> ${phone || "N/A"}</li>
+              <li><strong>Practice Division:</strong> ${practiceArea || "General Counsel"}</li>
+              <li><strong>Subject:</strong> ${subject || "N/A"}</li>
+            </ul>
+            <div style="margin-top: 24px; padding: 20px; background-color: #f9fafb; border-left: 3px solid #111827; border-radius: 4px;">
+              <p style="margin: 0 0 8px 0; font-weight: 600; color: #111827; font-size: 13px; text-transform: uppercase; letter-spacing: 1px;">Message Details:</p>
+              <p style="margin: 0; white-space: pre-wrap; color: #374151; line-height: 24px;">${message}</p>
+            </div>
+          `,
+          footerNotice: `Submitted via LexVanguard Contact Portal by ${cleanEmail}`
+        });
+
         const senders = [
           "LexVanguard Inquiry <info@lexvanguard.xyz>",
           "LexVanguard Inquiry <chambers@lexvanguard.xyz>",
@@ -61,19 +83,7 @@ ${message}
               replyTo: cleanEmail,
               subject: `[Legal Inquiry] ${subject || practiceArea || "Consultation"} — ${name}`,
               text: textContent,
-              html: `
-                <div style="font-family: Arial, sans-serif; background-color: #ffffff; padding: 24px; color: #111827;">
-                  <h2 style="color: #111827; border-bottom: 2px solid #e5e7eb; padding-bottom: 12px;">LexVanguard Advocates LLP — Client Consultation Inquiry</h2>
-                  <p><strong>Name:</strong> ${name}</p>
-                  <p><strong>Email:</strong> ${cleanEmail}</p>
-                  <p><strong>Phone:</strong> ${phone || "N/A"}</p>
-                  <p><strong>Practice Division:</strong> ${practiceArea || "General Practice"}</p>
-                  <p><strong>Subject:</strong> ${subject || "N/A"}</p>
-                  <br/>
-                  <h3 style="color: #374151;">Message Details:</h3>
-                  <div style="white-space: pre-wrap; background: #f9fafb; padding: 16px; border: 1px solid #e5e7eb; border-radius: 6px; color: #111827;">${message}</div>
-                </div>
-              `,
+              html: htmlContent,
               headers: {
                 "X-Entity-Ref-ID": `inq_${Date.now()}`
               }
