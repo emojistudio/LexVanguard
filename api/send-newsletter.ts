@@ -38,6 +38,9 @@ export default async function handler(req: any, res: any) {
 <head><meta charset="utf-8" /></head>
 <body style="font-family: -apple-system, BlinkMacSystemFont, sans-serif; padding: 20px; color: #111827;">
   <div style="text-align: center; padding-bottom: 20px; border-bottom: 1px solid #e5e7eb;">
+    <a href="https://lexvanguard.xyz" target="_blank" style="text-decoration: none;">
+      <img src="https://lexvanguard.xyz/logo.png" width="110" height="auto" alt="LexVanguard Advocates LLP Logo" style="display: block; width: 110px; max-width: 140px; height: auto; border: 0; outline: none; margin: 0 auto 12px auto;" />
+    </a>
     <h2 style="font-family: serif; letter-spacing: 2px; margin: 0;">LEXVANGUARD ADVOCATES LLP</h2>
     <p style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #6b7280; margin-top: 4px;">${category || "Gazette Edition"} ${issueNumber ? `• Issue ${issueNumber}` : ""}</p>
   </div>
