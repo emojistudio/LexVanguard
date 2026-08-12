@@ -8,6 +8,7 @@ import { verifyInvitation, markInvitationAccepted } from "@/lib/invitation-store
 import { resolveProfileImage } from "@/lib/profile-images";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import logoImg from "../images/logo/logo.png";
 
 export default function RegisterPage() {
   const [, setLocation] = useLocation();
@@ -79,7 +80,6 @@ export default function RegisterPage() {
       const userCredential = await createUserWithEmailAndPassword(auth, email.trim(), password);
       const uid = userCredential.user.uid;
       const canonicalEmail = email.trim().toLowerCase();
-      const emailKey = canonicalEmail.replace(/[^a-z0-9]/g, "_");
 
       const finalTitle = title.trim() || "Counsel";
       const finalPractice = practice.trim() || "Legal Counsel & Advisory";
@@ -152,13 +152,13 @@ export default function RegisterPage() {
       <Header />
 
       <main className="flex-1 flex items-center justify-center p-4 py-24">
-        <div className="w-full max-w-md bg-white border border-gray-200 rounded-xl shadow-sm p-8">
+        <div className="w-full max-w-md bg-white border border-gray-200 rounded-2xl shadow-sm p-8">
           
-          <div className="bg-[#FAF8F5] border border-amber-200/60 p-5 rounded-lg mb-6 flex flex-col items-center text-center shadow-2xs">
-            <div className="w-36 h-36 md:w-40 md:h-40 mb-3 overflow-hidden">
-              <img src="/brand-logo.svg" alt="LexVanguard Logo" className="w-full h-full object-contain" />
+          <div className="bg-[#FAF8F5] border border-amber-200/60 p-5 rounded-2xl mb-6 flex flex-col items-center text-center shadow-xs">
+            <div className="w-32 h-32 md:w-36 md:h-36 mb-2 flex items-center justify-center">
+              <img src={logoImg} alt="LexVanguard Advocates LLP Logo" className="w-full h-full object-contain drop-shadow-sm" />
             </div>
-            <h1 className="text-lg font-serif font-extrabold text-[#0A1F44] uppercase tracking-[0.2em] leading-tight">
+            <h1 className="text-base font-serif font-extrabold text-[#0A1F44] uppercase tracking-[0.2em] leading-tight">
               LEXVANGUARD
             </h1>
             <span className="text-[9px] font-bold text-[#0A1F44]/80 uppercase tracking-[0.25em] mt-0.5">
@@ -176,13 +176,13 @@ export default function RegisterPage() {
           </div>
 
           {success ? (
-            <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs p-4 rounded-lg text-center">
+            <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs p-4 rounded-xl text-center font-semibold">
               Account created successfully! Redirecting to Counsel Office...
             </div>
           ) : (
             <form onSubmit={handleRegister} className="space-y-4">
               {error && (
-                <div className="bg-red-50 text-red-600 text-xs p-3 rounded-lg">
+                <div className="bg-red-50 text-red-600 text-xs p-3 rounded-lg font-medium">
                   {error}
                 </div>
               )}
@@ -292,7 +292,7 @@ export default function RegisterPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="bg-slate-900 hover:bg-slate-800 text-white px-5 py-2.5 text-xs font-medium rounded-lg transition-colors disabled:opacity-50 cursor-pointer"
+                  className="bg-slate-900 hover:bg-slate-800 text-white px-5 py-2.5 text-xs font-medium rounded-xl transition-colors disabled:opacity-50 cursor-pointer shadow-xs"
                 >
                   {loading ? "Creating Account..." : "Complete Registration"}
                 </button>

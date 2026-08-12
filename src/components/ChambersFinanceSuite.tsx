@@ -9,6 +9,7 @@ import {
   AlertCircle, Plus, Printer, TrendingUp, Download, Building2, ShieldCheck,
   CreditCard, ArrowRight, Loader2, Sparkles, RefreshCw
 } from "lucide-react";
+import logoImg from "../images/logo/logo.png";
 
 export const ChambersFinanceSuite: React.FC = () => {
   const [invoices, setInvoices] = useState<ChambersInvoice[]>([]);
@@ -740,7 +741,7 @@ export const ChambersFinanceSuite: React.FC = () => {
           <div className="bg-white rounded-xl shadow-2xl border border-slate-200 p-8 w-full max-w-lg space-y-6">
             <div className="flex justify-between items-start pb-4 border-b">
               <div className="flex items-center gap-3">
-                <img src="/brand-logo.svg" alt="LexVanguard Logo" className="w-28 h-28 object-contain shrink-0" />
+                <img src={logoImg} alt="LexVanguard Logo" className="w-24 h-24 object-contain shrink-0" />
                 <div>
                   <h2 className="font-serif font-extrabold text-xl text-slate-900 uppercase tracking-widest">
                     LEXVANGUARD

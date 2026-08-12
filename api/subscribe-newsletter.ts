@@ -49,7 +49,7 @@ export default async function handler(req: any, res: any) {
     <tr>
       <td style="padding: 48px 40px; border-bottom: 1px solid #f3f4f6; text-align: center;">
         <a href="https://lexvanguard.xyz" target="_blank" style="text-decoration: none;">
-          <img src="https://lexvanguard.xyz/logo.png" width="48" height="48" alt="LexVanguard Logo" style="display: block; margin: 0 auto 12px auto; border-radius: 4px;" />
+          <img src="https://lexvanguard.xyz/logo.png" width="110" height="auto" alt="LexVanguard Advocates LLP Logo" style="display: block; width: 110px; max-width: 140px; height: auto; border: 0; outline: none; margin: 0 auto 16px auto;" />
         </a>
         <span style="font-family: 'Times New Roman', Times, serif; font-size: 24px; font-weight: 400; letter-spacing: 3px; color: #111827; text-transform: uppercase; display: block;">
           LEXVANGUARD <span style="color: #6b7280; font-weight: 300;">LLP</span>

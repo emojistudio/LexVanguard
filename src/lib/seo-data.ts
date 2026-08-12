@@ -194,8 +194,8 @@ export const ORGANIZATIONAL_SCHEMA = {
       "logo": {
         "@type": "ImageObject",
         "@id": "https://www.lexvanguard.xyz/#logo",
-        "url": "https://www.lexvanguard.xyz/brand-logo.svg",
-        "contentUrl": "https://www.lexvanguard.xyz/brand-logo.svg",
+        "url": "https://www.lexvanguard.xyz/logo.png",
+        "contentUrl": "https://www.lexvanguard.xyz/logo.png",
         "caption": "LexVanguard Advocates LLP Official Seal and Crest",
         "width": "512",
         "height": "512"
@@ -415,7 +415,7 @@ export const SITEMAP_PAGES = [
     category: "Events",
     changefreq: "daily",
     priority: "0.90",
-    thumbnail: "https://www.lexvanguard.xyz/brand-logo.svg"
+    thumbnail: "https://www.lexvanguard.xyz/logo.png"
   },
   {
     path: "/research",
@@ -424,7 +424,7 @@ export const SITEMAP_PAGES = [
     category: "Tools & Portals",
     changefreq: "weekly",
     priority: "0.95",
-    thumbnail: "https://www.lexvanguard.xyz/brand-logo.svg"
+    thumbnail: "https://www.lexvanguard.xyz/logo.png"
   },
   {
     path: "/practice-areas",
@@ -433,6 +433,6 @@ export const SITEMAP_PAGES = [
     category: "Services",
     changefreq: "monthly",
     priority: "0.85",
-    thumbnail: "https://www.lexvanguard.xyz/brand-logo.svg"
+    thumbnail: "https://www.lexvanguard.xyz/logo.png"
   }
 ];

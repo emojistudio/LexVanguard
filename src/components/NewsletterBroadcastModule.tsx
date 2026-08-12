@@ -4,6 +4,7 @@ import {
 } from "lucide-react";
 import { sendNewsletterBroadcast, getNewsletterSubscribers, type NewsletterSubscriber } from "../lib/newsletter-store";
 import { useAuth } from "../lib/auth-context";
+import logoImg from "../images/logo/logo.png";
 
 interface NewsletterBroadcastModuleProps {
   onClose: () => void;
@@ -206,7 +207,7 @@ export const NewsletterBroadcastModule: React.FC<NewsletterBroadcastModuleProps>
                 <div className="bg-[#ffffff] border border-gray-200 rounded-2xl p-6 shadow-xs space-y-6 text-[#111827] font-sans">
                   {/* Branding Header */}
                   <div className="text-center border-b border-gray-200 pb-4">
-                    <img src="/logo.png" alt="LexVanguard" className="h-10 mx-auto object-contain mb-2" />
+                    <img src={logoImg} alt="LexVanguard" className="h-16 mx-auto object-contain mb-2" />
                     <h2 className="text-lg font-serif font-bold text-gray-900 tracking-tight">LEXVANGUARD ADVOCATES LLP</h2>
                     <p className="text-[10px] font-mono text-amber-600 uppercase tracking-widest font-semibold mt-0.5">Official Firm Gazette • Issue Dispatch</p>
                   </div>

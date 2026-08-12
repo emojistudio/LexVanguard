@@ -5,6 +5,7 @@ import { auth } from "@/lib/firebase";
 import { fetchFirmUser } from "@/lib/users";
 import { signOut } from "firebase/auth";
 import Header from "@/components/Header";
+import logoImg from "../images/logo/logo.png";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -52,7 +53,6 @@ export default function LoginPage() {
     }
   };
 
-
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
       <div className="bg-black">
@@ -60,11 +60,18 @@ export default function LoginPage() {
       </div>
       <div className="flex-1 flex items-center justify-center py-20 px-4 pt-36">
         <div className="bg-white p-8 md:p-10 w-full max-w-md border-t-4 border-[#0A1F44] shadow-xl rounded-b-xl">
+          
           {/* Logo Card Header */}
-          <div className="bg-[#FAF8F5] border border-amber-200/60 p-6 rounded-lg mb-6 flex flex-col items-center text-center shadow-2xs">
-            <div className="w-40 h-40 md:w-48 md:h-48 mb-3 overflow-hidden">
-              <img src="/brand-logo.svg" alt="LexVanguard Logo" className="w-full h-full object-contain" />
+          <div className="bg-[#FAF8F5] border border-amber-200/60 p-6 rounded-2xl mb-6 flex flex-col items-center text-center shadow-xs">
+            <div className="w-36 h-36 md:w-44 md:h-44 mb-2 flex items-center justify-center">
+              <img src={logoImg} alt="LexVanguard Advocates LLP Logo" className="w-full h-full object-contain drop-shadow-sm" />
             </div>
+            <h1 className="text-base font-serif font-extrabold text-[#0A1F44] uppercase tracking-[0.2em] leading-tight">
+              LEXVANGUARD
+            </h1>
+            <span className="text-[10px] font-bold text-[#0A1F44]/80 uppercase tracking-[0.25em] mt-0.5">
+              ADVOCATES LLP
+            </span>
           </div>
 
           <h2 className="text-xl font-serif text-slate-900 text-center mb-2 font-bold">Chambers Portal Login</h2>
@@ -88,7 +95,7 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
-                className="w-full px-3 py-2 text-gray-900 border border-gray-300 focus:outline-none focus:border-black focus:ring-1 focus:ring-black"
+                className="w-full px-3 py-2 text-gray-900 border border-gray-300 focus:outline-none focus:border-black focus:ring-1 focus:ring-black rounded-lg"
               />
             </div>
 
@@ -101,14 +108,14 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
-                className="w-full px-3 py-2 text-gray-900 border border-gray-300 focus:outline-none focus:border-black focus:ring-1 focus:ring-black"
+                className="w-full px-3 py-2 text-gray-900 border border-gray-300 focus:outline-none focus:border-black focus:ring-1 focus:ring-black rounded-lg"
               />
             </div>
 
             <button
               onClick={handleSubmit}
               disabled={loading}
-              className="w-full bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-3 font-bold text-sm uppercase tracking-widest transition-colors mt-4 disabled:opacity-60 disabled:cursor-not-allowed"
+              className="w-full bg-[#ffc107] hover:bg-yellow-400 text-black px-6 py-3.5 font-extrabold text-xs uppercase tracking-widest transition-colors mt-4 disabled:opacity-60 disabled:cursor-not-allowed rounded-xl cursor-pointer shadow-md font-mono"
             >
               {loading ? "Loading Office..." : "LOGIN"}
             </button>

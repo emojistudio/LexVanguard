@@ -1,4 +1,5 @@
 import React from "react";
+import logoImg from "../images/logo/logo.png";
 
 interface LexVanguardLogoProps {
   variant?: "light" | "dark" | "cream";
@@ -13,16 +14,9 @@ export const LexVanguardLogo: React.FC<LexVanguardLogoProps> = ({
   className = "",
   showSubtitle = true
 }) => {
-  // Theme colors based on variant
-  // 'light': white text for dark hero backgrounds
-  // 'dark': deep navy text (#0A1F44) for light backgrounds
-  // 'cream': off-white parchment background look with navy logo as in the reference image
-  
   const isLight = variant === "light";
   const textColor = isLight ? "text-white" : "text-[#0A1F44]";
   const subtitleColor = isLight ? "text-stone-300" : "text-[#0A1F44]/80";
-  const shieldBorder = isLight ? "border-white" : "border-[#0A1F44]";
-  const shieldIcon = isLight ? "text-white" : "text-[#0A1F44]";
 
   const iconSizes = {
     sm: "w-20 h-20",
@@ -44,11 +38,11 @@ export const LexVanguardLogo: React.FC<LexVanguardLogoProps> = ({
 
   return (
     <div className={`flex flex-col items-center text-center font-sans ${className}`}>
-      {/* OFFICIAL BRAND LOGO SVG */}
+      {/* OFFICIAL BRAND LOGO PNG */}
       <div className={`relative flex items-center justify-center mb-2 transition-transform hover:scale-105 ${iconSizes[size]}`}>
         <img 
-          src="/brand-logo.svg" 
-          alt="LexVanguard Advocates LLP" 
+          src={logoImg} 
+          alt="LexVanguard Advocates LLP Logo" 
           className={`w-full h-full object-contain ${isLight ? "brightness-0 invert" : ""}`}
         />
       </div>

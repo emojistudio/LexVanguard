@@ -43,7 +43,7 @@ export function wrapInBaseEmailLayout(options: {
           <tr>
             <td align="center">
               <a href="${FIRM_WEBSITE_URL}" target="_blank" style="text-decoration: none;">
-                <img src="${FIRM_LOGO_URL}" width="48" height="48" alt="LexVanguard Advocates LLP Logo" style="display: block; width: 48px; height: 48px; border: 0; outline: none; border-radius: 4px; margin: 0 auto 12px auto;" />
+                <img src="${FIRM_LOGO_URL}" width="110" height="auto" alt="LexVanguard Advocates LLP Logo" style="display: block; width: 110px; max-width: 140px; height: auto; border: 0; outline: none; margin: 0 auto 16px auto;" />
               </a>
               <span style="font-family: 'Times New Roman', Times, serif; font-size: 24px; font-weight: 400; letter-spacing: 3px; color: #111827; text-transform: uppercase; display: block;">
                 LEXVANGUARD <span style="color: #6b7280; font-weight: 300;">LLP</span>

@@ -21,7 +21,7 @@ const DYNAMIC_SLIDE_IMAGES: string[] = Object.keys(heroImageModules)
   .sort()
   .map((path) => heroImageModules[path]);
 
-const FALLBACK_HERO_IMAGE = "/brand-logo.svg";
+const FALLBACK_HERO_IMAGE = "/logo.png";
 const SLIDE_IMAGES = DYNAMIC_SLIDE_IMAGES.length > 0 ? DYNAMIC_SLIDE_IMAGES : [FALLBACK_HERO_IMAGE];
 
 const PHILOSOPHY = [
