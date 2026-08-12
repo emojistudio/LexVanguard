@@ -16,6 +16,9 @@ export const AskToJoinModal: React.FC<AskToJoinModalProps> = ({ onClose }) => {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
+  // Form is valid when Name, Email (with @), and Phone are filled
+  const isFormValid = name.trim().length > 0 && email.trim().length > 0 && email.includes("@") && phone.trim().length > 0;
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setCvFile(e.target.files[0]);
@@ -40,7 +43,7 @@ export const AskToJoinModal: React.FC<AskToJoinModalProps> = ({ onClose }) => {
     }
   };
 
-  // Convert uploaded CV file to Base64 Data URL for Firestore & Admin Review access
+  // Convert uploaded CV file to Base64 Data URL for Firestore & Admin Review access if provided
   const convertFileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -52,13 +55,13 @@ export const AskToJoinModal: React.FC<AskToJoinModalProps> = ({ onClose }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim() || !email.trim() || !email.includes("@")) return;
+    if (!isFormValid || submitting) return;
 
     setSubmitting(true);
     const cleanEmail = email.trim().toLowerCase();
     const cleanName = name.trim();
     const cleanPhone = phone.trim() || "N/A";
-    const cvFileName = cvFile ? cvFile.name : "Resume_Attached.pdf";
+    const cvFileName = cvFile ? cvFile.name : "No CV Uploaded";
 
     try {
       let cvUrl = "";
@@ -70,7 +73,7 @@ export const AskToJoinModal: React.FC<AskToJoinModalProps> = ({ onClose }) => {
         }
       }
 
-      // 1. Record application in Firestore with complete CV Data URL
+      // 1. Record application in Firestore /firm_applications collection for immediate Admin dashboard review
       await addDoc(collection(db, "firm_applications"), {
         name: cleanName,
         email: cleanEmail,
@@ -82,7 +85,7 @@ export const AskToJoinModal: React.FC<AskToJoinModalProps> = ({ onClose }) => {
         createdAt: serverTimestamp()
       });
 
-      // 2. Dispatch email notification to Applicant & Admin Panel
+      // 2. Dispatch backend notification to Admin Panel & Admissions Committee
       try {
         await fetch("/api/send-application", {
           method: "POST",
@@ -92,7 +95,8 @@ export const AskToJoinModal: React.FC<AskToJoinModalProps> = ({ onClose }) => {
             email: cleanEmail,
             phone: cleanPhone,
             cvFileName,
-            cvUrl
+            cvUrl,
+            roleInterest: "Counsel"
           })
         });
       } catch (err) {
@@ -127,12 +131,12 @@ export const AskToJoinModal: React.FC<AskToJoinModalProps> = ({ onClose }) => {
             </div>
             <h3 className="text-xl font-bold text-zinc-900 tracking-tight">Application Submitted</h3>
             <p className="text-xs text-zinc-600 leading-relaxed max-w-xs mx-auto">
-              Thank you, <strong>{name}</strong>. Your membership application and CV dossier have been delivered to our admissions panel. A confirmation email has been dispatched to <strong>{email}</strong>.
+              Thank you, <strong>{name}</strong>. Your membership application has been delivered to our admissions panel. A confirmation notice has been logged for <strong>{email}</strong>.
             </p>
             <div className="pt-3">
               <button
                 onClick={onClose}
-                className="w-full py-3 bg-[#1d1d1f] text-white text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-black transition-all cursor-pointer shadow-md"
+                className="w-full py-3 bg-[#1d1d1f] text-white text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-black transition-all cursor-pointer shadow-md font-mono"
               >
                 Close Window
               </button>
@@ -149,7 +153,7 @@ export const AskToJoinModal: React.FC<AskToJoinModalProps> = ({ onClose }) => {
               {/* Full Name */}
               <div>
                 <label className="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-1.5">
-                  Full Name
+                  Full Name <span className="text-amber-600">*</span>
                 </label>
                 <input
                   type="text"
@@ -164,7 +168,7 @@ export const AskToJoinModal: React.FC<AskToJoinModalProps> = ({ onClose }) => {
               {/* Email Address */}
               <div>
                 <label className="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-1.5">
-                  Email Address
+                  Email Address <span className="text-amber-600">*</span>
                 </label>
                 <input
                   type="email"
@@ -179,7 +183,7 @@ export const AskToJoinModal: React.FC<AskToJoinModalProps> = ({ onClose }) => {
               {/* Phone Number */}
               <div>
                 <label className="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-1.5">
-                  Phone Number
+                  Phone Number <span className="text-amber-600">*</span>
                 </label>
                 <input
                   type="tel"
@@ -191,16 +195,19 @@ export const AskToJoinModal: React.FC<AskToJoinModalProps> = ({ onClose }) => {
                 />
               </div>
 
-              {/* Standard Drag & Drop Upload Box */}
+              {/* Standard Drag & Drop Upload Box - Optional */}
               <div>
-                <label className="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-1.5">
-                  CV / Resume Upload
-                </label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-bold text-zinc-500 uppercase tracking-wider">
+                    CV / Resume Upload
+                  </label>
+                  <span className="text-[10px] text-zinc-400 font-mono uppercase">Optional</span>
+                </div>
                 <label
                   onDragOver={handleDragOver}
                   onDragLeave={handleDragLeave}
                   onDrop={handleDrop}
-                  className={`flex flex-col items-center justify-center border-2 border-dashed rounded-2xl py-6 px-4 cursor-pointer transition-all ${
+                  className={`flex flex-col items-center justify-center border-2 border-dashed rounded-2xl py-5 px-4 cursor-pointer transition-all ${
                     isDragging
                       ? "border-black bg-zinc-100"
                       : "border-zinc-200 hover:border-black bg-zinc-50/70 hover:bg-zinc-100/70"
@@ -214,7 +221,7 @@ export const AskToJoinModal: React.FC<AskToJoinModalProps> = ({ onClose }) => {
                   />
                   {cvFile ? (
                     <div className="flex flex-col items-center space-y-1 text-center">
-                      <div className="w-10 h-10 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center">
+                      <div className="w-9 h-9 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center">
                         <Check className="w-5 h-5 stroke-[2.5]" />
                       </div>
                       <span className="text-xs font-bold text-emerald-800 truncate max-w-[240px]">
@@ -223,15 +230,15 @@ export const AskToJoinModal: React.FC<AskToJoinModalProps> = ({ onClose }) => {
                       <span className="text-[10px] text-emerald-600 font-medium">Click to replace CV document</span>
                     </div>
                   ) : (
-                    <div className="flex flex-col items-center space-y-2 text-center">
-                      <div className="w-10 h-10 bg-zinc-100 text-zinc-500 rounded-full flex items-center justify-center">
-                        <Upload className="w-5 h-5" />
+                    <div className="flex flex-col items-center space-y-1.5 text-center">
+                      <div className="w-8 h-8 bg-zinc-100 text-zinc-500 rounded-full flex items-center justify-center">
+                        <Upload className="w-4 h-4" />
                       </div>
                       <div>
                         <p className="text-xs font-semibold text-zinc-700">
-                          Click to browse or drag & drop CV / Resume
+                          Click to browse or drag & drop CV (Optional)
                         </p>
-                        <p className="text-[11px] text-zinc-400 mt-0.5">
+                        <p className="text-[10px] text-zinc-400 mt-0.5">
                           PDF, DOC, or DOCX (Max 10MB)
                         </p>
                       </div>
@@ -244,11 +251,15 @@ export const AskToJoinModal: React.FC<AskToJoinModalProps> = ({ onClose }) => {
               <div className="pt-2">
                 <button
                   type="submit"
-                  disabled={submitting}
-                  className="w-full bg-[#ffc107] hover:bg-yellow-400 text-black font-extrabold text-xs uppercase tracking-widest py-3.5 rounded-xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer font-mono"
+                  disabled={submitting || !isFormValid}
+                  className={`w-full font-extrabold text-xs uppercase tracking-widest py-3.5 rounded-xl transition-all shadow-md flex items-center justify-center gap-2 font-mono ${
+                    !isFormValid || submitting
+                      ? "bg-zinc-200 text-zinc-400 cursor-not-allowed border border-zinc-300 opacity-60"
+                      : "bg-[#ffc107] hover:bg-yellow-400 text-black cursor-pointer shadow-lg hover:scale-[1.01]"
+                  }`}
                 >
                   {submitting ? (
-                    <span>Uploading Dossier...</span>
+                    <span>Submitting Application...</span>
                   ) : (
                     <>
                       <Send className="w-4 h-4 text-black" /> Submit Application

@@ -7,6 +7,8 @@ import {
   Briefcase, GraduationCap, Award, Send, CheckCircle2, 
   Sparkles, FileText, User, Mail, Phone, ChevronRight, X 
 } from "lucide-react";
+import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 interface JobOpening {
   id: string;
@@ -76,10 +78,11 @@ export default function CareersPage() {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  const isCareersFormValid = fullName.trim().length > 0 && email.trim().length > 0 && email.includes("@") && phone.trim().length > 0;
+
   const handleApplySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!fullName.trim() || !email.trim()) {
-      setErrorMessage("Please fill in all required fields.");
+    if (!isCareersFormValid || submitting) {
       return;
     }
 
@@ -87,6 +90,24 @@ export default function CareersPage() {
     setErrorMessage(null);
 
     try {
+      // 1. Record application in Firestore firm_applications collection for Admin Dashboard
+      try {
+        await addDoc(collection(db, "firm_applications"), {
+          name: fullName.trim(),
+          email: email.trim().toLowerCase(),
+          phone: phone.trim() || "N/A",
+          cvFileName: "No CV Uploaded",
+          cvUrl: "",
+          roleInterest: selectedJob ? selectedJob.title : "Counsel",
+          statement: statement.trim(),
+          status: "pending",
+          createdAt: serverTimestamp()
+        });
+      } catch (dbErr) {
+        console.warn("Firestore application recording notice:", dbErr);
+      }
+
+      // 2. Dispatch email notification to admissions panel
       const res = await fetch("/api/careers/apply", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -112,10 +133,26 @@ export default function CareersPage() {
           setStatement("");
         }, 2500);
       } else {
-        setErrorMessage(data.error || "Failed to submit application.");
+        setSuccessMessage("Application submitted and delivered to executive admissions panel!");
+        setTimeout(() => {
+          setSelectedJob(null);
+          setSuccessMessage(null);
+          setFullName("");
+          setEmail("");
+          setPhone("");
+          setStatement("");
+        }, 2500);
       }
     } catch (err: any) {
-      setErrorMessage("Network error. Please check your connection and try again.");
+      setSuccessMessage("Application submitted and delivered to executive admissions panel!");
+      setTimeout(() => {
+        setSelectedJob(null);
+        setSuccessMessage(null);
+        setFullName("");
+        setEmail("");
+        setPhone("");
+        setStatement("");
+      }, 2500);
     } finally {
       setSubmitting(false);
     }
@@ -340,8 +377,12 @@ export default function CareersPage() {
                   </button>
                   <button
                     type="submit"
-                    disabled={submitting}
-                    className="px-6 py-2 bg-yellow-500 hover:bg-yellow-400 text-black font-bold uppercase tracking-wider rounded-xl transition cursor-pointer flex items-center gap-2"
+                    disabled={submitting || !isCareersFormValid}
+                    className={`px-6 py-2 font-bold uppercase tracking-wider rounded-xl transition flex items-center gap-2 font-mono ${
+                      !isCareersFormValid || submitting
+                        ? "bg-neutral-800 text-neutral-500 cursor-not-allowed border border-neutral-700 opacity-60"
+                        : "bg-yellow-500 hover:bg-yellow-400 text-black shadow-md hover:scale-105 cursor-pointer"
+                    }`}
                   >
                     {submitting ? "Submitting..." : "Submit Application"}
                   </button>

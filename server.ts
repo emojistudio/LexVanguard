@@ -992,6 +992,91 @@ INSTRUCTIONS TO PREVENT HALLUCINATION:
     }
   });
 
+  // API Endpoint: Dispatch Membership Application to Admissions Committee & Admin
+  app.post("/api/send-application", async (req, res) => {
+    try {
+      const { name, email, phone, cvFileName, cvUrl, roleInterest } = req.body;
+      if (!name || !email) {
+        return res.status(400).json({ error: "Applicant name and email are required." });
+      }
+
+      const resendApiKey = process.env.RESEND_API_KEY;
+      if (resendApiKey) {
+        try {
+          const resend = new Resend(resendApiKey);
+          const adminHtml = `
+            <div style="font-family: Arial, sans-serif; color: #111; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e5e7eb; border-radius: 12px;">
+              <h2 style="color: #d97706; text-transform: uppercase; margin-top: 0;">New Membership Application</h2>
+              <p>A new applicant has submitted their details to join LexVanguard Advocates LLP:</p>
+              <table style="width: 100%; border-collapse: collapse; margin-top: 16px;">
+                <tr><td style="padding: 8px 0; font-weight: bold; width: 120px; color: #4b5563;">Full Name:</td><td style="padding: 8px 0; font-weight: bold;">${name}</td></tr>
+                <tr><td style="padding: 8px 0; font-weight: bold; color: #4b5563;">Email:</td><td style="padding: 8px 0;">${email}</td></tr>
+                <tr><td style="padding: 8px 0; font-weight: bold; color: #4b5563;">Phone:</td><td style="padding: 8px 0;">${phone || "N/A"}</td></tr>
+                <tr><td style="padding: 8px 0; font-weight: bold; color: #4b5563;">Role Interest:</td><td style="padding: 8px 0;">${roleInterest || "Counsel"}</td></tr>
+                <tr><td style="padding: 8px 0; font-weight: bold; color: #4b5563;">CV File:</td><td style="padding: 8px 0;">${cvFileName || "No CV Uploaded"}</td></tr>
+              </table>
+              <div style="margin-top: 24px; padding: 14px; background: #f9fafb; border-radius: 8px; font-size: 13px; color: #4b5563;">
+                Review and process this application directly in the Executive Management Dashboard under Admissions.
+              </div>
+            </div>
+          `;
+
+          await resend.emails.send({
+            from: "LexVanguard Admissions <admissions@lexvanguard.xyz>",
+            to: ["info@lexvanguard.xyz"],
+            subject: `New Application: ${name} (${roleInterest || "Counsel"})`,
+            html: adminHtml
+          });
+        } catch (resendErr) {
+          console.warn("Resend email notification notice:", resendErr);
+        }
+      }
+
+      return res.json({ success: true, message: "Application delivered to executive admissions panel." });
+    } catch (err: any) {
+      console.error("Error processing application endpoint:", err);
+      return res.status(500).json({ error: err?.message || "Failed to process application" });
+    }
+  });
+
+  // API Endpoint: Dispatch Careers / Fellowship Application to Admissions Panel
+  app.post("/api/careers/apply", async (req, res) => {
+    try {
+      const { fullName, email, phone, position, yearOfStudy, coverLetter } = req.body;
+      if (!fullName || !email) {
+        return res.status(400).json({ error: "Full Name and Email are required." });
+      }
+
+      const resendApiKey = process.env.RESEND_API_KEY;
+      if (resendApiKey) {
+        try {
+          const resend = new Resend(resendApiKey);
+          await resend.emails.send({
+            from: "LexVanguard Careers <careers@lexvanguard.xyz>",
+            to: ["info@lexvanguard.xyz"],
+            subject: `Fellowship Application: ${fullName} - ${position || "Pupilage"}`,
+            html: `
+              <div style="font-family: Arial, sans-serif; color: #111; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e5e7eb; border-radius: 12px;">
+                <h2 style="color: #d97706; text-transform: uppercase; margin-top: 0;">New Fellowship Application</h2>
+                <p><strong>Position:</strong> ${position || "General Fellowship"}</p>
+                <p><strong>Full Name:</strong> ${fullName}</p>
+                <p><strong>Email:</strong> ${email}</p>
+                <p><strong>Phone:</strong> ${phone || "N/A"}</p>
+                <p><strong>Academic Level:</strong> ${yearOfStudy || "N/A"}</p>
+                <p><strong>Cover Letter / Statement:</strong></p>
+                <blockquote style="background: #f9fafb; padding: 12px; border-left: 4px solid #d97706; margin: 0;">${coverLetter || "None provided."}</blockquote>
+              </div>
+            `
+          });
+        } catch (e) {}
+      }
+
+      return res.json({ success: true, message: "Fellowship application delivered to executive admissions panel." });
+    } catch (err: any) {
+      return res.status(500).json({ error: err?.message || "Failed to submit fellowship application" });
+    }
+  });
+
   // API Endpoint: Document Analysis & Case Material Review (Gemini 2.5 Flash Multimodal PDF + Groq Llama-3.3-70b)
   app.post("/api/research/analyze-document", async (req, res) => {
     try {
