@@ -11,9 +11,9 @@ import { FirestoreMember, subscribeFirestoreMembers } from "@/lib/users";
 import { resolveProfileImage } from "@/lib/profile-images";
 import { AskToJoinModal } from "@/components/AskToJoinModal";
 
-// Dynamically load all hero images placed in /src/images/hero automatically
+// Load hero images reliably across development and production build
 const heroImageModules = import.meta.glob<string>(
-  '/src/images/hero/*.{png,jpg,jpeg,webp,avif,svg,PNG,JPG,JPEG,WEBP,AVIF,SVG}',
+  '../images/hero/*.{png,jpg,jpeg,webp,avif,svg,PNG,JPG,JPEG,WEBP,AVIF,SVG}',
   { eager: true, import: 'default' }
 );
 
@@ -21,8 +21,18 @@ const DYNAMIC_SLIDE_IMAGES: string[] = Object.keys(heroImageModules)
   .sort()
   .map((path) => heroImageModules[path]);
 
-const FALLBACK_HERO_IMAGE = "/logo.png";
-const SLIDE_IMAGES = DYNAMIC_SLIDE_IMAGES.length > 0 ? DYNAMIC_SLIDE_IMAGES : [FALLBACK_HERO_IMAGE];
+const PUBLIC_HERO_IMAGES = [
+  "/images/hero/hero1.jpeg",
+  "/images/hero/hero2.jpeg",
+  "/images/hero/hero3.jpeg",
+  "/images/hero/hero4.jpeg",
+  "/images/hero/hero5.jpeg",
+  "/images/hero/hero6.jpeg",
+];
+
+const SLIDE_IMAGES = PUBLIC_HERO_IMAGES.length > 0 
+  ? PUBLIC_HERO_IMAGES 
+  : (DYNAMIC_SLIDE_IMAGES.length > 0 ? DYNAMIC_SLIDE_IMAGES : ["/logo.png"]);
 
 const PHILOSOPHY = [
   {

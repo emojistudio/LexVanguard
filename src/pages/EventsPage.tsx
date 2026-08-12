@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { 
-  Calendar, Clock, MapPin, Heart, Search, Plus, 
-  Download, X, Image as ImageIcon, Trash2, Sparkles, ExternalLink 
+  Calendar, Clock, MapPin, Heart, Search, 
+  Download, X, Image as ImageIcon, Trash2, ExternalLink 
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -10,8 +10,6 @@ import { SITE_KEYWORDS } from "@/lib/seo-data";
 import { useAuth } from "@/lib/auth-context";
 import { subscribeEvents, deleteFirmEvent, generateIcsCalendar, getEventRegistrationUrl, type FirmEvent } from "@/lib/events-store";
 import { RsvpModal } from "@/components/RsvpModal";
-import { HostEventModal } from "@/components/HostEventModal";
-import { EventsAdminModule } from "@/components/EventsAdminModule";
 import { EventGalleryModal } from "@/components/EventGalleryModal";
 import { loadProfile, handleProfileImageError } from "@/lib/profile-store";
 import { subscribeFirestoreMembers } from "@/lib/users";
@@ -19,16 +17,12 @@ import { subscribeFirestoreMembers } from "@/lib/users";
 export default function EventsPage() {
   const { firmUser } = useAuth();
   const [events, setEvents] = useState<FirmEvent[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<string>("All");
-  const [selectedStatus, setSelectedStatus] = useState<"Upcoming" | "Past Event">("Upcoming");
   const [searchQuery, setSearchQuery] = useState("");
   const [likedEvents, setLikedEvents] = useState<Record<string, boolean>>({});
   
   const [activeRsvpEvent, setActiveRsvpEvent] = useState<FirmEvent | null>(null);
   const [activeGalleryEvent, setActiveGalleryEvent] = useState<FirmEvent | null>(null);
   const [detailedEvent, setDetailedEvent] = useState<FirmEvent | null>(null);
-  const [showHostModal, setShowHostModal] = useState(false);
-  const [showStudioModal, setShowStudioModal] = useState(false);
 
   useEffect(() => {
     const unsubscribe = subscribeEvents((list) => {
@@ -57,33 +51,18 @@ export default function EventsPage() {
     });
   };
 
-  // Filter events
+  // Filter events by search query
   const filteredEvents = events.filter((evt) => {
-
-    // Category filter
-    if (selectedCategory !== "All" && !evt.category.toLowerCase().includes(selectedCategory.toLowerCase())) {
-      return false;
-    }
-
-    // Search query
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       const matchTitle = evt.title.toLowerCase().includes(q);
       const matchDesc = evt.description.toLowerCase().includes(q);
-      const matchSpeakers = evt.speakers.some(s => s.name.toLowerCase().includes(q));
+      const matchSpeakers = evt.speakers?.some(s => s.name.toLowerCase().includes(q));
       if (!matchTitle && !matchDesc && !matchSpeakers) return false;
     }
 
     return true;
   });
-
-  const categories = [
-    "All",
-    "Keynote & Summit",
-    "CLE & Workshop",
-    "Symposium",
-    "Community & Pro Bono"
-  ];
 
   const upcomingCount = events.filter((e) => e.status !== "Past Event").length;
   const pastCount = events.filter((e) => e.status === "Past Event").length;
@@ -122,21 +101,7 @@ export default function EventsPage() {
         <EventGalleryModal event={activeGalleryEvent} onClose={() => setActiveGalleryEvent(null)} />
       )}
 
-      {/* Host Event Modal */}
-      {showHostModal && (
-        <HostEventModal
-          onClose={() => setShowHostModal(false)}
-          onCreated={(newEvt) => {
-            setShowHostModal(false);
-            setDetailedEvent(newEvt);
-          }}
-        />
-      )}
 
-      {/* Notion Event Studio Suite Modal */}
-      {showStudioModal && (
-        <EventsAdminModule onClose={() => setShowStudioModal(false)} />
-      )}
 
       {/* Detailed Agenda Modal */}
       {detailedEvent && (
@@ -287,28 +252,11 @@ export default function EventsPage() {
       {/* Main Events Container - Clean Full Viewport Display */}
       <main className="w-full px-4 sm:px-8 lg:px-12 pt-28 sm:pt-32 pb-20 flex-1">
 
-        {/* Section Heading & Host Button */}
+        {/* Section Heading */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-neutral-200">
           <h1 className="text-3xl md:text-4xl font-bold text-black tracking-tight font-mono uppercase">
             Events
           </h1>
-
-          {firmUser && (
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setShowStudioModal(true)}
-                className="bg-[#1d1d1f] hover:bg-black text-white px-5 py-2.5 text-xs font-bold uppercase tracking-wider rounded-full transition-all shadow-xs flex items-center gap-2 cursor-pointer"
-              >
-                <Sparkles className="w-4 h-4 text-amber-400" /> Event Studio Suite
-              </button>
-              <button
-                onClick={() => setShowHostModal(true)}
-                className="bg-stone-100 hover:bg-stone-200 text-stone-900 px-4 py-2.5 text-xs font-bold uppercase tracking-wider rounded-full transition-all border border-stone-300 flex items-center gap-1.5 cursor-pointer"
-              >
-                <Plus className="w-4 h-4 text-amber-600" /> Host Quick Event
-              </button>
-            </div>
-          )}
         </div>
 
         {/* Search & Minimal Header */}
@@ -330,40 +278,21 @@ export default function EventsPage() {
           </div>
         </div>
 
-        {/* Categories Pills */}
-        <div className="flex items-center space-x-2 overflow-x-auto no-scrollbar pb-6 mb-4">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setSelectedCategory(cat)}
-              className={`px-4 py-1.5 text-xs font-semibold rounded-full border transition-colors whitespace-nowrap cursor-pointer ${
-                selectedCategory === cat
-                  ? "border-black text-white bg-black font-bold"
-                  : "border-neutral-200 text-neutral-700 bg-white hover:bg-neutral-100"
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
-
         {/* Events Grid */}
         {filteredEvents.length === 0 ? (
           <div className="text-center py-20 bg-white rounded-2xl border border-neutral-200 p-8 shadow-xs">
             <Calendar className="w-12 h-12 text-black mx-auto mb-4 opacity-30" />
             <h3 className="text-lg font-bold text-black mb-2">No Events Found</h3>
             <p className="text-sm text-neutral-500 max-w-md mx-auto mb-6">
-              There are currently no events matching your selected filter or search query.
+              There are currently no events matching your search query.
             </p>
             <button
               onClick={() => {
-                setSelectedCategory("All");
                 setSearchQuery("");
-                setSelectedStatus("Upcoming");
               }}
               className="text-xs font-bold text-black uppercase tracking-widest hover:underline"
             >
-              Clear Filters
+              Clear Search
             </button>
           </div>
         ) : (
