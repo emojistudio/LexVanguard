@@ -7,7 +7,7 @@ import EventsSection from "@/components/EventsSection";
 import SEOHead from "@/components/SEOHead";
 import { ORGANIZATIONAL_SCHEMA, SITE_KEYWORDS } from "@/lib/seo-data";
 import { handleProfileImageError } from "@/lib/profile-store";
-import { FirestoreMember, subscribeFirestoreMembers } from "@/lib/users";
+import { FirestoreMember, subscribeFirestoreMembers, getMemberRank } from "@/lib/users";
 import { resolveProfileImage } from "@/lib/profile-images";
 import { AskToJoinModal } from "@/components/AskToJoinModal";
 
@@ -98,6 +98,15 @@ export default function HomePage() {
 
   const prev = () => setSlide(s => s === 0 ? SLIDE_IMAGES.length - 1 : s - 1);
   const next = () => setSlide(s => (s + 1) % SLIDE_IMAGES.length);
+
+  // Dynamic top 4 superior profiles sorted by roleLevel / rank from highest down
+  const teaserMembers = [...members]
+    .sort((a: any, b: any) => {
+      const levelA = typeof a.roleLevel === "number" ? a.roleLevel : getMemberRank(a);
+      const levelB = typeof b.roleLevel === "number" ? b.roleLevel : getMemberRank(b);
+      return levelB - levelA;
+    })
+    .slice(0, 4);
 
   return (
     <div className="w-full max-w-full overflow-x-hidden bg-black text-white font-sans selection:bg-yellow-500 selection:text-black">
@@ -290,15 +299,15 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* Intro Section */}
-      <section id="intro-section" className="py-12 sm:py-20 lg:py-28 bg-white w-full max-w-full overflow-x-hidden text-black" itemScope itemType="http://schema.org/AboutPage">
+      {/* Main Philosophy & Overview Section */}
+      <section className="py-12 sm:py-20 lg:py-28 bg-white text-black w-full max-w-full overflow-x-hidden">
         <div className="w-full max-w-7xl xl:max-w-[92vw] mx-auto px-4 sm:px-10 lg:px-16 text-center">
-          <span className="text-yellow-600 uppercase tracking-[0.3em] text-xs lg:text-sm font-bold font-mono block mb-2">
-            Premier Student Law Firm & Academic Powerhouse
+          <span className="text-yellow-600 uppercase tracking-[0.25em] text-xs lg:text-sm font-bold font-mono block mb-2">
+            Institutional Excellence
           </span>
-          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 sm:mb-6 text-black uppercase tracking-wider font-serif">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-black mb-3 uppercase tracking-wider font-serif">
             Welcome to LexVanguard Advocates LLP
-          </h1>
+          </h2>
           <div className="h-1 w-12 sm:w-16 lg:w-24 bg-yellow-500 mx-auto mb-6 sm:mb-8 lg:mb-12" />
           
           <div className="space-y-6 max-w-5xl lg:max-w-6xl xl:max-w-7xl mx-auto text-gray-700 leading-relaxed sm:leading-loose text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl font-normal">
@@ -306,7 +315,7 @@ export default function HomePage() {
               Recognized as the premier student-led law firm at <strong className="text-black">Mount Kenya University Parklands Law Campus (MKUPLC)</strong>, LexVanguard's institutional authority extends across Kenya and the wider legal education realm. We are not merely a university society — we are a formidable legal incubator and appellate mooting powerhouse, bridging the critical divide between classroom jurisprudence and real-world advocate practice.
             </p>
             <p className="text-gray-600 text-xs sm:text-base md:text-lg lg:text-xl xl:text-2xl">
-              Established in <strong className="text-black font-semibold">September 2025</strong> by founding scholars <strong className="text-black font-semibold">Prince Micah, Kelvin Musya, and Donel Aganyo</strong>, LexVanguard provides an elite, structured environment where emerging legal minds master oral advocacy, statutory interpretation, legal technology, AI-assisted legal research, and corporate advisory. Our members engage in rigorous litigation drills, moot court championships, and pro bono community dispatches — developing the exact competencies demanded by top-tier law firms and international judicial institutions.
+              Established in <strong className="text-black font-semibold">September 2025</strong> at Mount Kenya University Parklands Law Campus (MKUPLC), LexVanguard provides an elite, structured environment where emerging legal minds master oral advocacy, statutory interpretation, legal technology, AI-assisted legal research, and corporate advisory. Our members engage in rigorous litigation drills, moot court championships, and pro bono community dispatches — developing the exact competencies demanded by top-tier law firms and international judicial institutions.
             </p>
           </div>
 
@@ -339,7 +348,7 @@ export default function HomePage() {
             </h2>
             <div className="h-1 w-10 sm:w-16 lg:w-24 bg-yellow-500 mb-4 sm:mb-6 lg:mb-8 mx-auto lg:mx-0" />
             <p className="text-gray-700 leading-relaxed text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl mb-6 sm:mb-8 lg:mb-10 font-normal">
-              LexVanguard is powered by a cadre of distinguished law scholars, legal researchers, and national moot court champions at Mount Kenya University Parklands Law Campus. Under the strategic direction of founding partners <strong className="text-black">Prince Micah</strong> (Tech & Innovation Lead), <strong className="text-black">Kelvin Musya</strong> (Chief Strategist & Organising Director), and <strong className="text-black">Donel Aganyo</strong> (Advocacy Partner & Outreach Lead), our chambers foster disciplined legal practice, constitutional debate, and professional excellence.
+              LexVanguard is powered by a cadre of distinguished law scholars, legal researchers, and national moot court champions at Mount Kenya University Parklands Law Campus. Structured into specialized practice divisions, executive leadership offices, and peer-accountable research desks, our members maintain an exceptionally disciplined framework for constitutional advocacy, mooting mastery, and professional legal excellence.
             </p>
             <Link
               href="/attorneys"
@@ -351,28 +360,37 @@ export default function HomePage() {
           </div>
           <div className="w-full lg:w-2/5">
             <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:gap-6 w-full max-w-sm sm:max-w-md lg:max-w-none mx-auto">
-              {[
-                { name: "Prince Micah", title: "Founding Partner & Tech Lead", photo: "/images/profiles/prince.jpeg" },
-                { name: "Kelvin Musya", title: "Chief Strategist & Organising Director", photo: "/images/profiles/kelvin.jpeg" },
-                { name: "Donel Aganyo", title: "Advocacy Partner & Outreach Lead", photo: "/images/profiles/don.jpeg" },
-                { name: "Linet Njeri", title: "Executive Partner & Senior Counsel", photo: "/images/profiles/linet.jpeg" }
-              ].map((p, i) => (
-                <div key={i} className="relative group overflow-hidden border-2 border-yellow-500 shadow-sm rounded-xs" itemScope itemType="http://schema.org/Person">
-                  <img
-                    src={resolveProfileImage(p.name, p.photo)}
-                    alt={`${p.name} - ${p.title} at LexVanguard Advocates LLP, Mount Kenya University Parklands Law Campus (MKUPLC)`}
-                    title={`${p.name} | LexVanguard Advocates LLP Member & Counsel`}
-                    itemProp="image"
-                    loading="lazy"
-                    onError={(e) => handleProfileImageError(e, p.name)}
-                    className="w-full h-28 sm:h-36 md:h-44 lg:h-52 xl:h-60 object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/75 to-transparent p-2 sm:p-3 text-white">
-                    <p className="font-extrabold text-[10px] sm:text-xs lg:text-sm uppercase tracking-wider text-yellow-500 truncate" itemProp="name">{p.name}</p>
-                    <p className="text-[9px] sm:text-[10px] lg:text-xs text-gray-300 truncate" itemProp="jobTitle">{p.title}</p>
+              {teaserMembers.length > 0 ? (
+                teaserMembers.map((p, i) => (
+                  <div key={p.uid || i} className="relative group overflow-hidden border-2 border-yellow-500 shadow-sm rounded-xs" itemScope itemType="http://schema.org/Person">
+                    <img
+                      src={resolveProfileImage(p.name, p.profilePhoto || p.image)}
+                      alt={`${p.name} - ${p.title || 'Counsel'} at LexVanguard Advocates LLP, Mount Kenya University Parklands Law Campus (MKUPLC)`}
+                      title={`${p.name} | LexVanguard Advocates LLP Member & Counsel`}
+                      itemProp="image"
+                      loading="lazy"
+                      onError={(e) => handleProfileImageError(e, p.name)}
+                      className="w-full h-28 sm:h-36 md:h-44 lg:h-52 xl:h-60 object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/75 to-transparent p-2 sm:p-3 text-white">
+                      <p className="font-extrabold text-[10px] sm:text-xs lg:text-sm uppercase tracking-wider text-yellow-500 truncate" itemProp="name">{p.name}</p>
+                      <p className="text-[9px] sm:text-[10px] lg:text-xs text-gray-300 truncate" itemProp="jobTitle">{p.title || p.role || "Counsel"}</p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))
+              ) : (
+                [1, 2, 3, 4].map((n) => (
+                  <div key={n} className="relative group overflow-hidden border-2 border-yellow-500/40 bg-neutral-900 shadow-sm rounded-xs flex flex-col justify-end p-3 h-28 sm:h-36 md:h-44 lg:h-52 xl:h-60">
+                    <div className="w-8 h-8 rounded-full bg-yellow-500/20 text-yellow-500 flex items-center justify-center font-bold text-xs mb-auto">
+                      LV
+                    </div>
+                    <div>
+                      <p className="font-extrabold text-[10px] sm:text-xs uppercase tracking-wider text-yellow-500">Chambers Counsel</p>
+                      <p className="text-[9px] text-gray-400">Admitted Member</p>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </div>
         </div>
