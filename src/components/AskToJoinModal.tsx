@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { X, Send, CheckCircle2, User, Mail, Phone, Upload, FileText, Check } from "lucide-react";
+import { X, Send, CheckCircle2, FileText, Check } from "lucide-react";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { db } from "../lib/firebase";
 
@@ -69,70 +69,61 @@ export const AskToJoinModal: React.FC<AskToJoinModalProps> = ({ onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in">
-      <div className="bg-white/95 backdrop-blur-2xl border border-zinc-200 shadow-2xl rounded-3xl max-w-md w-full p-6 sm:p-8 relative overflow-hidden transition-all">
+    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl relative overflow-hidden transition-all">
         
         {/* Close Button */}
         <button 
           onClick={onClose}
-          className="absolute top-5 right-5 p-2 text-zinc-400 hover:text-zinc-900 rounded-full hover:bg-zinc-100 transition-colors cursor-pointer"
+          className="absolute top-4 right-4 p-1.5 text-zinc-400 hover:text-zinc-900 rounded-full hover:bg-zinc-100 transition-colors cursor-pointer"
         >
-          <X className="w-5 h-5" />
+          <X className="w-4 h-4" />
         </button>
 
         {submitted ? (
-          <div className="text-center py-6 space-y-4 animate-fade-in">
-            <div className="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto border border-emerald-200 shadow-xs">
-              <CheckCircle2 className="w-9 h-9 stroke-[2.2]" />
+          <div className="text-center py-6 space-y-3">
+            <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto">
+              <CheckCircle2 className="w-7 h-7" />
             </div>
-            <div className="space-y-1.5">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-700 font-mono bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
-                Application Received
-              </span>
-              <h3 className="text-xl font-bold text-zinc-900 tracking-tight mt-1">Application Submitted</h3>
-            </div>
-            <p className="text-xs text-zinc-600 leading-relaxed max-w-xs mx-auto">
-              Thank you, <strong>{name}</strong>. Your membership application has been received successfully. An official confirmation email has been dispatched to <strong>{email}</strong> and our admissions directorate will respond promptly upon review.
+            <h3 className="text-base font-bold text-zinc-900">Application Submitted</h3>
+            <p className="text-xs text-zinc-500 leading-relaxed">
+              Thank you, <strong>{name}</strong>. An email confirmation has been sent to <strong>{email}</strong>. We will respond promptly upon review.
             </p>
-            <div className="pt-3">
+            <div className="pt-2">
               <button
                 onClick={onClose}
-                className="w-full py-3 bg-[#1d1d1f] text-white text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-black transition-all cursor-pointer shadow-md"
+                className="w-full py-2.5 bg-[#1d1d1f] text-white text-xs font-bold uppercase tracking-wider rounded-xl hover:bg-black transition-all cursor-pointer"
               >
-                Close Window
+                Close
               </button>
             </div>
           </div>
         ) : (
-          <div className="space-y-5">
-            <div className="border-b border-zinc-100 pb-3.5">
-              <span className="text-[10px] font-bold text-amber-600 uppercase tracking-widest bg-amber-50 px-2.5 py-1 rounded-full border border-amber-200 font-mono">
-                Admissions Portal
-              </span>
-              <h2 className="text-xl font-bold text-zinc-900 tracking-tight mt-2">Apply to Join LexVanguard LLP</h2>
-              <p className="text-xs text-zinc-500 mt-1">Submit your details to join our counsel roster or appellate research team.</p>
+          <div className="space-y-4">
+            <div>
+              <h2 className="text-lg font-bold text-zinc-900 tracking-tight">Apply to Join</h2>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {/* 1. Full Name */}
+            <form onSubmit={handleSubmit} className="space-y-3">
+              {/* Full Name */}
               <div>
-                <label className="block text-xs font-bold text-zinc-700 uppercase tracking-wider mb-1.5 flex items-center gap-1.5 font-mono">
-                  <User className="w-3.5 h-3.5 text-zinc-400" /> Full Name
+                <label className="block text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-1">
+                  Full Name
                 </label>
                 <input
                   type="text"
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="e.g. Counsel Jane Doe"
-                  className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-4 py-2.5 text-xs font-medium text-zinc-900 focus:outline-none focus:ring-2 focus:ring-black transition-all"
+                  placeholder="e.g. Jane Doe"
+                  className="w-full bg-zinc-100/80 border-none rounded-xl px-3.5 py-2 text-xs font-medium text-zinc-900 focus:outline-none focus:ring-1 focus:ring-black"
                 />
               </div>
 
-              {/* 2. Email Address */}
+              {/* Email Address */}
               <div>
-                <label className="block text-xs font-bold text-zinc-700 uppercase tracking-wider mb-1.5 flex items-center gap-1.5 font-mono">
-                  <Mail className="w-3.5 h-3.5 text-zinc-400" /> Primary Email Address
+                <label className="block text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-1">
+                  Email Address
                 </label>
                 <input
                   type="email"
@@ -140,14 +131,14 @@ export const AskToJoinModal: React.FC<AskToJoinModalProps> = ({ onClose }) => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="jane.doe@example.com"
-                  className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-4 py-2.5 text-xs font-medium text-zinc-900 focus:outline-none focus:ring-2 focus:ring-black transition-all"
+                  className="w-full bg-zinc-100/80 border-none rounded-xl px-3.5 py-2 text-xs font-medium text-zinc-900 focus:outline-none focus:ring-1 focus:ring-black"
                 />
               </div>
 
-              {/* 3. Phone Number */}
+              {/* Phone Number */}
               <div>
-                <label className="block text-xs font-bold text-zinc-700 uppercase tracking-wider mb-1.5 flex items-center gap-1.5 font-mono">
-                  <Phone className="w-3.5 h-3.5 text-zinc-400" /> Phone Number
+                <label className="block text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-1">
+                  Phone Number
                 </label>
                 <input
                   type="tel"
@@ -155,16 +146,16 @@ export const AskToJoinModal: React.FC<AskToJoinModalProps> = ({ onClose }) => {
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="+254 700 000 000"
-                  className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-4 py-2.5 text-xs font-medium text-zinc-900 focus:outline-none focus:ring-2 focus:ring-black transition-all"
+                  className="w-full bg-zinc-100/80 border-none rounded-xl px-3.5 py-2 text-xs font-medium text-zinc-900 focus:outline-none focus:ring-1 focus:ring-black"
                 />
               </div>
 
-              {/* 4. Upload CV / Resume */}
+              {/* Upload CV / Resume */}
               <div>
-                <label className="block text-xs font-bold text-zinc-700 uppercase tracking-wider mb-1.5 flex items-center gap-1.5 font-mono">
-                  <Upload className="w-3.5 h-3.5 text-zinc-400" /> Upload CV / Resume
+                <label className="block text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-1">
+                  CV / Resume
                 </label>
-                <label className="flex items-center justify-center gap-2 border-2 border-dashed border-zinc-200 hover:border-black rounded-xl p-3.5 cursor-pointer bg-zinc-50 hover:bg-zinc-100/80 transition-all text-xs font-semibold text-zinc-700">
+                <label className="flex items-center justify-center gap-2 border border-zinc-200 hover:border-zinc-400 rounded-xl px-3 py-2 cursor-pointer bg-zinc-50 hover:bg-zinc-100 transition-all text-xs font-medium text-zinc-600">
                   <input 
                     type="file" 
                     accept=".pdf,.doc,.docx"
@@ -172,29 +163,29 @@ export const AskToJoinModal: React.FC<AskToJoinModalProps> = ({ onClose }) => {
                     className="hidden"
                   />
                   {cvFile ? (
-                    <span className="flex items-center gap-2 text-emerald-700 font-bold truncate">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0" /> {cvFile.name}
+                    <span className="flex items-center gap-1.5 text-emerald-700 font-semibold truncate">
+                      <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" /> {cvFile.name}
                     </span>
                   ) : (
-                    <span className="flex items-center gap-2 text-zinc-500">
-                      <FileText className="w-4 h-4 text-zinc-400" /> Select PDF or Word document
+                    <span className="flex items-center gap-1.5 text-zinc-400">
+                      <FileText className="w-3.5 h-3.5 text-zinc-400" /> Select PDF or Word
                     </span>
                   )}
                 </label>
               </div>
 
               {/* Submit Button */}
-              <div className="pt-2">
+              <div className="pt-1">
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="w-full bg-[#1d1d1f] hover:bg-black text-amber-400 font-bold text-xs uppercase tracking-widest py-3.5 rounded-xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer font-mono"
+                  className="w-full bg-[#ffc107] hover:bg-yellow-400 text-black font-extrabold text-xs uppercase tracking-widest py-3 rounded-xl transition-all shadow-sm flex items-center justify-center gap-1.5 cursor-pointer font-mono"
                 >
                   {submitting ? (
-                    <span>Submitting Application...</span>
+                    <span>Submitting...</span>
                   ) : (
                     <>
-                      <Send className="w-4 h-4 text-amber-400" /> Submit Application
+                      <Send className="w-3.5 h-3.5 text-black" /> Submit Application
                     </>
                   )}
                 </button>

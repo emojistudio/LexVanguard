@@ -560,12 +560,12 @@ export default function HomePage() {
       {/* Animated Floating Action Button (FAB) for "APPLY TO JOIN" */}
       <button
         onClick={() => setAskToJoinOpen(true)}
-        className={`fixed bottom-6 right-6 sm:bottom-8 sm:right-8 z-40 bg-[#1d1d1f] hover:bg-black text-amber-400 border border-amber-500/40 shadow-2xl px-5 py-3.5 rounded-full font-bold text-xs uppercase tracking-widest flex items-center gap-2.5 cursor-pointer transition-all duration-500 font-mono transform hover:scale-105 ${
+        className={`fixed bottom-6 right-6 sm:bottom-8 sm:right-8 z-40 bg-[#ffc107] hover:bg-yellow-400 text-black font-extrabold text-xs uppercase tracking-widest flex items-center gap-2.5 px-5 py-3.5 rounded-full shadow-2xl border border-yellow-300/60 cursor-pointer transition-all duration-500 font-mono transform hover:scale-105 ${
           showFAB ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-16 opacity-0 scale-90 pointer-events-none'
         }`}
         title="Apply to Join LexVanguard Advocates LLP"
       >
-        <UserPlus className="w-4 h-4 text-amber-400 stroke-[2.5]" />
+        <UserPlus className="w-4 h-4 text-black stroke-[2.5]" />
         <span>APPLY TO JOIN</span>
       </button>
 
