@@ -16,13 +16,13 @@ import { resolveProfileImage } from "../lib/profile-images";
 import { subscribeFirestoreMembers, updateUserOfficeRole, type FirestoreMember } from "../lib/users";
 import { ResearchCoHelper } from "../components/ResearchCoHelper";
 import { HostEventModal } from "../components/HostEventModal";
-import { EventGalleryModal } from "../components/EventGalleryModal";
-import { NewsletterAdminModal } from "../components/NewsletterAdminModal";
 import { EditProfileModal } from "../components/EditProfileModal";
 import { InviteModal } from "../components/InviteModal";
 import { subscribeEvents, deleteFirmEvent, type FirmEvent } from "../lib/events-store";
 import { UserManagementModule } from "../components/UserManagementModule";
 import { ChambersInboxModule } from "../components/ChambersInboxModule";
+import { EventsAdminModule } from "../components/EventsAdminModule";
+import { NewsletterBroadcastModule } from "../components/NewsletterBroadcastModule";
 
 export interface OfficeData {
   id: string;
@@ -512,157 +512,193 @@ export const OfficePage: React.FC = () => {
               </div>
             </div>
 
-            {/* HORIZONTAL ICON-ONLY ACTION BAR (Monochrome, No Backgrounds, No Wordings) */}
-            <div className="flex items-center gap-1.5 flex-wrap justify-center relative">
+            {/* TOP NAVIGATION CONTROLS (Words only: HOME, EDIT PROFILE, LOG OUT, plus Bell notification icon) */}
+            <div className="flex items-center gap-2.5 flex-wrap justify-center">
               <button 
                 onClick={() => setLocation("/")}
-                title="Home"
-                className="w-10 h-10 border border-zinc-300 hover:border-black text-black hover:bg-black hover:text-white transition flex items-center justify-center cursor-pointer"
+                className="px-4 py-2 border border-zinc-300 hover:border-black text-[#1d1d1f] hover:bg-black hover:text-white font-bold text-xs uppercase tracking-widest transition-all rounded-xl cursor-pointer shadow-xs"
               >
-                <Home className="w-5 h-5 stroke-[2]" />
-              </button>
-
-              <button 
-                onClick={() => setIsChambersInboxOpen(true)}
-                title="Chambers Communications Inbox"
-                className="w-10 h-10 border border-zinc-300 hover:border-black text-black hover:bg-black hover:text-white transition flex items-center justify-center cursor-pointer relative"
-              >
-                <MessageSquare className="w-5 h-5 stroke-[2]" />
-                <span className="w-2 h-2 rounded-full bg-emerald-500 absolute top-1.5 right-1.5"></span>
-              </button>
-
-              {isAdmin && (
-                <>
-                  <button 
-                    onClick={() => setIsInviteModalOpen(true)}
-                    title="Invite Team Member"
-                    className="w-10 h-10 border border-zinc-300 hover:border-black text-black hover:bg-black hover:text-white transition flex items-center justify-center cursor-pointer"
-                  >
-                    <UserPlus className="w-5 h-5 stroke-[2]" />
-                  </button>
-                  <button 
-                    onClick={() => setIsUserManagementOpen(true)}
-                    title="Manage Roles & Offices"
-                    className="w-10 h-10 border border-zinc-300 hover:border-black text-black hover:bg-black hover:text-white transition flex items-center justify-center cursor-pointer"
-                  >
-                    <UserCheck className="w-5 h-5 stroke-[2]" />
-                  </button>
-                  <button 
-                    onClick={() => setIsNewsletterModalOpen(true)}
-                    title="Gazette Newsletter"
-                    className="w-10 h-10 border border-zinc-300 hover:border-black text-black hover:bg-black hover:text-white transition flex items-center justify-center cursor-pointer"
-                  >
-                    <Mail className="w-5 h-5 stroke-[2]" />
-                  </button>
-                  <button 
-                    onClick={() => setIsEventsManagerOpen(true)}
-                    title="Events & Photo Gallery"
-                    className="w-10 h-10 border border-zinc-300 hover:border-black text-black hover:bg-black hover:text-white transition flex items-center justify-center cursor-pointer"
-                  >
-                    <Calendar className="w-5 h-5 stroke-[2]" />
-                  </button>
-                </>
-              )}
-
-              <button 
-                onClick={() => setIsNewMatterModalOpen(true)}
-                title="New Matter"
-                className="w-10 h-10 border border-zinc-300 hover:border-black text-black hover:bg-black hover:text-white transition flex items-center justify-center cursor-pointer"
-              >
-                <Plus className="w-5 h-5 stroke-[2.5]" />
+                HOME
               </button>
 
               <button 
                 onClick={() => setIsEditProfileOpen(true)}
-                title="Edit Profile"
-                className="w-10 h-10 border border-zinc-300 hover:border-black text-black hover:bg-black hover:text-white transition flex items-center justify-center cursor-pointer"
+                className="px-4 py-2 border border-zinc-300 hover:border-black text-[#1d1d1f] hover:bg-black hover:text-white font-bold text-xs uppercase tracking-widest transition-all rounded-xl cursor-pointer shadow-xs"
               >
-                <User className="w-5 h-5 stroke-[2]" />
+                EDIT PROFILE
               </button>
 
-              {/* AUDIT LOG NOTIFICATION BELL ICON (Top Right Notification Stream) */}
               <button 
                 onClick={() => setIsAuditLogsPanelOpen(true)}
                 title="System Audit Log Stream"
-                className="w-10 h-10 border border-zinc-300 hover:border-black text-black hover:bg-black hover:text-white transition flex items-center justify-center cursor-pointer relative"
+                className="w-10 h-10 border border-zinc-300 hover:border-black text-black hover:bg-black hover:text-white transition flex items-center justify-center rounded-xl cursor-pointer relative shadow-xs"
               >
                 <Bell className="w-5 h-5 stroke-[2]" />
                 {auditLogs.length > 0 && (
-                  <span className="w-2 h-2 rounded-full bg-rose-600 absolute top-1.5 right-1.5 animate-ping"></span>
+                  <span className="w-2.5 h-2.5 rounded-full bg-rose-600 absolute top-1.5 right-1.5 animate-ping"></span>
                 )}
                 {auditLogs.length > 0 && (
-                  <span className="w-2 h-2 rounded-full bg-rose-600 absolute top-1.5 right-1.5"></span>
+                  <span className="w-2.5 h-2.5 rounded-full bg-rose-600 absolute top-1.5 right-1.5"></span>
                 )}
               </button>
 
               <button 
                 onClick={logout}
-                title="Sign Out"
-                className="w-10 h-10 border border-zinc-300 hover:border-black text-black hover:bg-black hover:text-white transition flex items-center justify-center cursor-pointer"
+                className="px-4 py-2 border border-zinc-300 hover:border-rose-600 text-rose-700 hover:bg-rose-600 hover:text-white font-bold text-xs uppercase tracking-widest transition-all rounded-xl cursor-pointer shadow-xs"
               >
-                <LogOut className="w-5 h-5 stroke-[2]" />
+                LOG OUT
               </button>
             </div>
           </div>
 
-          {/* 2. Research AI Card (Compact & High Impact) */}
-          <div 
-            onClick={() => setIsResearchModalOpen(true)}
-            className="glass-card-dark col-span-1 p-5 lg:p-6 flex items-center justify-between md:flex-col md:justify-center md:text-center gap-3 group cursor-pointer hover:scale-[1.02] transition-transform shadow-lg relative overflow-hidden"
-          >
-            <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20 text-white shrink-0 group-hover:scale-110 transition-transform">
-              <Sparkles className="w-6 h-6 text-amber-300" />
-            </div>
-            <div>
-              <h2 className="text-base font-bold text-white tracking-tight">AI Research Engine</h2>
-              <span className="text-[9px] font-bold text-white/70 uppercase tracking-widest border border-white/20 px-2 py-0.5 rounded-full bg-white/10 inline-block mt-1">
-                eLegal Intelligence
-              </span>
+          {/* MAIN AREA CONCRETE MOSAIC GRID LAYOUT */}
+          <div className="space-y-4">
+            <h2 className="text-xs font-bold uppercase tracking-widest text-zinc-500 font-mono">Firm Operations & Modules Mosaic</h2>
+            
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3 sm:gap-4">
+              
+              {/* 1. BIG SQUARE CHAMBERS INBOX ICON TILE (No text, opens WhatsApp Inbox) */}
+              <div 
+                onClick={() => setIsChambersInboxOpen(true)}
+                title="Open Chambers Communications Inbox"
+                className="aspect-square bg-[#1d1d1f] hover:bg-black text-white rounded-3xl p-5 flex flex-col items-center justify-center gap-2 group cursor-pointer hover:scale-[1.03] transition-all shadow-md relative overflow-hidden border border-zinc-800"
+              >
+                <div className="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center text-white group-hover:scale-110 transition-transform">
+                  <Mail className="w-8 h-8 text-amber-300" />
+                </div>
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 absolute top-4 right-4 animate-pulse"></span>
+              </div>
+
+              {/* 2. RESEARCH AI ENGINE TILE */}
+              <div 
+                onClick={() => setIsResearchModalOpen(true)}
+                title="AI Legal Research & eLegal Intelligence Engine"
+                className="aspect-square bg-white border border-zinc-200 rounded-3xl p-4 flex flex-col items-center justify-center text-center gap-2 group cursor-pointer hover:scale-[1.03] hover:border-black transition-all shadow-xs"
+              >
+                <div className="w-11 h-11 rounded-2xl bg-amber-50 text-amber-700 flex items-center justify-center border border-amber-200 group-hover:scale-110 transition-transform">
+                  <Sparkles className="w-5 h-5" />
+                </div>
+                <span className="text-[11px] font-bold text-zinc-900 leading-tight">AI Research Engine</span>
+              </div>
+
+              {/* 3. USER MANAGEMENT TILE (Admin) */}
+              {isAdmin && (
+                <div 
+                  onClick={() => setIsUserManagementOpen(true)}
+                  title="User Roster, Promotions & Admissions Directorate"
+                  className="aspect-square bg-white border border-zinc-200 rounded-3xl p-4 flex flex-col items-center justify-center text-center gap-2 group cursor-pointer hover:scale-[1.03] hover:border-black transition-all shadow-xs"
+                >
+                  <div className="w-11 h-11 rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center border border-blue-200 group-hover:scale-110 transition-transform">
+                    <UserCheck className="w-5 h-5" />
+                  </div>
+                  <span className="text-[11px] font-bold text-zinc-900 leading-tight">User Directorate</span>
+                </div>
+              )}
+
+              {/* 4. EVENTS & GALLERY TILE (Admin) */}
+              {isAdmin && (
+                <div 
+                  onClick={() => setIsEventsManagerOpen(true)}
+                  title="Firm Announcements & Photo Gallery Suite"
+                  className="aspect-square bg-white border border-zinc-200 rounded-3xl p-4 flex flex-col items-center justify-center text-center gap-2 group cursor-pointer hover:scale-[1.03] hover:border-black transition-all shadow-xs"
+                >
+                  <div className="w-11 h-11 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center border border-emerald-200 group-hover:scale-110 transition-transform">
+                    <Calendar className="w-5 h-5" />
+                  </div>
+                  <span className="text-[11px] font-bold text-zinc-900 leading-tight">Events Suite</span>
+                </div>
+              )}
+
+              {/* 5. GAZETTE NEWSLETTER TILE (Admin) */}
+              {isAdmin && (
+                <div 
+                  onClick={() => setIsNewsletterModalOpen(true)}
+                  title="Gazette Newsletter Broadcast Suite"
+                  className="aspect-square bg-white border border-zinc-200 rounded-3xl p-4 flex flex-col items-center justify-center text-center gap-2 group cursor-pointer hover:scale-[1.03] hover:border-black transition-all shadow-xs"
+                >
+                  <div className="w-11 h-11 rounded-2xl bg-purple-50 text-purple-700 flex items-center justify-center border border-purple-200 group-hover:scale-110 transition-transform">
+                    <Send className="w-5 h-5" />
+                  </div>
+                  <span className="text-[11px] font-bold text-zinc-900 leading-tight">Gazette Broadcast</span>
+                </div>
+              )}
+
+              {/* 6. NEW LEGAL MATTER TILE */}
+              <div 
+                onClick={() => setIsNewMatterModalOpen(true)}
+                title="Register New Legal Matter"
+                className="aspect-square bg-white border border-zinc-200 rounded-3xl p-4 flex flex-col items-center justify-center text-center gap-2 group cursor-pointer hover:scale-[1.03] hover:border-black transition-all shadow-xs"
+              >
+                <div className="w-11 h-11 rounded-2xl bg-zinc-100 text-zinc-900 flex items-center justify-center border border-zinc-300 group-hover:scale-110 transition-transform">
+                  <Plus className="w-5 h-5 stroke-[2.5]" />
+                </div>
+                <span className="text-[11px] font-bold text-zinc-900 leading-tight">New Matter</span>
+              </div>
+
+              {/* 7. INVITE MEMBER TILE (Admin) */}
+              {isAdmin && (
+                <div 
+                  onClick={() => setIsInviteModalOpen(true)}
+                  title="Invite New Counsel or Team Member"
+                  className="aspect-square bg-white border border-zinc-200 rounded-3xl p-4 flex flex-col items-center justify-center text-center gap-2 group cursor-pointer hover:scale-[1.03] hover:border-black transition-all shadow-xs"
+                >
+                  <div className="w-11 h-11 rounded-2xl bg-rose-50 text-rose-700 flex items-center justify-center border border-rose-200 group-hover:scale-110 transition-transform">
+                    <UserPlus className="w-5 h-5" />
+                  </div>
+                  <span className="text-[11px] font-bold text-zinc-900 leading-tight">Invite Counsel</span>
+                </div>
+              )}
+
             </div>
           </div>
 
-          {/* 3-6. Key Metrics Row */}
-          <div className="glass-card col-span-1 p-5 flex flex-col justify-between hover:scale-[1.02] transition-transform cursor-pointer">
-            <div className="flex justify-between items-start">
-              <Briefcase className="w-5 h-5 text-[#1d1d1f]" />
+          {/* Key Metrics Row */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mt-2">
+            <div className="glass-card p-4 flex flex-col justify-between hover:scale-[1.02] transition-transform cursor-pointer">
+              <div className="flex justify-between items-start">
+                <Briefcase className="w-4 h-4 text-[#1d1d1f]" />
+              </div>
+              <div className="mt-2">
+                <h3 className="text-2xl font-bold text-[#1d1d1f] leading-none">{activeMattersCount}</h3>
+                <p className="text-[11px] font-semibold text-[#86868b] mt-1">Active Matters</p>
+              </div>
             </div>
-            <div className="mt-3">
-              <h3 className="text-3xl font-bold text-[#1d1d1f] leading-none">{activeMattersCount}</h3>
-              <p className="text-xs font-semibold text-[#86868b] mt-1">Active Matters</p>
+
+            <div className="glass-card p-4 flex flex-col justify-between hover:scale-[1.02] transition-transform cursor-pointer">
+              <div className="flex justify-between items-start">
+                <CheckCircle2 className="w-4 h-4 text-[#1d1d1f]" />
+              </div>
+              <div className="mt-2">
+                <h3 className="text-2xl font-bold text-[#1d1d1f] leading-none">{pendingTasksCount}</h3>
+                <p className="text-[11px] font-semibold text-[#86868b] mt-1">Pending Tasks</p>
+              </div>
+            </div>
+
+            <div className="glass-card p-4 flex flex-col justify-between hover:scale-[1.02] transition-transform cursor-pointer">
+              <div className="flex justify-between items-start">
+                <AlertCircle className="w-4 h-4 text-rose-600" />
+                <span className="w-2 h-2 rounded-full bg-rose-600 animate-pulse"></span>
+              </div>
+              <div className="mt-2">
+                <h3 className="text-2xl font-bold text-rose-600 leading-none">{highPriorityTasksCount}</h3>
+                <p className="text-[11px] font-semibold text-[#86868b] mt-1">High Priority</p>
+              </div>
+            </div>
+
+            <div className="glass-card p-4 flex flex-col justify-between hover:scale-[1.02] transition-transform cursor-pointer">
+              <div className="flex justify-between items-start">
+                <Files className="w-4 h-4 text-[#1d1d1f]" />
+              </div>
+              <div className="mt-2">
+                <h3 className="text-2xl font-bold text-[#1d1d1f] leading-none">{documentCount}</h3>
+                <p className="text-[11px] font-semibold text-[#86868b] mt-1">Filed Documents</p>
+              </div>
             </div>
           </div>
 
-          <div className="glass-card col-span-1 p-5 flex flex-col justify-between hover:scale-[1.02] transition-transform cursor-pointer">
-            <div className="flex justify-between items-start">
-              <CheckCircle2 className="w-5 h-5 text-[#1d1d1f]" />
-            </div>
-            <div className="mt-3">
-              <h3 className="text-3xl font-bold text-[#1d1d1f] leading-none">{pendingTasksCount}</h3>
-              <p className="text-xs font-semibold text-[#86868b] mt-1">Pending Tasks</p>
-            </div>
-          </div>
-
-          <div className="glass-card col-span-1 p-5 flex flex-col justify-between hover:scale-[1.02] transition-transform cursor-pointer">
-            <div className="flex justify-between items-start">
-              <AlertCircle className="w-5 h-5 text-rose-600" />
-              <span className="w-2 h-2 rounded-full bg-rose-600 animate-pulse"></span>
-            </div>
-            <div className="mt-3">
-              <h3 className="text-3xl font-bold text-rose-600 leading-none">{highPriorityTasksCount}</h3>
-              <p className="text-xs font-semibold text-[#86868b] mt-1">High Priority</p>
-            </div>
-          </div>
-
-          <div className="glass-card col-span-1 p-5 flex flex-col justify-between hover:scale-[1.02] transition-transform cursor-pointer">
-            <div className="flex justify-between items-start">
-              <Files className="w-5 h-5 text-[#1d1d1f]" />
-            </div>
-            <div className="mt-3">
-              <h3 className="text-3xl font-bold text-[#1d1d1f] leading-none">{documentCount}</h3>
-              <p className="text-xs font-semibold text-[#86868b] mt-1">Filed Documents</p>
-            </div>
-          </div>
         </div>
+
+        {/* WORKSPACE & TASK QUEUE ROW */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-5 mt-4">
           <div className="glass-card col-span-1 md:col-span-2 flex flex-col max-h-[460px]">
             <div className="p-4 border-b border-black/5 flex items-center justify-between bg-white/30 rounded-t-[24px]">
@@ -716,7 +752,7 @@ export const OfficePage: React.FC = () => {
             </div>
           </div>
 
-          {/* 8. Task Queue */}
+          {/* Task Queue */}
           <div className="glass-card col-span-1 md:col-span-2 flex flex-col max-h-[460px]">
             <div className="p-4 border-b border-black/5 flex items-center justify-between bg-white/30 rounded-t-[24px]">
               <div className="flex items-center gap-2.5">
@@ -1062,127 +1098,16 @@ export const OfficePage: React.FC = () => {
         </div>
       )}
 
-      {/* EVENTS MANAGEMENT MODAL */}
+      {/* EVENTS & ANNOUNCEMENTS DIRECTORATE MODULE */}
       {isEventsManagerOpen && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="relative w-full max-w-4xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-            <div className="bg-[#0A0A0A] p-5 text-white flex items-center justify-between border-b border-amber-500/30">
-              <div className="flex items-center space-x-3">
-                <Calendar className="w-5 h-5 text-amber-400" />
-                <div>
-                  <h3 className="text-base font-bold tracking-wide uppercase font-mono">Events & Symposia Control Panel</h3>
-                  <p className="text-xs text-zinc-400">Create upcoming events or update past event gallery photos</p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-2">
-                <button
-                  onClick={() => setIsHostModalOpen(true)}
-                  className="bg-amber-500 hover:bg-amber-400 text-black text-xs font-bold px-4 py-2 rounded-full transition flex items-center gap-1.5 cursor-pointer shadow-sm"
-                >
-                  <Plus className="w-4 h-4 stroke-[3]" /> Host New Event
-                </button>
-                <button onClick={() => setIsEventsManagerOpen(false)} className="text-zinc-400 hover:text-white p-1 cursor-pointer">
-                  <X className="w-6 h-6" />
-                </button>
-              </div>
-            </div>
-
-            <div className="p-6 overflow-y-auto flex-1 space-y-4 bg-zinc-50">
-              {allEvents.length === 0 ? (
-                <div className="text-center py-12 bg-white rounded-2xl border border-zinc-200 p-8 space-y-3">
-                  <Calendar className="w-12 h-12 text-zinc-300 mx-auto" />
-                  <h4 className="text-sm font-bold text-zinc-800">No firm events registered</h4>
-                  <p className="text-xs text-zinc-500 max-w-sm mx-auto">Create your first LexVanguard symposium, keynote, or workshop.</p>
-                  <button
-                    onClick={() => setIsHostModalOpen(true)}
-                    className="px-5 py-2.5 bg-black text-white text-xs font-bold rounded-xl hover:bg-zinc-800 transition cursor-pointer"
-                  >
-                    + Create First Event
-                  </button>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {allEvents.map((evt) => {
-                    const isPast = evt.status === "Past Event";
-                    return (
-                      <div key={evt.id} className="bg-white border border-zinc-200 rounded-2xl p-4 flex flex-col justify-between space-y-3 shadow-xs hover:border-amber-500/40 transition-colors">
-                        <div>
-                          <div className="flex items-center justify-between mb-2">
-                            <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md ${
-                              isPast ? "bg-zinc-200 text-zinc-700" : "bg-emerald-100 text-emerald-800"
-                            }`}>
-                              {evt.status || "Upcoming"}
-                            </span>
-                            <span className="text-xs font-mono text-zinc-500">{evt.category}</span>
-                          </div>
-                          <h4 className="text-sm font-bold text-zinc-900 leading-snug line-clamp-1">{evt.title}</h4>
-                          <p className="text-xs text-zinc-500 mt-1 flex items-center gap-2">
-                            <Clock className="w-3.5 h-3.5 text-amber-500" /> {evt.displayDate} ({evt.time})
-                          </p>
-                          <p className="text-xs text-zinc-500 mt-0.5 flex items-center gap-2 truncate">
-                            <MapPin className="w-3.5 h-3.5 text-zinc-400" /> {evt.location}
-                          </p>
-                        </div>
-
-                        <div className="pt-2 border-t border-zinc-100 flex items-center justify-between gap-2">
-                          <button
-                            onClick={() => setGalleryEvent(evt)}
-                            className="text-xs font-bold text-amber-600 hover:text-amber-700 flex items-center gap-1.5 cursor-pointer bg-amber-50 px-3 py-1.5 rounded-lg border border-amber-200"
-                          >
-                            <ImageIcon className="w-3.5 h-3.5" />
-                            {isPast ? "Manage Gallery Photos" : "Preview Banner"}
-                          </button>
-
-                          <button
-                            onClick={async () => {
-                              if (confirm(`Delete event "${evt.title}"?`)) {
-                                await deleteFirmEvent(evt.id);
-                              }
-                            }}
-                            className="p-1.5 text-rose-500 hover:bg-rose-50 rounded-lg transition cursor-pointer"
-                            title="Delete Event"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-
-            <div className="p-4 bg-white border-t border-zinc-200 flex justify-end">
-              <button
-                onClick={() => setIsEventsManagerOpen(false)}
-                className="px-5 py-2 bg-black text-white rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-zinc-800 transition cursor-pointer"
-              >
-                Done
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* HOST NEW EVENT MODAL */}
-      {isHostModalOpen && (
-        <HostEventModal
-          onClose={() => setIsHostModalOpen(false)}
-          onCreated={() => setIsHostModalOpen(false)}
+        <EventsAdminModule
+          onClose={() => setIsEventsManagerOpen(false)}
         />
       )}
 
-      {/* EVENT GALLERY & PHOTO UPLOAD MODAL */}
-      {galleryEvent && (
-        <EventGalleryModal
-          event={galleryEvent}
-          onClose={() => setGalleryEvent(null)}
-        />
-      )}
-
-      {/* GAZETTE NEWSLETTER ADMIN MODAL */}
+      {/* GAZETTE NEWSLETTER BROADCAST DIRECTORATE MODULE */}
       {isNewsletterModalOpen && (
-        <NewsletterAdminModal
+        <NewsletterBroadcastModule
           onClose={() => setIsNewsletterModalOpen(false)}
         />
       )}
