@@ -5,6 +5,7 @@ import {
   Eye, Copy, FolderPlus, Search, ChevronDown,
   Paperclip, Send, X, Download, Check, Upload, FileUp, Cpu, ShieldCheck
 } from "lucide-react";
+import { useAuth } from "@/lib/auth-context";
 
 export interface CaseItem {
   id: string;
@@ -103,34 +104,18 @@ interface ResearchCoHelperProps {
 export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
   onClose
 }) => {
+  const { firmUser } = useAuth();
+  const userKey = (firmUser?.email || firmUser?.id || "guest").toLowerCase().trim().replace(/[^a-z0-9]/g, "_");
+
   const [activeTab, setActiveTab] = useState<'cases' | 'search' | 'materials' | 'ai' | 'drafting'>('cases');
   const [selectedCase, setSelectedCase] = useState<CaseItem | null>(null);
   const [isCaseDetailOpen, setIsCaseDetailOpen] = useState(false);
 
-  // Cases state (persisted in localStorage)
-  const [cases, setCases] = useState<CaseItem[]>(() => {
-    try {
-      const saved = localStorage.getItem("lexvanguard_user_cases");
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        return Array.isArray(parsed) ? parsed : [];
-      }
-    } catch (e) {
-      console.warn("Failed to parse saved cases:", e);
-    }
-    return [];
-  });
+  // Cases state (persisted strictly per user in localStorage)
+  const [cases, setCases] = useState<CaseItem[]>([]);
 
-  // Materials / Documents state (persisted in localStorage)
-  const [mockDocuments, setMockDocuments] = useState<DocumentItem[]>(() => {
-    try {
-      const saved = localStorage.getItem("lexvanguard_materials");
-      if (saved) return JSON.parse(saved);
-    } catch (e) {
-      console.warn("Failed to parse saved materials:", e);
-    }
-    return [];
-  });
+  // Materials / Documents state (persisted strictly per user in localStorage)
+  const [mockDocuments, setMockDocuments] = useState<DocumentItem[]>([]);
 
   // Toast / Feedback notification
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -142,23 +127,70 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
     }, 3200);
   };
 
-  // Save cases to localStorage
-  useEffect(() => {
-    try {
-      localStorage.setItem("lexvanguard_user_cases", JSON.stringify(cases));
-    } catch (e) {
-      console.error("Error saving cases to localStorage", e);
-    }
-  }, [cases]);
+  // Research Chat State (persisted per user)
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [chatInputText, setChatInputText] = useState("");
+  const [attachedDocs, setAttachedDocs] = useState<DocumentItem[]>([]);
+  const [isChatLoading, setIsChatLoading] = useState(false);
 
-  // Save materials metadata to localStorage
+  // Restore user-specific desk data on mount or when firmUser changes
   useEffect(() => {
+    if (!userKey) return;
     try {
-      localStorage.setItem("lexvanguard_materials", JSON.stringify(mockDocuments));
+      const savedCases = localStorage.getItem(`lex_cases_${userKey}`);
+      if (savedCases) {
+        setCases(JSON.parse(savedCases));
+      } else {
+        setCases([]);
+      }
+
+      const savedMaterials = localStorage.getItem(`lex_materials_${userKey}`);
+      if (savedMaterials) {
+        setMockDocuments(JSON.parse(savedMaterials));
+      } else {
+        setMockDocuments([]);
+      }
+
+      const savedChat = localStorage.getItem(`lex_chat_${userKey}`);
+      if (savedChat) {
+        setChatMessages(JSON.parse(savedChat));
+      } else {
+        const userName = firmUser?.name || "Counsel";
+        setChatMessages([
+          { 
+            role: 'model', 
+            text: `Greetings ${userName}. Welcome to your Personal Desk. I am your LexAI Assistant powered by Gemini & eLegal search grounding. I can analyze your case files, cite statutes (Laws of Kenya), query judicial precedents, and synthesize your uploaded materials. How may I assist your research today?` 
+          }
+        ]);
+      }
     } catch (e) {
-      console.error("Error saving materials to localStorage", e);
+      console.warn("Error restoring user personal desk:", e);
     }
-  }, [mockDocuments]);
+  }, [userKey, firmUser?.name]);
+
+  // Save user-isolated cases
+  useEffect(() => {
+    if (!userKey) return;
+    try {
+      localStorage.setItem(`lex_cases_${userKey}`, JSON.stringify(cases));
+    } catch (e) {}
+  }, [cases, userKey]);
+
+  // Save user-isolated materials
+  useEffect(() => {
+    if (!userKey) return;
+    try {
+      localStorage.setItem(`lex_materials_${userKey}`, JSON.stringify(mockDocuments));
+    } catch (e) {}
+  }, [mockDocuments, userKey]);
+
+  // Save user-isolated chat history
+  useEffect(() => {
+    if (!userKey) return;
+    try {
+      localStorage.setItem(`lex_chat_${userKey}`, JSON.stringify(chatMessages));
+    } catch (e) {}
+  }, [chatMessages, userKey]);
 
   // New case form state
   const [isCreatingCase, setIsCreatingCase] = useState(false);
@@ -167,23 +199,13 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
   const [newCaseArea, setNewCaseArea] = useState("Appellate");
   const [newCaseFacts, setNewCaseFacts] = useState("");
 
-  // Research Chat State
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
-    { 
-      role: 'model', 
-      text: 'Greetings Counsel. I am your LexAI Assistant powered by Gemini & eLegal search grounding. I can analyze case files, cite statutes (Laws of Kenya), query judicial precedents, and synthesize uploaded materials. How may I assist your research today?' 
-    }
-  ]);
-  const [chatInputText, setChatInputText] = useState("");
-  const [attachedDocs, setAttachedDocs] = useState<DocumentItem[]>([]);
-  const [isChatLoading, setIsChatLoading] = useState(false);
-
   // Drafting State (Groq Llama-3.3-70B + Gemini Fallback)
   const [submissionType, setSubmissionType] = useState("Formal Skeleton Argument");
   const [courtForum, setCourtForum] = useState("High Court of Kenya");
   const [wordCountTarget, setWordCountTarget] = useState<number>(5000);
   const [clientNameInput, setClientNameInput] = useState("");
   const [draftNotes, setDraftNotes] = useState("");
+  const [draftAttachedDocs, setDraftAttachedDocs] = useState<DocumentItem[]>([]);
   const [draftOutput, setDraftOutput] = useState("");
   const [draftEngineUsed, setDraftEngineUsed] = useState("");
   const [isDrafting, setIsDrafting] = useState(false);
@@ -563,6 +585,13 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
     if (!draftNotes.trim() || isDrafting) return;
     setIsDrafting(true);
 
+    let docContexts = "";
+    if (draftAttachedDocs.length > 0) {
+      docContexts = draftAttachedDocs.map(d => `--- ATTACHED DRAFT MATERIAL: ${d.name} ---\n${d.extractedText || d.excerpt || ''}`).join("\n\n");
+    }
+
+    const fullFacts = docContexts ? `${draftNotes}\n\n${docContexts}` : draftNotes;
+
     try {
       const response = await fetch("/api/research/draft-submission", {
         method: "POST",
@@ -573,8 +602,8 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
           wordCountTarget,
           matterTitle: selectedCase?.title || "Legal Matter",
           clientName: clientNameInput || selectedCase?.referenceNo || "The Applicant",
-          facts: draftNotes,
-          researchNotes: draftNotes
+          facts: fullFacts,
+          researchNotes: fullFacts
         })
       });
 
@@ -586,7 +615,7 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
         showToast(`Draft generated via ${data.engineUsed || 'Groq Llama-3.3-70B'}!`);
       }
     } catch (err) {
-      setDraftOutput(`IN THE ${courtForum.toUpperCase()}\n\nMATTER: ${selectedCase?.title || 'LEGAL MATTER'}\n\n1. STATEMENT OF FACTS:\n${draftNotes}\n\n2. LEGAL SUBMISSIONS:\nIn accordance with Constitutional and statutory provisions under Laws of Kenya.`);
+      setDraftOutput(`IN THE ${courtForum.toUpperCase()}\n\nDOCUMENT TYPE: ${submissionType.toUpperCase()}\nMATTER: ${selectedCase?.title || 'LEGAL MATTER'}\nCLIENT: ${clientNameInput || 'The Applicant'}\n\n1. STATEMENT OF FACTS:\n${draftNotes}\n\n${docContexts ? `2. ATTACHED CONTEXT:\n${docContexts}\n\n` : ''}3. LEGAL SUBMISSIONS:\nIn accordance with Constitutional and statutory provisions under Laws of Kenya.`);
     } finally {
       setIsDrafting(false);
     }
@@ -641,7 +670,10 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
             <div className="w-7 h-7 rounded-lg bg-[#1d1d1f] text-white flex items-center justify-center shadow-xs shrink-0">
               <Sparkles className="w-4 h-4 text-amber-300" />
             </div>
-            <span className="font-bold text-zinc-900 tracking-tight text-xs sm:text-sm">Research Intelligence</span>
+            <div>
+              <span className="font-bold text-zinc-900 tracking-tight text-xs sm:text-sm block leading-none">Desk</span>
+              <span className="text-[10px] text-zinc-500 font-mono hidden sm:block">Personal Legal Workspace</span>
+            </div>
           </div>
         </div>
 
@@ -1169,18 +1201,13 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
                   
                   <div>
                     <label className="block text-xs font-bold text-zinc-600 uppercase mb-1">Document Type</label>
-                    <select
+                    <input
+                      type="text"
                       value={submissionType}
                       onChange={e => setSubmissionType(e.target.value)}
-                      className="w-full bg-zinc-50 border border-zinc-200 rounded-xl p-2.5 text-xs font-bold focus:outline-none focus:border-blue-500"
-                    >
-                      <option value="Formal Skeleton Argument">Formal Skeleton Argument</option>
-                      <option value="Memorandum of Appeal">Memorandum of Appeal</option>
-                      <option value="Plaint & Verifying Affidavit">Plaint & Verifying Affidavit</option>
-                      <option value="Written Statement of Defence">Written Statement of Defence</option>
-                      <option value="Amicus Curiae Legal Brief">Amicus Curiae Legal Brief</option>
-                      <option value="Legal Opinion & Client Advisory">Legal Opinion & Client Advisory</option>
-                    </select>
+                      placeholder="e.g. Formal Skeleton Argument, Plaint, Memorandum of Appeal..."
+                      className="w-full bg-zinc-50 border border-zinc-200 rounded-xl p-2.5 text-xs font-semibold focus:outline-none focus:border-blue-500"
+                    />
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -1226,11 +1253,35 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
                   </div>
 
                   <div>
+                    <label className="block text-xs font-bold text-zinc-600 uppercase mb-1">Attach Context Document</label>
+                    <button 
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="px-3 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 border border-zinc-200 cursor-pointer w-full transition-colors"
+                    >
+                      <Paperclip className="w-3.5 h-3.5 text-zinc-600" />
+                      <span>{draftAttachedDocs.length > 0 ? `${draftAttachedDocs.length} Document(s) Attached` : "Attach File for Draft"}</span>
+                    </button>
+                    {draftAttachedDocs.length > 0 && (
+                      <div className="mt-2 space-y-1">
+                        {draftAttachedDocs.map(doc => (
+                          <div key={doc.id} className="text-[11px] font-medium text-zinc-700 bg-blue-50/80 border border-blue-100 px-2.5 py-1 rounded-lg flex items-center justify-between">
+                            <span className="truncate max-w-[200px]">{doc.name}</span>
+                            <button onClick={() => setDraftAttachedDocs(prev => prev.filter(d => d.id !== doc.id))} className="text-zinc-400 hover:text-rose-600">
+                              <X className="w-3 h-3" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  <div>
                     <label className="block text-xs font-bold text-zinc-600 uppercase mb-1">Case Facts & Legal Grounds *</label>
                     <textarea 
                       value={draftNotes}
                       onChange={e => setDraftNotes(e.target.value)}
-                      rows={8}
+                      rows={6}
                       placeholder="Enter case facts, statutory sections relied upon, and specific prayers sought..."
                       className="w-full bg-zinc-50 border border-zinc-200 rounded-xl p-3 text-xs font-medium focus:outline-none focus:border-blue-500 leading-relaxed"
                     />
@@ -1239,10 +1290,10 @@ export const ResearchCoHelper: React.FC<ResearchCoHelperProps> = ({
                   <button 
                     onClick={handleGenerateDraft}
                     disabled={isDrafting || !draftNotes.trim()}
-                    className="w-full bg-[#1d1d1f] hover:bg-black text-white py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 cursor-pointer shadow-md transition-all"
+                    className="w-full bg-[#1d1d1f] hover:bg-black disabled:opacity-40 text-white py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 cursor-pointer shadow-md transition-all"
                   >
                     {isDrafting ? <Sparkles className="w-4 h-4 animate-spin text-amber-300" /> : <FileText className="w-4 h-4" />}
-                    <span>{isDrafting ? "Synthesizing 5000-Word Legal Brief..." : "Execute Groq Legal Draft Engine"}</span>
+                    <span>{isDrafting ? "Drafting..." : "Draft"}</span>
                   </button>
                 </div>
 

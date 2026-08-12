@@ -351,46 +351,28 @@ export default function HomePage() {
           </div>
           <div className="w-full lg:w-2/5">
             <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:gap-6 w-full max-w-sm sm:max-w-md lg:max-w-none mx-auto">
-              {members
-                .filter((m) => {
-                  const r = (m.role || "").toLowerCase().trim();
-                  const rk = (m.rank || "").toLowerCase().trim();
-                  const t = (m.title || "").toLowerCase().trim();
-                  return (
-                    r === "admin" ||
-                    r === "finance" ||
-                    rk.includes("admin") ||
-                    rk.includes("finance") ||
-                    rk.includes("managing partner") ||
-                    rk.includes("senior partner") ||
-                    t.includes("admin") ||
-                    t.includes("finance") ||
-                    t.includes("managing partner") ||
-                    t.includes("senior partner") ||
-                    t.includes("treasurer") ||
-                    t.includes("co-founder") ||
-                    t.includes("founding partner") ||
-                    t.includes("chief strategist")
-                  );
-                })
-                .slice(0, 4)
-                .map((p, i) => (
-                  <div key={i} className="relative group overflow-hidden border-2 border-yellow-500 shadow-sm rounded-xs" itemScope itemType="http://schema.org/Person">
-                    <img
-                      src={resolveProfileImage(p.name, p.profilePhoto || p.image)}
-                      alt={`${p.name} - ${p.title || 'Counsel'} at LexVanguard Advocates LLP, Mount Kenya University Parklands Law Campus (MKUPLC)`}
-                      title={`${p.name} | LexVanguard Advocates LLP Member & Counsel`}
-                      itemProp="image"
-                      loading="lazy"
-                      onError={(e) => handleProfileImageError(e, p.name)}
-                      className="w-full h-28 sm:h-36 md:h-44 lg:h-52 xl:h-60 object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/75 to-transparent p-2 sm:p-3 text-white">
-                      <p className="font-extrabold text-[10px] sm:text-xs lg:text-sm uppercase tracking-wider text-yellow-500 truncate" itemProp="name">{p.name}</p>
-                      <p className="text-[9px] sm:text-[10px] lg:text-xs text-gray-300 truncate" itemProp="jobTitle">{p.title || "Counsel"}</p>
-                    </div>
+              {[
+                { name: "Prince Micah", title: "Founding Partner & Tech Lead", photo: "/images/profiles/prince.jpeg" },
+                { name: "Kelvin Musya", title: "Chief Strategist & Organising Director", photo: "/images/profiles/kelvin.jpeg" },
+                { name: "Donel Aganyo", title: "Advocacy Partner & Outreach Lead", photo: "/images/profiles/don.jpeg" },
+                { name: "Linet Njeri", title: "Executive Partner & Senior Counsel", photo: "/images/profiles/linet.jpeg" }
+              ].map((p, i) => (
+                <div key={i} className="relative group overflow-hidden border-2 border-yellow-500 shadow-sm rounded-xs" itemScope itemType="http://schema.org/Person">
+                  <img
+                    src={resolveProfileImage(p.name, p.photo)}
+                    alt={`${p.name} - ${p.title} at LexVanguard Advocates LLP, Mount Kenya University Parklands Law Campus (MKUPLC)`}
+                    title={`${p.name} | LexVanguard Advocates LLP Member & Counsel`}
+                    itemProp="image"
+                    loading="lazy"
+                    onError={(e) => handleProfileImageError(e, p.name)}
+                    className="w-full h-28 sm:h-36 md:h-44 lg:h-52 xl:h-60 object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/75 to-transparent p-2 sm:p-3 text-white">
+                    <p className="font-extrabold text-[10px] sm:text-xs lg:text-sm uppercase tracking-wider text-yellow-500 truncate" itemProp="name">{p.name}</p>
+                    <p className="text-[9px] sm:text-[10px] lg:text-xs text-gray-300 truncate" itemProp="jobTitle">{p.title}</p>
                   </div>
-                ))}
+                </div>
+              ))}
             </div>
           </div>
         </div>
