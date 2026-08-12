@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { 
   Calendar, Clock, MapPin, Heart, Search, Plus, 
-  Download, X, Image as ImageIcon, Trash2 
+  Download, X, Image as ImageIcon, Trash2, Sparkles 
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -11,6 +11,7 @@ import { useAuth } from "@/lib/auth-context";
 import { subscribeEvents, deleteFirmEvent, generateIcsCalendar, type FirmEvent } from "@/lib/events-store";
 import { RsvpModal } from "@/components/RsvpModal";
 import { HostEventModal } from "@/components/HostEventModal";
+import { EventsAdminModule } from "@/components/EventsAdminModule";
 import { EventGalleryModal } from "@/components/EventGalleryModal";
 import { loadProfile, handleProfileImageError } from "@/lib/profile-store";
 import { subscribeFirestoreMembers } from "@/lib/users";
@@ -27,6 +28,7 @@ export default function EventsPage() {
   const [activeGalleryEvent, setActiveGalleryEvent] = useState<FirmEvent | null>(null);
   const [detailedEvent, setDetailedEvent] = useState<FirmEvent | null>(null);
   const [showHostModal, setShowHostModal] = useState(false);
+  const [showStudioModal, setShowStudioModal] = useState(false);
 
   useEffect(() => {
     const unsubscribe = subscribeEvents((list) => {
@@ -129,6 +131,11 @@ export default function EventsPage() {
             setDetailedEvent(newEvt);
           }}
         />
+      )}
+
+      {/* Notion Event Studio Suite Modal */}
+      {showStudioModal && (
+        <EventsAdminModule onClose={() => setShowStudioModal(false)} />
       )}
 
       {/* Detailed Agenda Modal */}
@@ -286,12 +293,20 @@ export default function EventsPage() {
           </h1>
 
           {firmUser && (
-            <button
-              onClick={() => setShowHostModal(true)}
-              className="bg-black hover:bg-neutral-800 text-white px-6 py-2.5 text-xs font-bold uppercase tracking-wider rounded-full transition-all shadow-xs flex items-center gap-2 cursor-pointer w-fit"
-            >
-              <Plus className="w-4 h-4 text-white" /> Host Event
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowStudioModal(true)}
+                className="bg-[#1d1d1f] hover:bg-black text-white px-5 py-2.5 text-xs font-bold uppercase tracking-wider rounded-full transition-all shadow-xs flex items-center gap-2 cursor-pointer"
+              >
+                <Sparkles className="w-4 h-4 text-amber-400" /> Event Studio Suite
+              </button>
+              <button
+                onClick={() => setShowHostModal(true)}
+                className="bg-stone-100 hover:bg-stone-200 text-stone-900 px-4 py-2.5 text-xs font-bold uppercase tracking-wider rounded-full transition-all border border-stone-300 flex items-center gap-1.5 cursor-pointer"
+              >
+                <Plus className="w-4 h-4 text-amber-600" /> Host Quick Event
+              </button>
+            </div>
           )}
         </div>
 
