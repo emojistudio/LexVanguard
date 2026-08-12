@@ -51,6 +51,19 @@ export default function HomePage() {
   const [members, setMembers] = useState<FirestoreMember[]>([]);
   const [infoModalOpen, setInfoModalOpen] = useState(false);
   const [askToJoinOpen, setAskToJoinOpen] = useState(false);
+  const [showFAB, setShowFAB] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 150) {
+        setShowFAB(true);
+      } else {
+        setShowFAB(false);
+      }
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   // Preload slide images in browser cache to eliminate lag/flicker during slide transitions
   useEffect(() => {
@@ -146,21 +159,15 @@ export default function HomePage() {
 
         {/* Bottom Controls Area */}
         <footer className="absolute bottom-0 left-0 w-full p-6 md:px-12 flex justify-between items-end z-20">
-          {/* Left info & ask to join buttons */}
+          {/* Left info button */}
           <div className="flex items-center gap-3">
             <button
               onClick={() => setInfoModalOpen(true)}
               className="border border-[#ffc107] text-[#ffc107] w-10 h-10 flex items-center justify-center cursor-pointer hover:bg-[#ffc107] hover:text-black transition-all focus:outline-none"
-              title="LexVanguard Advocates LLP Firm Details & Overview"
-              aria-label="Firm Details"
+              title="LexVanguard Advocates LLP Contact Desk"
+              aria-label="Firm Contact Desk"
             >
               <Info className="w-5 h-5 italic" />
-            </button>
-            <button
-              onClick={() => setAskToJoinOpen(true)}
-              className="bg-[#ffc107] text-black font-extrabold text-xs uppercase tracking-wider px-3.5 sm:px-5 h-10 flex items-center justify-center gap-1.5 cursor-pointer hover:bg-yellow-400 transition-all shadow-md font-mono"
-            >
-              <UserPlus className="w-4 h-4" /> <span className="hidden sm:inline">Ask to Join</span><span className="sm:hidden">Apply</span>
             </button>
           </div>
 
@@ -207,47 +214,66 @@ export default function HomePage() {
         </footer>
       </section>
 
-      {/* Info Modal */}
+      {/* Info Modal (Light Theme & Minimalist Contact Desk) */}
       {infoModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-          <div className="bg-neutral-900 border border-[#ffc107]/40 max-w-lg lg:max-w-xl w-full p-6 sm:p-8 lg:p-10 rounded-lg shadow-2xl relative text-white">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-fade-in">
+          <div className="bg-white/95 backdrop-blur-2xl border border-zinc-200/80 max-w-md w-full p-6 sm:p-8 rounded-3xl shadow-2xl relative text-zinc-900 overflow-hidden">
             <button
               onClick={() => setInfoModalOpen(false)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors p-1"
+              className="absolute top-5 right-5 text-zinc-400 hover:text-zinc-900 transition-colors p-2 rounded-full hover:bg-zinc-100 cursor-pointer"
               aria-label="Close Firm Information Modal"
             >
-              <X className="w-6 h-6" />
+              <X className="w-5 h-5" />
             </button>
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-1 bg-[#ffc107] h-8 lg:h-10" />
-              <div>
-                <h3 className="text-xl lg:text-2xl font-extrabold tracking-wider text-white font-serif">LEXVANGUARD ADVOCATES LLP</h3>
-                <p className="text-xs lg:text-sm text-[#ffc107] uppercase tracking-widest font-semibold font-mono">Counsels at Law | MKUPLC</p>
-              </div>
+            
+            <div className="border-b border-zinc-100 pb-3 mb-4">
+              <span className="text-[10px] font-bold text-amber-600 uppercase tracking-widest bg-amber-50 px-2.5 py-1 rounded-full border border-amber-200 font-mono">
+                Firm Contact Desk
+              </span>
+              <h3 className="text-xl font-bold tracking-tight text-zinc-900 font-serif mt-2">LEXVANGUARD ADVOCATES LLP</h3>
+              <p className="text-xs text-zinc-500 font-mono mt-0.5">MKUPLC Law Campus • Nairobi, Kenya</p>
             </div>
-            <p className="text-gray-300 text-xs sm:text-sm lg:text-base leading-relaxed mb-6 font-normal">
-              LexVanguard is Mount Kenya University Parklands Law Campus's premier student-led law firm and moot court powerhouse, established to cultivate elite legal talent, systemic advocacy, and scholarly legal research.
+
+            <p className="text-zinc-600 text-xs leading-relaxed mb-4">
+              Mount Kenya University Parklands Law Campus premier law firm, cultivating elite legal advocacy, moot court excellence, and appellate research.
             </p>
-            <div className="space-y-3 text-xs sm:text-sm lg:text-base border-t border-white/10 pt-4">
-              <div className="flex items-center gap-3 text-gray-300">
-                <Phone className="w-4 h-4 text-[#ffc107] shrink-0" />
-                <span>+254 116 171 396</span>
+
+            <div className="space-y-3 text-xs border-t border-zinc-100 pt-4 font-mono">
+              <div className="flex items-start gap-2.5 text-zinc-800">
+                <Phone className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                <div className="flex flex-col gap-1">
+                  <a href="tel:+254116171396" className="font-bold hover:text-amber-600 transition-colors flex items-center justify-between gap-2">
+                    <span>+254 116 171 396</span>
+                    <span className="text-[10px] font-medium text-zinc-400 font-sans">Prince Micah</span>
+                  </a>
+                  <a href="tel:+254708948809" className="font-bold hover:text-amber-600 transition-colors flex items-center justify-between gap-2">
+                    <span>+254 708 948 809</span>
+                    <span className="text-[10px] font-medium text-zinc-400 font-sans">Kelvin Musya</span>
+                  </a>
+                  <a href="tel:+254707865597" className="font-bold hover:text-amber-600 transition-colors flex items-center justify-between gap-2">
+                    <span>+254 707 865 597</span>
+                    <span className="text-[10px] font-medium text-zinc-400 font-sans">Donel Aganyo</span>
+                  </a>
+                </div>
               </div>
-              <div className="flex items-center gap-3 text-gray-300">
-                <Mail className="w-4 h-4 text-[#ffc107] shrink-0" />
-                <span>lexvanguardadvocatesllp@gmail.com</span>
+
+              <div className="flex items-center gap-2.5 text-zinc-800 pt-1">
+                <Mail className="w-4 h-4 text-amber-600 shrink-0" />
+                <a href="mailto:info@lexvanguard.xyz" className="font-bold hover:text-amber-600 transition-colors truncate">info@lexvanguard.xyz</a>
               </div>
-              <div className="flex items-center gap-3 text-gray-300">
-                <MapPin className="w-4 h-4 text-[#ffc107] shrink-0" />
-                <span>Mount Kenya University Parklands Law Campus, Nairobi, Kenya</span>
+
+              <div className="flex items-center gap-2.5 text-zinc-800 pt-1">
+                <MapPin className="w-4 h-4 text-amber-600 shrink-0" />
+                <span className="text-zinc-600 text-[11px] leading-tight font-sans">Mount Kenya University Parklands Law Campus, Nairobi, Kenya</span>
               </div>
             </div>
-            <div className="mt-6 flex justify-end">
+
+            <div className="mt-6">
               <button
                 onClick={() => setInfoModalOpen(false)}
-                className="bg-[#ffc107] text-black px-5 py-2 lg:px-6 lg:py-2.5 text-xs lg:text-sm font-extrabold uppercase tracking-widest hover:bg-yellow-400 transition-colors rounded-sm cursor-pointer"
+                className="w-full bg-[#1d1d1f] text-white py-3 text-xs font-bold uppercase tracking-widest hover:bg-black transition-all rounded-xl cursor-pointer shadow-sm font-mono"
               >
-                Close Window
+                Close Desk
               </button>
             </div>
           </div>
@@ -530,6 +556,18 @@ export default function HomePage() {
       </section>
 
       {askToJoinOpen && <AskToJoinModal onClose={() => setAskToJoinOpen(false)} />}
+
+      {/* Animated Floating Action Button (FAB) for "APPLY TO JOIN" */}
+      <button
+        onClick={() => setAskToJoinOpen(true)}
+        className={`fixed bottom-6 right-6 sm:bottom-8 sm:right-8 z-40 bg-[#1d1d1f] hover:bg-black text-amber-400 border border-amber-500/40 shadow-2xl px-5 py-3.5 rounded-full font-bold text-xs uppercase tracking-widest flex items-center gap-2.5 cursor-pointer transition-all duration-500 font-mono transform hover:scale-105 ${
+          showFAB ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-16 opacity-0 scale-90 pointer-events-none'
+        }`}
+        title="Apply to Join LexVanguard Advocates LLP"
+      >
+        <UserPlus className="w-4 h-4 text-amber-400 stroke-[2.5]" />
+        <span>APPLY TO JOIN</span>
+      </button>
 
       <Footer />
     </div>
