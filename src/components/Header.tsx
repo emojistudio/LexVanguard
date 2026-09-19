@@ -11,10 +11,11 @@ export default function Header() {
 
   const navLinks = [
     { label: "Our Firm", href: "/" },
+    { label: "UoN Chapter", href: "/chapters/uon" },
     { label: "Attorneys", href: "/attorneys" },
     { label: "Practice Areas", href: "/services" },
     { label: "History", href: "/history" },
-    { label: "News and Events", href: "/events" },
+    { label: "News & Events", href: "/events" },
     { label: "Contact", href: "/contact" },
   ];
 

@@ -120,6 +120,21 @@ export interface StkPushTransaction {
   initiatedBy: string;
 }
 
+export interface FinanceRecord {
+  id: string;
+  type: "Income" | "Expense";
+  amount: number;
+  category: string;
+  description: string;
+  paymentMethod: "M-Pesa" | "Bank Transfer" | "Cash" | "Cheque";
+  clientOrMemberName: string;
+  date: string;
+  recordedBy: string;
+  receiptNumber?: string;
+  referenceDoc?: string;
+  status: "Confirmed" | "Pending";
+}
+
 // Initial default seed data (empty for dynamic database loading)
 const INITIAL_TASKS: ChambersTask[] = [];
 const INITIAL_MATTERS: ChambersMatter[] = [];
@@ -130,6 +145,21 @@ const INITIAL_SUBMISSIONS: ChambersSubmission[] = [];
 const INITIAL_MESSAGES: DirectMessage[] = [];
 const INITIAL_INVOICES: ChambersInvoice[] = [];
 const INITIAL_TRANSACTIONS: StkPushTransaction[] = [];
+const INITIAL_FINANCE_RECORDS: FinanceRecord[] = [
+  {
+    id: "fin_init_1",
+    type: "Income",
+    amount: 1500000,
+    category: "Opening Reserve Balance",
+    description: "Chambers Operating Reserve & Retainer Capital",
+    paymentMethod: "Bank Transfer",
+    clientOrMemberName: "LexVanguard Treasury",
+    date: "2026-08-01",
+    recordedBy: "Finance Secretary",
+    receiptNumber: "REC-2026-001",
+    status: "Confirmed"
+  }
+];
 
 // LocalStorage helpers
 function loadLocal<T>(key: string, defaultVal: T): T {
@@ -164,6 +194,7 @@ let currentSubmissions: ChambersSubmission[] = loadLocal("lex_chambers_submissio
 let currentMessages: DirectMessage[] = loadLocal("lex_chambers_messages", INITIAL_MESSAGES);
 let currentInvoices: ChambersInvoice[] = loadLocal("lex_chambers_invoices", INITIAL_INVOICES);
 let currentTransactions: StkPushTransaction[] = loadLocal("lex_chambers_stk_tx", INITIAL_TRANSACTIONS);
+let currentFinanceRecords: FinanceRecord[] = loadLocal("lex_chambers_finance_records", INITIAL_FINANCE_RECORDS);
 
 // Listeners
 type Callback<T> = (data: T[]) => void;
@@ -176,6 +207,7 @@ const submissionListeners: Set<Callback<ChambersSubmission>> = new Set();
 const messageListeners: Set<Callback<DirectMessage>> = new Set();
 const invoiceListeners: Set<Callback<ChambersInvoice>> = new Set();
 const stkListeners: Set<Callback<StkPushTransaction>> = new Set();
+const financeRecordListeners: Set<Callback<FinanceRecord>> = new Set();
 
 function notifyTasks() {
   saveLocal("lex_chambers_tasks", currentTasks);
@@ -220,6 +252,11 @@ function notifyInvoices() {
 function notifyStk() {
   saveLocal("lex_chambers_stk_tx", currentTransactions);
   stkListeners.forEach(cb => cb([...currentTransactions]));
+}
+
+function notifyFinanceRecords() {
+  saveLocal("lex_chambers_finance_records", currentFinanceRecords);
+  financeRecordListeners.forEach(cb => cb([...currentFinanceRecords]));
 }
 
 // ----------------- Firestore Sync Setup -----------------
@@ -850,4 +887,101 @@ export async function addStkTransaction(tx: Omit<StkPushTransaction, "id">): Pro
   }
 
   return newTx;
+}
+
+// FINANCE RECORDS (INCOME & EXPENSE)
+export function subscribeFinanceRecords(cb: Callback<FinanceRecord>): () => void {
+  financeRecordListeners.add(cb);
+  cb([...currentFinanceRecords]);
+  return () => financeRecordListeners.delete(cb);
+}
+
+export async function addFinanceRecord(record: Omit<FinanceRecord, "id">): Promise<FinanceRecord> {
+  const newRecord: FinanceRecord = {
+    ...record,
+    id: `fin_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
+    receiptNumber: record.receiptNumber || `REC-2026-${Math.floor(1000 + Math.random() * 9000)}`
+  };
+
+  currentFinanceRecords = [newRecord, ...currentFinanceRecords];
+  notifyFinanceRecords();
+
+  addLog({
+    officeId: "finance",
+    iconType: record.type === "Income" ? "check" : "alert",
+    title: `${record.type} Recorded: KES ${newRecord.amount.toLocaleString()}`,
+    details: `${newRecord.category} — ${newRecord.description} (${newRecord.clientOrMemberName})`,
+    actorName: newRecord.recordedBy || "Finance Secretary",
+    time: "Just now"
+  });
+
+  try {
+    if (db) {
+      await setDoc(doc(db, "chambers_finance_records", newRecord.id), newRecord);
+    }
+  } catch (err) {
+    console.warn("Saved finance record locally:", err);
+  }
+
+  return newRecord;
+}
+
+export async function deleteFinanceRecord(id: string): Promise<void> {
+  currentFinanceRecords = currentFinanceRecords.filter(r => r.id !== id);
+  notifyFinanceRecords();
+
+  try {
+    if (db) {
+      await deleteDoc(doc(db, "chambers_finance_records", id));
+    }
+  } catch (err) {
+    console.warn("Deleted finance record locally:", err);
+  }
+}
+
+/**
+ * Autocalculate Total Firm Balance based on:
+ * (+) Confirmed Income Records
+ * (+) Paid Invoices
+ * (+) Successful STK Push Transactions
+ * (-) Confirmed Expense Records
+ */
+export function calculateFirmBalance(
+  records: FinanceRecord[],
+  invoices: ChambersInvoice[],
+  stkTx: StkPushTransaction[]
+): {
+  totalBalance: number;
+  totalIncome: number;
+  totalExpenses: number;
+  paidInvoicesTotal: number;
+  stkPaymentsTotal: number;
+} {
+  const totalIncomeRecords = records
+    .filter(r => r.type === "Income" && r.status === "Confirmed")
+    .reduce((sum, r) => sum + r.amount, 0);
+
+  const totalExpenseRecords = records
+    .filter(r => r.type === "Expense" && r.status === "Confirmed")
+    .reduce((sum, r) => sum + r.amount, 0);
+
+  const paidInvoicesTotal = invoices
+    .filter(i => i.status === "Paid")
+    .reduce((sum, i) => sum + i.totalAmount, 0);
+
+  const stkPaymentsTotal = stkTx
+    .filter(t => t.status === "Success")
+    .reduce((sum, t) => sum + t.amount, 0);
+
+  const totalIncome = totalIncomeRecords + paidInvoicesTotal + stkPaymentsTotal;
+  const totalExpenses = totalExpenseRecords;
+  const totalBalance = totalIncome - totalExpenses;
+
+  return {
+    totalBalance,
+    totalIncome,
+    totalExpenses,
+    paidInvoicesTotal,
+    stkPaymentsTotal
+  };
 }

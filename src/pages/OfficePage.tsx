@@ -24,6 +24,7 @@ import { UserManagementModule } from "../components/UserManagementModule";
 import { ChambersInboxModule } from "../components/ChambersInboxModule";
 import { EventsAdminModule } from "../components/EventsAdminModule";
 import { NewsletterBroadcastModule } from "../components/NewsletterBroadcastModule";
+import { ChambersFinanceSuite } from "../components/ChambersFinanceSuite";
 
 export interface OfficeData {
   id: string;
@@ -225,6 +226,7 @@ export const OfficePage: React.FC = () => {
   const [isUserManagementOpen, setIsUserManagementOpen] = useState(false);
   const [isChambersInboxOpen, setIsChambersInboxOpen] = useState(false);
   const [isAuditLogsPanelOpen, setIsAuditLogsPanelOpen] = useState(false);
+  const [isFinanceSuiteOpen, setIsFinanceSuiteOpen] = useState(false);
   const [galleryEvent, setGalleryEvent] = useState<FirmEvent | null>(null);
 
   // Events State
@@ -625,7 +627,19 @@ export const OfficePage: React.FC = () => {
               </div>
             )}
 
-            {/* 6. NEW LEGAL MATTER TILE */}
+            {/* 6. FINANCE OFFICE TILE */}
+            <div 
+              onClick={() => setIsFinanceSuiteOpen(true)}
+              title="Finance Directorate & M-Pesa STK Push Suite"
+              className="aspect-square bg-gradient-to-br from-amber-500 to-amber-600 text-black rounded-3xl p-4 flex flex-col items-center justify-center text-center gap-2 group cursor-pointer hover:scale-[1.03] transition-all shadow-md"
+            >
+              <div className="w-11 h-11 rounded-2xl bg-black/20 text-black flex items-center justify-center group-hover:scale-110 transition-transform">
+                <DollarSign className="w-6 h-6 stroke-[2.5]" />
+              </div>
+              <span className="text-[11px] font-extrabold uppercase tracking-wider leading-tight">Finance Office</span>
+            </div>
+
+            {/* 7. NEW LEGAL MATTER TILE */}
             <div 
               onClick={() => setIsNewMatterModalOpen(true)}
               title="Register New Legal Matter"
@@ -1058,6 +1072,32 @@ export const OfficePage: React.FC = () => {
                 ))
               )}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* FINANCE DIRECTORATE FULL SCREEN SUITE */}
+      {isFinanceSuiteOpen && (
+        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex flex-col overflow-y-auto p-3 sm:p-6">
+          <div className="max-w-7xl mx-auto w-full space-y-4 my-auto">
+            <div className="flex justify-between items-center bg-neutral-900 border border-white/10 p-4 rounded-sm shadow-2xl">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-sm bg-amber-500 text-black flex items-center justify-center font-bold">
+                  <DollarSign className="w-5 h-5" />
+                </div>
+                <div>
+                  <h2 className="font-bold text-white text-sm sm:text-base">LexVanguard Finance & Treasury Office</h2>
+                  <p className="text-xs text-gray-400">Firm Cashflow, PayHero M-Pesa STK Push Gateway, Invoices & Reminders</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsFinanceSuiteOpen(false)}
+                className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-black font-extrabold text-xs rounded-sm transition uppercase tracking-wider shadow-md"
+              >
+                Close Office
+              </button>
+            </div>
+            <ChambersFinanceSuite />
           </div>
         </div>
       )}

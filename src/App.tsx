@@ -15,6 +15,7 @@ import ResearchCoHelperPage from "@/pages/ResearchCoHelperPage";
 import ContactPage from "@/pages/ContactPage";
 import FounderDetailPage from "@/pages/FounderDetailPage";
 import UnderConstruction from "@/pages/UnderConstruction";
+import UonChapterPage from "@/pages/UonChapterPage";
 import NotFound from "@/pages/not-found";
 
 function ScrollToTop() {
@@ -89,11 +90,20 @@ function ProtectedResearchRoute() {
 }
 
 function Router() {
+  const isUonSubdomain = typeof window !== "undefined" && (
+    window.location.hostname.startsWith("uon.") || 
+    window.location.hostname.includes("uon.lexvanguard")
+  );
+
   return (
     <>
       <ScrollToTop />
       <Switch>
+        {isUonSubdomain && <Route path="/" component={UonChapterPage} />}
         <Route path="/" component={HomePage} />
+        <Route path="/uon" component={UonChapterPage} />
+        <Route path="/chapters/uon" component={UonChapterPage} />
+        <Route path="/chapters/uon-chapter" component={UonChapterPage} />
         <Route path="/attorneys" component={AttorneysPage} />
         <Route path="/founders/:slug" component={FounderDetailPage} />
         <Route path="/founders" component={HistoryPage} />

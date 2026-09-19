@@ -55,6 +55,14 @@ export const SITE_KEYWORDS = [
   "MKU Law School",
   "Mount Kenya University Law Students",
   "Parklands Law Campus Nairobi",
+  "University of Nairobi",
+  "University of Nairobi Law School",
+  "UoN Law Campus",
+  "UoN Law Students",
+  "UoN LexVanguard Chapter",
+  "LexVanguard UoN",
+  "uon.lexvanguard.xyz",
+  "LexVanguard University of Nairobi Chapter",
   "Kenya Law Schools",
   
   // Student Organizations & Student Law Firms
@@ -434,5 +442,53 @@ export const SITEMAP_PAGES = [
     changefreq: "monthly",
     priority: "0.85",
     thumbnail: "https://www.lexvanguard.xyz/logo.png"
+  },
+  {
+    path: "/chapters/uon",
+    title: "University of Nairobi (UoN) Chapter | LexVanguard Advocates LLP",
+    description: "Official portal of the LexVanguard Advocates LLP University of Nairobi (UoN) Chapter at Parklands Campus. Leadership roster, objectives, inter-chapter MOU, active student roster, and membership application.",
+    category: "Chapters Network",
+    changefreq: "daily",
+    priority: "0.96",
+    thumbnail: "https://www.lexvanguard.xyz/logo.png"
   }
 ];
+
+export const UON_CHAPTER_SCHEMA = {
+  "@context": "https://schema.org",
+  "@type": "EducationalOrganization",
+  "@id": "https://uon.lexvanguard.xyz/#chapter",
+  "name": "LexVanguard Advocates LLP — University of Nairobi (UoN) Chapter",
+  "alternateName": [
+    "LexVanguard UoN Chapter",
+    "UoN LexVanguard",
+    "LexVanguard Advocates LLP UoN",
+    "uon.lexvanguard.xyz"
+  ],
+  "url": "https://uon.lexvanguard.xyz",
+  "logo": "https://www.lexvanguard.xyz/logo.png",
+  "description": "The official University of Nairobi (UoN) Chapter of LexVanguard Advocates LLP, located at Parklands Campus School of Law. Empowering law students through appellate mooting, legal research, strategic litigation, and inter-chapter legal collaboration.",
+  "parentOrganization": {
+    "@type": "LegalService",
+    "name": "LexVanguard Advocates LLP",
+    "url": "https://www.lexvanguard.xyz"
+  },
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "University of Nairobi Parklands Campus, School of Law, Parklands Road",
+    "addressLocality": "Nairobi",
+    "addressRegion": "Nairobi County",
+    "addressCountry": "KE"
+  },
+  "department": [
+    {
+      "@type": "Organization",
+      "name": "UoN Chapter Mooting & Appellate Advocacy Division"
+    },
+    {
+      "@type": "Organization",
+      "name": "UoN Chapter Legal Research & Publications Desk"
+    }
+  ]
+};
+

@@ -70,11 +70,12 @@ export default function Footer() {
         </div>
 
         <div>
-          <h4 className="text-white font-serif text-lg mb-6 uppercase tracking-wider">Practice Areas</h4>
+          <h4 className="text-white font-serif text-lg mb-6 uppercase tracking-wider">Chapters Network</h4>
           <ul className="space-y-2">
             {[
+              { label: "MKUPLC Founding Chapter", href: "/" },
+              { label: "UoN Chapter (uon.lexvanguard.xyz)", href: "/chapters/uon" },
               { label: "Corporate & Technology Law", href: "/services" },
-              { label: "Intellectual Property & Patents", href: "/services" },
               { label: "Appellate Advocacy & Mooting", href: "/events" },
               { label: "Youth in Law Initiative", href: "/history" }
             ].map((item, idx) => (
