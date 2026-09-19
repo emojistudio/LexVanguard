@@ -108,6 +108,26 @@ async function startServer() {
     res.json({ status: "ok", app: "LexVanguard LLP Portal" });
   });
 
+  // Endpoint to dynamically list all images in images/hero directory
+  app.get("/api/hero-images", (_req, res) => {
+    try {
+      const heroDir = path.join(process.cwd(), "images", "hero");
+      if (fs.existsSync(heroDir)) {
+        const files = fs.readdirSync(heroDir);
+        const validExtensions = new Set([".jpg", ".jpeg", ".png", ".webp", ".avif", ".svg"]);
+        const images = files
+          .filter(f => validExtensions.has(path.extname(f).toLowerCase()))
+          .sort()
+          .map(f => `/images/hero/${encodeURIComponent(f)}`);
+        return res.json({ success: true, images });
+      }
+      return res.json({ success: true, images: [] });
+    } catch (err: any) {
+      console.warn("[HERO IMAGES] Error reading hero images:", err);
+      return res.status(500).json({ success: false, error: err?.message || "Failed to load hero images" });
+    }
+  });
+
   app.post("/api/summarize-doc", async (req, res) => {
     try {
       const { title, sourceUrl, text, year, type, citation } = req.body;

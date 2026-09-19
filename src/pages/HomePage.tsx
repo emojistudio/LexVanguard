@@ -11,28 +11,22 @@ import { FirestoreMember, subscribeFirestoreMembers, getMemberRank } from "@/lib
 import { resolveProfileImage } from "@/lib/profile-images";
 import { AskToJoinModal } from "@/components/AskToJoinModal";
 
-// Load hero images reliably across development and production build
+// Dynamically load all hero images from the root images/hero folder
 const heroImageModules = import.meta.glob<string>(
-  '../images/hero/*.{png,jpg,jpeg,webp,avif,svg,PNG,JPG,JPEG,WEBP,AVIF,SVG}',
+  '../../images/hero/*.{png,jpg,jpeg,webp,avif,svg,PNG,JPG,JPEG,WEBP,AVIF,SVG}',
   { eager: true, import: 'default' }
 );
 
-const DYNAMIC_SLIDE_IMAGES: string[] = Object.keys(heroImageModules)
-  .sort()
-  .map((path) => heroImageModules[path]);
-
-const PUBLIC_HERO_IMAGES = [
-  "/images/hero/hero1.jpeg",
-  "/images/hero/hero2.jpeg",
-  "/images/hero/hero3.jpeg",
-  "/images/hero/hero4.jpeg",
-  "/images/hero/hero5.jpeg",
-  "/images/hero/hero6.jpeg",
-];
-
-const SLIDE_IMAGES = PUBLIC_HERO_IMAGES.length > 0 
-  ? PUBLIC_HERO_IMAGES 
-  : (DYNAMIC_SLIDE_IMAGES.length > 0 ? DYNAMIC_SLIDE_IMAGES : ["/logo.png"]);
+const SLIDE_IMAGES: string[] = Object.entries(heroImageModules)
+  .sort(([pathA], [pathB]) => {
+    // Keep hero1 first as the primary banner if present
+    const isAFirst = pathA.toLowerCase().includes("hero1");
+    const isBFirst = pathB.toLowerCase().includes("hero1");
+    if (isAFirst && !isBFirst) return -1;
+    if (!isAFirst && isBFirst) return 1;
+    return pathA.localeCompare(pathB);
+  })
+  .map(([, moduleUrl]) => moduleUrl);
 
 const PHILOSOPHY = [
   {
@@ -96,7 +90,7 @@ export default function HomePage() {
     return () => unsubscribe();
   }, []);
 
-  const prev = () => setSlide(s => s === 0 ? SLIDE_IMAGES.length - 1 : s - 1);
+  const prev = () => setSlide(s => (s === 0 ? SLIDE_IMAGES.length - 1 : s - 1));
   const next = () => setSlide(s => (s + 1) % SLIDE_IMAGES.length);
 
   // Dynamic top 4 superior profiles sorted by roleLevel / rank from highest down
